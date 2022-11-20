@@ -1,0 +1,188 @@
+{"request": "get_app_config"}
+
+"rc": 0,
+"message": "success",
+"issue_statuses": {
+    "1": {
+        "name": "חדש",
+        "color": "#2EA3FF"
+    },
+    "2": {
+        "name": "באישור",
+        "color": "#1369AE"
+    },
+    "3": {
+        "name": "בתיעדוף",
+        "color": "#1369AE"
+    },
+    "4": {
+        "name": "בתיאום",
+        "color": "#1369AE"
+    },
+    "5": {
+        "name": "מתוזמן",
+        "color": "#D9C700"
+    },
+    "6": {
+        "name": "נסגר",
+        "color": "#7F7F7F"
+    },
+    "7": {
+        "name": "נדחה",
+        "color": "#626262"
+    }
+},
+     "commands": {
+         "1": "צפון",
+         "2": "מרכז",
+         "3": "דרום"
+     }
+     }
+
+===========
+{
+    "request": "get_device_types",
+    "token": "e9b30299e01d6a7f74220629cd13333ad37d7afac449f83e7938db5812a0d515"
+}
+
+{
+    "rc": 0,
+    "message": "success",
+    "device_types": {
+        "1": "סוג מכשיר 1",
+        "2": "סוג מכשיר 2",
+        "3": "סוג מכשיר 3",
+        "4": "סוג מכשיר 4"
+    }
+}
+
+===========
+{
+    "request": "get_devices_for_type",
+    "token": "e9b30299e01d6a7f74220629cd13333ad37d7afac449f83e7938db5812a0d515",
+    "device_type": 1
+}
+
+{
+    "rc": 0,
+    "message": "success",
+    "devices": {
+        "1": "מכשיר 1.1",
+        "2": "מכשיר 1.2",
+        "3": "מכשיר 1.3",
+        "4": "מכשיר 1.4"
+    }
+}
+
+=============
+
+{
+    "request": "get_issue_types_for_device",
+    "token": "e9b30299e01d6a7f74220629cd13333ad37d7afac449f83e7938db5812a0d515",
+    "device_id": 2
+}
+
+{
+    "rc": 0,
+    "message": "success",
+    "issue_types": {
+        "1": "סוג תקלה 1",
+        "2": "סוג תקלה 2",
+        "3": "סוג תקלה 3",
+        "4": "סוג תקלה 4"
+    }
+}
+
+=============
+add_issue
+
+{"rc":0,"message":"success","issue_id":1}
+
+=============
+{
+    "request": "get_issues",
+    "token": "e9b30299e01d6a7f74220629cd13333ad37d7afac449f83e7938db5812a0d515"
+}
+
+{
+    "rc": 0,
+    "message": "success",
+    "num_of_updates": 1,
+    "issue_types_count": {
+        "1": {
+            "name": "חדש",
+            "color": "#2EA3FF",
+            "count": 1
+        },
+        "2": {
+            "name": "באישור",
+            "color": "#1369AE",
+            "count": 0
+        },
+        "3": {
+            "name": "בתיעדוף",
+            "color": "#1369AE",
+            "count": 0
+        },
+        "4": {
+            "name": "בתיאום",
+            "color": "#1369AE",
+            "count": 0
+        },
+        "5": {
+            "name": "מתוזמן",
+            "color": "#D9C700",
+            "count": 0
+        },
+        "6": {
+            "name": "נסגר",
+            "color": "#7F7F7F",
+            "count": 0
+        },
+        "7": {
+            "name": "נדחה",
+            "color": "#626262",
+            "count": 0
+        }
+    },
+    "issues": [
+        {
+            "issue_id": 1,
+            "command_id": 2,
+            "title": "Abc",
+            "issue_type": 2,
+            "created_on": "2020-06-09 18:45:55",
+            "last_update": "2020-06-09 18:45:55",
+            "last_update_user_name": "היחידה",
+            "status": 1,
+            "last_message": "Description"
+        }
+    ]
+}
+
+================
+{
+    "request": "get_last_updates",
+    "token": "0c98ac170fe30d666115f02c5ae9991da12167dbcc6f99e86562a9766ecddcb3"
+}
+
+{
+    "rc": 0,
+    "message": "success",
+    "updates": [
+        {
+            "chat_message_id": 5,
+            "issue_id": 2,
+            "issue_name": "issue with file",
+            "created_on": "2020-06-11 04:41:08",
+            "update_text": "נפתחה תקלה חדשה"
+        },
+        {
+            "chat_message_id": 1,
+            "issue_id": 1,
+            "issue_name": "Abc",
+            "created_on": "2020-06-09 18:45:55",
+            "update_text": "נפתחה תקלה חדשה"
+        }
+    ]
+}
