@@ -13,6 +13,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  I18nManager,
 } from 'react-native';
 import {
   c_background_issue_item,

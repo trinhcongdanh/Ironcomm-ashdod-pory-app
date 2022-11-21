@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  I18nManager,
 } from 'react-native';
 import {
   lastUpdateTitle,

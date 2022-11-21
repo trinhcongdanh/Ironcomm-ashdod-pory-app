@@ -12,6 +12,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
+  I18nManager,
 } from 'react-native';
 import {
   api_url,

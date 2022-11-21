@@ -22,6 +22,7 @@ import {
   PermissionsAndroid,
   BackHandler,
   TextInput,
+  I18nManager,
 } from 'react-native';
 import {
   MyIssuesTitle,

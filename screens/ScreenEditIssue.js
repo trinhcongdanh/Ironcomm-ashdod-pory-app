@@ -19,6 +19,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  I18nManager,
 } from 'react-native';
 import {
   c_bg_issue_description,

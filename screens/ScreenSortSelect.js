@@ -14,6 +14,7 @@ import {
   ScrollView,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  I18nManager,
 } from 'react-native';
 import {
   sortByDateCreated,

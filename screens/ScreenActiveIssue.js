@@ -23,6 +23,7 @@ import {
   FlatList,
   Modal,
   ActivityIndicator,
+  I18nManager,
 } from 'react-native';
 import {
   c_bg_filter_selected,
