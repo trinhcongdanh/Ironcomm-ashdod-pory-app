@@ -115,6 +115,7 @@ export default class MyIssuesScreen extends React.Component {
 
   componentDidMount() {
     console.log('componentDidMount');
+    I18nManager.forceRTL(true);
     isStartListenFCM = false;
     BackHandler.addEventListener('hardwareBackPress', this.backAction);
     this.checkPermission();

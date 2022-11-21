@@ -81,6 +81,7 @@ export default class SmsVerificationScreen extends React.Component {
     var allState = this.state;
     allState.phoneNumber = navigation.getParam('phone_num', '');
     this.setState(allState);
+    I18nManager.forceRTL(true);
   }
 
   callVerify = () => {

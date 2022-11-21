@@ -4,7 +4,7 @@
  * @flow
  */
 
-import * as React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Alert,
   BackHandler,
+  I18nManager,
 } from 'react-native';
 import {
   login,
@@ -72,10 +73,12 @@ export default class LoginScreen extends React.Component {
 
   componentDidMount() {
     BackHandler.addEventListener('hardwareBackPress', this.backAction);
+    I18nManager.forceRTL(true);
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.backAction);
+    I18nManager.forceRTL(true);
   }
 
   backAction = () => {
@@ -86,7 +89,6 @@ export default class LoginScreen extends React.Component {
     let allState = this.state;
     allState.phoneNumber = text;
     this.setState(allState);
-    console.log(allState.phoneNumber);
   };
 
   sendSmsCode = () => {

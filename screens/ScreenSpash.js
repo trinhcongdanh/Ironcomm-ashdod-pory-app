@@ -49,6 +49,7 @@ export const SplashScreen = () => {
 
   useEffect(() => {
     getAppConfig();
+    I18nManager.forceRTL(true);
   }, []);
 
   const getAppConfig = async () => {

@@ -191,6 +191,7 @@ export default class ActiveIssueScreen extends React.Component {
       'hardwareBackPress',
       this.handleBackButtonClick,
     );
+    I18nManager.forceRTL(true);
     const {navigation} = this.props;
     var allState = this.state;
     allState.issueId = navigation.getParam('issue_id', '');
@@ -208,6 +209,7 @@ export default class ActiveIssueScreen extends React.Component {
       'hardwareBackPress',
       this.handleBackButtonClick,
     );
+    I18nManager.forceRTL(true);
   }
 
   handleBackButtonClick() {

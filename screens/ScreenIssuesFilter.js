@@ -74,6 +74,7 @@ export default class IssuesFilterScreen extends React.Component {
 
   componentDidMount() {
     console.log('componentDidMount');
+    I18nManager.forceRTL(true);
     this._showLoadingBox();
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {

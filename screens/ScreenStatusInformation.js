@@ -63,6 +63,7 @@ export default class StatusInformationScreen extends React.Component {
 
   componentDidMount() {
     console.log('componentDidMount');
+    I18nManager.forceRTL(true);
     // let pToken = this.props.token;
     // this.setState({token: pToken});
     this.loadAppConfig();

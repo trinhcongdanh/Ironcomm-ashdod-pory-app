@@ -124,6 +124,7 @@ export default class EditIssueScreen extends React.Component {
     allState.deviceNameId = navigation.getParam('device_id', '');
     allState.issueTypeId = navigation.getParam('issue_type_id', '');
     allState.deviceSerialNumber = navigation.getParam('serial_number', '');
+    I18nManager.forceRTL(true);
     this.setState(allState);
     this.deviceSerialInput.current.updateValue(allState.deviceSerialNumber);
     this.loadUserInfo().then(() => {

@@ -114,9 +114,12 @@ export default class NewIssueScreen extends React.Component {
         this.getDeviceTypes();
       });
     });
+    I18nManager.forceRTL(true);
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    I18nManager.forceRTL(true);
+  }
 
   loadUserInfo = async () => {
     try {
