@@ -16,7 +16,7 @@ import {
 import {
   api_url,
   c_loading_icon,
-  c_text_orange,
+  c_text_white,
   greyHasOpacity,
   key_app_config,
   key_user_info,
@@ -165,8 +165,8 @@ export const SplashScreen = () => {
         <View style={{flex: 1}} />
         <Image
           style={{
-            width: screenWidth * 0.5,
-            height: screenWidth * 0.5 * (339 / 250),
+            width: screenWidth * 0.8,
+            height: screenWidth * 0.8 * (339 / 250),
           }}
           resizeMode="contain"
           source={require('../image/splash_icon.png')}
@@ -177,24 +177,16 @@ export const SplashScreen = () => {
             fontFamily: 'Heebo',
             fontSize: 20,
             textAlign: 'center',
-            color: c_text_orange,
+            color: c_text_white,
           }}>
           {splashScreenContent}
         </Text>
         <Image
           style={{
-            width: screenWidth * 0.6,
-            height: screenWidth * 0.6 * (109 / 444),
-            marginBottom: 20,
-            marginTop: 20,
-          }}
-          resizeMode="contain"
-          source={require('../image/ironcom_other_logo.png')}
-        />
-        <Image
-          style={{
             width: screenWidth * 0.5,
             height: screenWidth * 0.5 * (480 / 750),
+            marginBottom: 20,
+            marginTop: 40,
           }}
           resizeMode="contain"
           source={require('../image/logo_without_text.png')}

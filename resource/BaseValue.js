@@ -93,6 +93,7 @@ export const c_boarding_text_notice = '#CAEAFF';
 export const c_bg_disable_button = 'rgba(12,41,60, 0.41)';
 export const c_loading_icon = '#FF4747';
 export const c_text_orange = '#FF9E64';
+export const c_text_white = '#FFFFFF';
 
 export const bg_issues_new = '#d5e9fe';
 export const text_issues_new = '#000000';
