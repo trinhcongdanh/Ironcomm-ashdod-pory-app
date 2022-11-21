@@ -21,7 +21,7 @@ export const inNew = 'חדש';
 export const sortByDate = 'מיון לפי תאריך';
 export const clearFilter = 'נקה פילטרים';
 
-export const splashScreenContent = 'מערכת הזמנת חוליות\n' + 'מש"א 7000';
+export const splashScreenContent = 'מערכת ניהול אירועי תקלות';
 export const filterReport = 'סנן דיווחים';
 export const sectionTimeTitle = 'תקופה';
 export const filterDay = 'יום';
