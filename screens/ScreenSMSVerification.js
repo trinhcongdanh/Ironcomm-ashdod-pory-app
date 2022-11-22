@@ -4,7 +4,7 @@
  * @flow
  */
 
-import * as React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Alert,
   I18nManager,
+  Keyboard,
 } from 'react-native';
 import {
   errorPhoneNumberNotRegister,
@@ -51,61 +52,78 @@ import {
   SmsVerificationScreenName,
 } from '../resource/BaseValue';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {StackActions, NavigationActions} from '@react-navigation/native';
+import {
+  StackActions,
+  NavigationActions,
+  useRoute,
+  useNavigation,
+} from '@react-navigation/native';
 import {getInfoForApi} from '../resource/util';
-export default class SmsVerificationScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.code1 = React.createRef();
-    this.code2 = React.createRef();
-    this.code3 = React.createRef();
-    this.code4 = React.createRef();
-    this.code5 = React.createRef();
-    this.state = {
-      phoneNumber: '',
-      errorMessage: '',
-      isShownErrorMessage: false,
-      code1: '',
-      code2: '',
-      code3: '',
-      code4: '',
-      code5: '',
-      indicatorSizeW: 0,
-      indicatorSizeH: 0,
-      indicatorDisplay: false,
-      auth_key: '',
-    };
-  }
 
-  componentDidMount() {
-    const {navigation} = this.props;
-    var allState = this.state;
-    allState.phoneNumber = navigation.getParam('phone_num', '');
-    this.setState(allState);
+export const SmsVerificationScreen = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isShownErrorMessage, setIsShownErrorMessage] = useState(false);
+  const [indicatorSizeW, setIndicatorSizeW] = useState(0);
+  const [indicatorSizeH, setIndicatorSizeH] = useState(0);
+  const [indicatorDisplay, setIndicatorDisplay] = useState(false);
+  const [auth_key, setAuth_Key] = useState('');
+
+  useEffect(() => {
+    setPhoneNumber(route.params.phone_num);
     I18nManager.forceRTL(true);
-  }
+  });
+
+  const inputs = Array(5).fill('');
+
+  const [OTP, setOTP] = useState({0: '', 1: '', 2: '', 3: '', 4: ''});
+
+  const input = useRef();
+
+  let newInputIndex = 0;
+
+  const [nextInputIndex, setNextInputIndex] = useState(0);
+
+  const handleChangeText = (text, index) => {
+    const newOTP = {...OTP};
+    newOTP[index] = text;
+    setOTP(newOTP);
+
+    const lastInputIndex = inputs.length - 1;
+
+    if (!text) {
+      newInputIndex = index === 0 ? 0 : index - 1;
+    } else {
+      newInputIndex = index === lastInputIndex ? lastInputIndex : index + 1;
+      if (index === lastInputIndex) {
+        Keyboard.dismiss();
+      }
+    }
+
+    setNextInputIndex(newInputIndex);
+  };
+
+  useEffect(() => {
+    input.current?.focus();
+  }, [nextInputIndex]);
 
   callVerify = () => {
-    if (
-      this.state.code1 != '' &&
-      this.state.code2 != '' &&
-      this.state.code3 != '' &&
-      this.state.code4 != '' &&
-      this.state.code5 != ''
-    ) {
-      this._showLoadingBox();
-      let phoneNumber = this.state.phoneNumber;
-      let verifyCode =
-        this.state.code1 +
-        this.state.code2 +
-        this.state.code3 +
-        this.state.code4 +
-        this.state.code5;
+    let codeOtp = '';
+    Object.values(OTP).forEach(code => {
+      codeOtp += code;
+    });
+    if (codeOtp.length === 5) {
+      _showLoadingBox();
+
       let dataObj = {
         request: rq_verify_sms_code,
         phone_num: phoneNumber,
-        verification_code: verifyCode,
+        verification_code: codeOtp,
       };
+      console.log(dataObj);
       fetch(api_url, {
         method: 'POST',
         headers: {
@@ -124,37 +142,37 @@ export default class SmsVerificationScreen extends React.Component {
             console.log(responseJson);
             if (responseJson.is_registered) {
               // login_with_phone
-              this.login_with_phone(responseJson.auth_key);
+              login_with_phone(responseJson.auth_key);
             } else {
-              this._closeLoadingBox();
+              _closeLoadingBox();
               // register_with_phone
-              this.showNoticeMessage(errorPhoneNumberNotRegister);
-              // this.login_with_phone(responseJson.auth_key);
+              showNoticeMessage(errorPhoneNumberNotRegister);
+              // login_with_phone(responseJson.auth_key);
             }
           } else {
-            this._closeLoadingBox();
+            _closeLoadingBox();
             // Alert.alert(responseJson.message);
             if (responseJson.rc == '233') {
-              this.showNoticeMessage(errorWrongVerificationCode);
+              showNoticeMessage(errorWrongVerificationCode);
             } else {
-              this.showNoticeMessage(responseJson.message);
+              showNoticeMessage(responseJson.message);
             }
           }
         })
         .catch(error => {
-          this._closeLoadingBox();
+          _closeLoadingBox();
           Alert.alert(error.toString());
         });
 
-      // this.props.navigation.pop(2);
-      // this.props.navigation.navigate(MyIssuesScreenName);
+      // props.navigation.pop(2);
+      // props.navigation.navigate(MyIssuesScreenName);
     } else {
-      this.showNoticeMessage('Please input verification code');
+      showNoticeMessage('Please input verification code');
     }
   };
 
-  login_with_phone = authKey => {
-    this._showLoadingBox();
+  const login_with_phone = authKey => {
+    _showLoadingBox();
     getInfoForApi((osTypeValue, osVersion, deviceInfo, appVersion) => {
       let dataObj = {
         request: rq_login_with_phone,
@@ -174,7 +192,7 @@ export default class SmsVerificationScreen extends React.Component {
       })
         .then(response => response.json())
         .then(responseJson => {
-          this._closeLoadingBox();
+          _closeLoadingBox();
           // {
           //      "token": "",
           //      "type": 2,
@@ -183,13 +201,13 @@ export default class SmsVerificationScreen extends React.Component {
           // }
           if (responseJson.rc == rc_success) {
             console.log(responseJson);
-            this._saveUserInfo(responseJson);
+            _saveUserInfo(responseJson);
           } else {
           }
         })
         .catch(error => {
-          this._closeLoadingBox();
-          this.showNoticeMessage(error.toString());
+          _closeLoadingBox();
+          showNoticeMessage(error.toString());
         });
     });
   };
@@ -204,56 +222,50 @@ export default class SmsVerificationScreen extends React.Component {
       //      command_name:"",
       // };
       AsyncStorage.setItem(key_user_info, JSON.stringify(dataJson)).then(() => {
-        this._closeLoadingBox();
+        _closeLoadingBox();
         const resetAction = StackActions.reset({
           index: 0,
           actions: [
             NavigationActions.navigate({routeName: MyIssuesScreenName}),
           ],
         });
-        this.props.navigation.dispatch(resetAction);
-        // this.props.navigation.pop(2);
-        // this.props.navigation.navigate(MyIssuesScreenName);
+        navigation.dispatch(resetAction);
+        // props.navigation.pop(2);
+        // props.navigation.navigate(MyIssuesScreenName);
       });
     } catch (e) {
       // saving error
-      this._closeLoadingBox();
+      _closeLoadingBox();
       Alert.alert(e.toString());
     }
   };
 
   showNoticeMessage = message => {
-    let allState = this.state;
-    allState.isShownErrorMessage = true;
-    allState.errorMessage = message;
-    this.setState(allState);
+    setIsShownErrorMessage(true);
+    setErrorMessage(message);
     setTimeout(() => {
-      this.setState({isShownErrorMessage: false});
+      setIsShownErrorMessage(false);
     }, 2000);
   };
 
-  _showLoadingBox() {
-    var allState = this.state;
-    allState.indicatorSizeW = screenWidth;
-    allState.indicatorSizeH = screenHeight;
-    allState.indicatorDisplay = true;
-    this.setState(allState);
-  }
+  const _showLoadingBox = () => {
+    setIndicatorSizeW(screenWidth);
+    setIndicatorSizeH(screenHeight);
+    setIndicatorDisplay(true);
+  };
 
-  _closeLoadingBox() {
-    var allState = this.state;
-    allState.indicatorSizeW = 0;
-    allState.indicatorSizeH = 0;
-    allState.indicatorDisplay = false;
-    this.setState(allState);
-  }
+  const _closeLoadingBox = () => {
+    setIndicatorSizeW(0);
+    setIndicatorSizeH(0);
+    setIndicatorDisplay(false);
+  };
 
   sendSmsCode = () => {
-    let phoneNumber = this.state.phoneNumber;
+    let phoneNumber = phoneNumber;
     if (phoneNumber == '') {
-      this.showNoticeMessage('Please input your phone number');
+      showNoticeMessage('Please input your phone number');
     } else {
-      this._showLoadingBox();
+      _showLoadingBox();
       var dataObj = {
         request: rq_resend_sms_code,
         phone_num: phoneNumber,
@@ -268,217 +280,182 @@ export default class SmsVerificationScreen extends React.Component {
       })
         .then(response => response.json())
         .then(responseJson => {
-          this._closeLoadingBox();
+          _closeLoadingBox();
           if (responseJson.rc == rc_success) {
-            let allState = this.state;
-            allState.code1 = '';
-            allState.code2 = '';
-            allState.code3 = '';
-            allState.code4 = '';
-            allState.code5 = '';
-            this.setState(allState, () => {
-              this.code1.current.focus();
-            });
+            console.log('Success');
           } else {
             Alert.alert(responseJson.message);
           }
         })
         .catch(error => {
-          this._closeLoadingBox();
+          _closeLoadingBox();
           Alert.alert(error.toString());
         });
     }
   };
 
-  render() {
-    return (
-      <View
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        zIndex: 1,
+      }}>
+      <ImageBackground
         style={{
-          flex: 1,
+          width: screenWidth,
+          height: screenHeight,
           flexDirection: 'column',
+          paddingStart: 20,
+          paddingEnd: 20,
+          paddingBottom: 20,
           alignItems: 'center',
-          zIndex: 1,
-        }}>
-        <ImageBackground
-          style={{
-            width: screenWidth,
-            height: screenHeight,
-            flexDirection: 'column',
-            paddingStart: 20,
-            paddingEnd: 20,
-            paddingBottom: 20,
-            alignItems: 'center',
-          }}
-          resizeMode="cover"
-          source={require('../image/bg_splash.jpg')}>
-          <Text
-            style={[
-              mStyle.textTitle,
-              {color: '#ffffff', textAlign: 'center', margin: 10},
-            ]}>
-            {smsVerificationTitle}
-          </Text>
-          <Text
-            style={[
-              mStyle.textTitle,
-              {color: c_boarding_text_notice, textAlign: 'center', margin: 10},
-            ]}>
-            {smsVerificationNotice}
-          </Text>
-          <Text
-            style={[
-              mStyle.textTitle,
-              {color: '#ffffff', textAlign: 'center', margin: 30},
-            ]}>
-            {verificationCode}
-          </Text>
-
-          <View
-            style={{
-              flexDirection: 'row-reverse',
-              justifyContent: 'space-around',
-            }}>
-            <TextInput
-              ref={this.code1}
-              onChangeText={text => {
-                this.setState({code1: text});
-                this.code2.current.focus();
-              }}
-              style={[mStyle.textVerificationCode]}
-              keyboardType={'numeric'}
-              maxLength={1}
-              autoFocus={true}
-              value={this.state.code1}
-            />
-            <TextInput
-              ref={this.code2}
-              onChangeText={text => {
-                this.setState({code2: text});
-                this.code3.current.focus();
-              }}
-              style={[mStyle.textVerificationCode]}
-              keyboardType={'numeric'}
-              maxLength={1}
-              value={this.state.code2}
-            />
-            <TextInput
-              ref={this.code3}
-              onChangeText={text => {
-                this.setState({code3: text});
-                this.code4.current.focus();
-              }}
-              style={[mStyle.textVerificationCode]}
-              keyboardType={'numeric'}
-              maxLength={1}
-              value={this.state.code3}
-            />
-            <TextInput
-              ref={this.code4}
-              onChangeText={text => {
-                this.setState({code4: text});
-                this.code5.current.focus();
-              }}
-              style={[mStyle.textVerificationCode]}
-              keyboardType={'numeric'}
-              maxLength={1}
-              value={this.state.code4}
-            />
-            <TextInput
-              ref={this.code5}
-              onChangeText={text => {
-                this.setState({code5: text}, () => {
-                  this.callVerify();
-                });
-              }}
-              style={[mStyle.textVerificationCode]}
-              keyboardType={'numeric'}
-              maxLength={1}
-              value={this.state.code5}
-            />
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              this.sendSmsCode();
-            }}
-            style={{
-              marginTop: 40,
-              borderBottomColor: c_boarding_text_notice,
-              borderBottomWidth: 1,
-            }}>
-            <Text
-              style={[
-                mStyle.textTitle,
-                {color: '#ffffff', textAlign: 'center'},
-              ]}>
-              {sendSmsCodeAgain}
-            </Text>
-          </TouchableOpacity>
-          <Text
-            style={[
-              mStyle.textTitle,
-              {color: '#ffffff', textAlign: 'center', margin: 5},
-            ]}>
-            {sendSmsCodeAgainNotice}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              this.callVerify();
-            }}
-            style={{
-              width: screenWidth * 0.8,
-              paddingTop: 20,
-              paddingBottom: 20,
-              marginTop: 40,
-              backgroundColor:
-                this.state.phoneNumber == ''
-                  ? c_bg_disable_button
-                  : c_bg_filter_selected,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 10,
-            }}>
-            <Text style={[mStyle.textConfirmButton, {color: '#ffffff'}]}>
-              {login}
-            </Text>
-          </TouchableOpacity>
-        </ImageBackground>
+        }}
+        resizeMode="cover"
+        source={require('../image/bg_splash.jpg')}>
         <Text
           style={[
             mStyle.textTitle,
-            {
-              color: '#ffffff',
-              backgroundColor: c_bg_error_message,
-              textAlign: 'center',
-              lineHeight: screenWidth * 0.1,
-              position: 'absolute',
-              top: screenHeight * 0.2,
-              width: this.state.isShownErrorMessage ? screenWidth : 0,
-              height: this.state.isShownErrorMessage ? screenWidth * 0.1 : 0,
-            },
+            {color: '#ffffff', textAlign: 'center', margin: 10},
           ]}>
-          {this.state.errorMessage}
+          {smsVerificationTitle}
         </Text>
+        <Text
+          style={[
+            mStyle.textTitle,
+            {color: c_boarding_text_notice, textAlign: 'center', margin: 10},
+          ]}>
+          {smsVerificationNotice}
+        </Text>
+        <Text
+          style={[
+            mStyle.textTitle,
+            {color: '#ffffff', textAlign: 'center', margin: 30},
+          ]}>
+          {verificationCode}
+        </Text>
+
         <View
           style={{
-            width: this.state.indicatorSizeW,
-            height: this.state.indicatorSizeH,
-            backgroundColor: greyHasOpacity,
-            flexDirection: 'column',
+            flexDirection: 'row-reverse',
+            justifyContent: 'space-around',
+          }}>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexDirection: 'row-reverse',
+              marginTop: 36,
+            }}>
+            {inputs.map((inp, index) => {
+              return (
+                <View
+                  style={{
+                    borderRadius: 15,
+                    borderColor: '#ffffff',
+                    borderBottomWidth: 1,
+                    justifyContent: 'center',
+                    width: 63,
+                    height: 63,
+                  }}
+                  key={index.toString()}>
+                  <TextInput
+                    value={OTP[index]}
+                    style={{
+                      fontSize: 36,
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      textAlign: 'center',
+                    }}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    onEndEditing={callVerify}
+                    ref={nextInputIndex === index ? input : null}
+                    onChangeText={text => handleChangeText(text, index)}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            sendSmsCode();
+          }}
+          style={{
+            marginTop: 40,
+            borderBottomColor: c_boarding_text_notice,
+            borderBottomWidth: 1,
+          }}>
+          <Text
+            style={[mStyle.textTitle, {color: '#ffffff', textAlign: 'center'}]}>
+            {sendSmsCodeAgain}
+          </Text>
+        </TouchableOpacity>
+        <Text
+          style={[
+            mStyle.textTitle,
+            {color: '#ffffff', textAlign: 'center', margin: 5},
+          ]}>
+          {sendSmsCodeAgainNotice}
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            callVerify();
+          }}
+          style={{
+            width: screenWidth * 0.8,
+            paddingTop: 20,
+            paddingBottom: 20,
+            marginTop: 40,
+            backgroundColor:
+              phoneNumber == '' ? c_bg_disable_button : c_bg_filter_selected,
+            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'absolute',
+            borderRadius: 10,
           }}>
-          <ActivityIndicator
-            animating={this.state.indicatorDisplay}
-            size="large"
-            color={c_loading_icon}
-          />
-        </View>
+          <Text style={[mStyle.textConfirmButton, {color: '#ffffff'}]}>
+            {login}
+          </Text>
+        </TouchableOpacity>
+      </ImageBackground>
+      <Text
+        style={[
+          mStyle.textTitle,
+          {
+            color: '#ffffff',
+            backgroundColor: c_bg_error_message,
+            textAlign: 'center',
+            lineHeight: screenWidth * 0.1,
+            position: 'absolute',
+            top: screenHeight * 0.2,
+            width: isShownErrorMessage ? screenWidth : 0,
+            height: isShownErrorMessage ? screenWidth * 0.1 : 0,
+          },
+        ]}>
+        {errorMessage}
+      </Text>
+      <View
+        style={{
+          width: indicatorSizeW,
+          height: indicatorSizeH,
+          backgroundColor: greyHasOpacity,
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'absolute',
+        }}>
+        <ActivityIndicator
+          animating={indicatorDisplay}
+          size="large"
+          color={c_loading_icon}
+        />
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 const screenHeight = Math.round(Dimensions.get('window').height);

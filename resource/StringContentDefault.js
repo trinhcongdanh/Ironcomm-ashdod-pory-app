@@ -1,6 +1,6 @@
 export const LoginScreenTitle = 'כניסה';
 export const LoginScreenNotice = 'אנא הזינו את מספר הטלפון';
-export const phoneNumer = 'טלפון';
+export const holderPhoneNumber = 'טלפון';
 export const login = 'התחברות';
 export const smsVerificationTitle = 'אימות ב SMS';
 export const smsVerificationNotice =

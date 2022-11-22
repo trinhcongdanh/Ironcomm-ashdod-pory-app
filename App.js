@@ -8,7 +8,7 @@ import {
 } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import LoginScreen from './screens/ScreenLogin';
+import {LoginScreen} from './screens/ScreenLogin';
 import MyIssuesScreen from './screens/ScreenMyIssues';
 import * as React from 'react';
 import {
@@ -24,7 +24,7 @@ import {
 } from './resource/BaseValue';
 import NewIssueScreen from './screens/ScreenNewIssue';
 import ActiveIssueScreen from './screens/ScreenActiveIssue';
-import SmsVerificationScreen from './screens/ScreenSMSVerification';
+import {SmsVerificationScreen} from './screens/ScreenSMSVerification';
 import EditIssueScreen from './screens/ScreenEditIssue';
 // import '@react-native-firebase/app';
 // import '@react-native-firebase/crashlytics';
@@ -57,8 +57,8 @@ export const App = () => {
         initialRouteName={SplashScreenName}
         screenOptions={{headerShown: false}}>
         <Stack.Screen name={SplashScreenName} component={SplashScreen} />
-        <Stack.Screen name={MyIssuesScreenName} component={MyIssuesScreen} />
         <Stack.Screen name={LoginScreenName} component={LoginScreen} />
+        <Stack.Screen name={MyIssuesScreenName} component={MyIssuesScreen} />
         <Stack.Screen
           name={SmsVerificationScreenName}
           component={SmsVerificationScreen}
