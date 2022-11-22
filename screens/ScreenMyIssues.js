@@ -1285,7 +1285,7 @@ export default class MyIssuesScreen extends React.Component {
             animationType="slide"
             presentationStyle="fullScreen"
             visible={this.state.isFilterDialogShown}
-            transparent={true}>
+            transparent={false}>
             <IssuesFilterScreen
               statusType={this.state.issueStatusCount}
               filterList={this.state.filterList}
@@ -1304,7 +1304,7 @@ export default class MyIssuesScreen extends React.Component {
             animationType="slide"
             presentationStyle="fullScreen"
             visible={this.state.isSortDialogShown}
-            transparent={true}>
+            transparent={false}>
             <SortSelectScreen
               userInfo={this.state.userInfo}
               closeSortDialog={this.closeSortSelectDialog}
@@ -1325,7 +1325,7 @@ export default class MyIssuesScreen extends React.Component {
               this.closeLastUpdateDialog();
             }}
             visible={this.state.isLastUpdateDialogShown}
-            transparent={true}>
+            transparent={false}>
             <LastUpdateScreen
               closeLastUpdateDialog={this.closeLastUpdateDialog}
               viewIssueItem={this.openIssueInfo}
