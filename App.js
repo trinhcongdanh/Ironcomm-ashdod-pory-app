@@ -56,13 +56,13 @@ export const App = () => {
       <Stack.Navigator
         initialRouteName={SplashScreenName}
         screenOptions={{headerShown: false}}>
-        {/* <Stack.Screen name={SplashScreenName} component={SplashScreen} />
+        <Stack.Screen name={SplashScreenName} component={SplashScreen} />
         <Stack.Screen name={MyIssuesScreenName} component={MyIssuesScreen} />
         <Stack.Screen name={LoginScreenName} component={LoginScreen} />
         <Stack.Screen
           name={SmsVerificationScreenName}
           component={SmsVerificationScreen}
-        /> */}
+        />
         <Stack.Screen name={NewIssueScreenName} component={NewIssueScreen} />
         <Stack.Screen name={EditIssueScreenName} component={EditIssueScreen} />
         <Stack.Screen
