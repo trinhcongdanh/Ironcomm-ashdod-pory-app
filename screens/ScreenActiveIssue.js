@@ -2743,7 +2743,7 @@ export default class ActiveIssueScreen extends React.Component {
             onRequestClose={() => {
               this.closeStatusIssueSelectDialog();
             }}
-            transparent={true}>
+            transparent={false}>
             <View
               activeOpacity={1}
               style={{
@@ -2807,7 +2807,7 @@ export default class ActiveIssueScreen extends React.Component {
             animationType="slide"
             presentationStyle="fullScreen"
             visible={this.state.isAttachDialogShown}
-            transparent={true}>
+            transparent={false}>
             <View
               style={{
                 flexDirection: 'column',
@@ -2879,7 +2879,7 @@ export default class ActiveIssueScreen extends React.Component {
               this.closeImageViewFull();
             }}
             visible={this.state.isViewFullImage}
-            transparent={true}>
+            transparent={false}>
             <ImageViewer
               imageUrls={this.state.images}
               enableImageZoom={true}
@@ -2898,7 +2898,7 @@ export default class ActiveIssueScreen extends React.Component {
             animationType="slide"
             presentationStyle="fullScreen"
             visible={this.state.isDisapproveDialogShown}
-            transparent={true}>
+            transparent={false}>
             <View
               style={{
                 flexDirection: 'column',
@@ -2965,7 +2965,7 @@ export default class ActiveIssueScreen extends React.Component {
             animationType="slide"
             presentationStyle="fullScreen"
             visible={this.state.isRejectIssueDialogShown}
-            transparent={true}>
+            transparent={false}>
             <View
               style={{
                 flexDirection: 'column',

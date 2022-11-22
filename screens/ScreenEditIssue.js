@@ -759,7 +759,7 @@ export default class EditIssueScreen extends React.Component {
             onRequestClose={() => {
               this.setState({isTwoQuestionDialogShow: false});
             }}
-            transparent={true}>
+            transparent={false}>
             <View
               activeOpacity={1}
               style={{
@@ -870,7 +870,7 @@ export default class EditIssueScreen extends React.Component {
             onRequestClose={() => {
               this.closeDialogSelected();
             }}
-            transparent={true}>
+            transparent={false}>
             <View
               activeOpacity={1}
               style={{

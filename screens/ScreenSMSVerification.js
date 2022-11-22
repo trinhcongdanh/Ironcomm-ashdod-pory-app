@@ -15,6 +15,7 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  I18nManager,
 } from 'react-native';
 import {
   errorPhoneNumberNotRegister,
