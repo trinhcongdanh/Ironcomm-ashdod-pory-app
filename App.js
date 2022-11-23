@@ -8,8 +8,6 @@ import {
 } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import {LoginScreen} from './screens/ScreenLogin';
-import MyIssuesScreen from './screens/ScreenMyIssues';
 import * as React from 'react';
 import {
   uxcamKey,
@@ -22,6 +20,8 @@ import {
   ActiveIssueScreenName,
   StatusInfoScreenName,
 } from './resource/BaseValue';
+import {LoginScreen} from './screens/ScreenLogin';
+import MyIssuesScreen from './screens/ScreenMyIssues';
 import NewIssueScreen from './screens/ScreenNewIssue';
 import ActiveIssueScreen from './screens/ScreenActiveIssue';
 import {SmsVerificationScreen} from './screens/ScreenSMSVerification';

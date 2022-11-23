@@ -12,7 +12,7 @@ export const verifyCode = 'אימות חשבון';
 export const errorPhoneNumberNotRegister = 'מספר הטלפון אינו רשום במערכת';
 export const errorWrongVerificationCode = 'קוד האימות שגוי';
 
-export const MyIssuesTitle = 'דיווחים שלי';
+export const MyIssuesTitle = 'הדיווחים שלי';
 export const inClose = 'נסגר';
 export const inCoordinated = 'מתואם';
 export const inPriority = 'בתיעדוף';

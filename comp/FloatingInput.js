@@ -58,6 +58,7 @@ export default class RNFloatingInput extends React.Component {
       onChangeTextInput,
       editable = false,
       showArrow = true,
+      source,
       ...props
     } = this.props;
     const {isFocused} = this.state;
@@ -71,11 +72,7 @@ export default class RNFloatingInput extends React.Component {
     return (
       <TouchableOpacity
         onPress={onPress}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 10,
-        }}>
+        style={{flexDirection: 'row', alignItems: 'flex-end'}}>
         <View style={{paddingTop: labelSize}}>
           <Text style={labelStyle}>{label}</Text>
           <TextInput
@@ -94,12 +91,12 @@ export default class RNFloatingInput extends React.Component {
           />
         </View>
         <Image
-          source={require('../image/icon_arrow_down_white.png')}
+          source={source}
           resizeMode="cover"
           style={{
             width: screenWidth * 0.03,
             height: screenWidth * 0.03 * (14 / 24),
-            right: 20,
+            marginBottom: 10,
             opacity: showArrow ? 1 : 0,
           }}
         />
