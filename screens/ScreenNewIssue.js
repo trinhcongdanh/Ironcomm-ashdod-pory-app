@@ -75,14 +75,12 @@ import ImagePicker from 'react-native-image-picker';
 export default class NewIssueScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.issueNameSelect = React.createRef();
     this.deviceTypeSelect = React.createRef();
     this.deviceNameSelect = React.createRef();
     this.issueTypeSelect = React.createRef();
     this.deviceSerialInput = React.createRef();
     this.editText = React.createRef();
     this.state = {
-      issueNames: [],
       deviceTypes: [],
       deviceNames: [],
       issueTypes: [],
@@ -90,7 +88,6 @@ export default class NewIssueScreen extends React.Component {
       showEmptyNotice: [false, false, false, false, false, false],
       typeSelectingList: '',
       issueName: '',
-      issueNameId: '',
       deviceType: '',
       deviceTypeId: '',
       deviceName: '',
@@ -117,23 +114,19 @@ export default class NewIssueScreen extends React.Component {
   componentDidMount() {
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
-        this.getDeviceTypes().then(() => {
-          this.getDeviceNames();
-        });
+        this.getDeviceTypes();
       });
     });
-    I18nManager.forceRTL(true);
   }
 
-  componentWillUnmount() {
-    I18nManager.forceRTL(true);
-  }
+  componentWillUnmount() {}
 
   loadUserInfo = async () => {
     try {
       const value = await AsyncStorage.getItem(key_user_info);
       if (value != null) {
         // value previously stored
+        console.log(value);
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.userInfo = jsonValue;
@@ -141,7 +134,7 @@ export default class NewIssueScreen extends React.Component {
       } else {
       }
     } catch (e) {
-      console.log('Error');
+      // error reading value
     }
   };
 
@@ -154,7 +147,6 @@ export default class NewIssueScreen extends React.Component {
         let allState = this.state;
         allState.appConfig = jsonValue;
         this.setState(allState);
-        // console.log(allState.appConfig.devices_and_issues);
       } else {
       }
     } catch (e) {
@@ -245,7 +237,7 @@ export default class NewIssueScreen extends React.Component {
       let dataObj = {
         request: rq_add_issue,
         token: this.state.userInfo.token,
-        issue_name_id: parseInt(this.state.issueNameId),
+        title: this.state.issueName,
         device_type_id: parseInt(this.state.deviceTypeId),
         device_id: parseInt(this.state.deviceNameId),
         issue_type_id: parseInt(this.state.issueTypeId),
@@ -333,15 +325,6 @@ export default class NewIssueScreen extends React.Component {
         alert(error);
       });
   };
-
-  showIssueNameChange = async () => {
-    let allState = this.state;
-    allState.selectingList = allState.issueNames;
-    allState.typeSelectingList = issueName;
-    allState.isSelectListShown = true;
-    this.setState(allState);
-  };
-
   showDeviceTypesPicker = async () => {
     let allState = this.state;
     allState.selectingList = allState.deviceTypes;
@@ -366,8 +349,13 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  onDeviceTitleChange = text => {
+  onIssueNameChange = text => {
     let allState = this.state;
+    allState.issueName = text;
+    if (text != '' && allState.showEmptyNotice[0]) {
+      allState.showEmptyNotice[0] = false;
+    }
+    this.setState(allState);
   };
 
   onDeviceTypeChange = text => {
@@ -750,13 +738,45 @@ export default class NewIssueScreen extends React.Component {
               <View style={{width: screenWidth * 0.05}}></View>
             </View>
           </ImageBackground>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: screenWidth,
+              padding: 10,
+              backgroundColor: c_bg_filter_selected,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={[mStyle.textNormal, {color: 'white'}]}>
+                {this.state.userInfo.first_name}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={[mStyle.textNormal, {color: 'white'}]}>
+                {this.state.userInfo.unit_number}
+              </Text>
+            </View>
+          </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{flexDirection: 'column', alignItems: 'center'}}>
               <ImageBackground
-                source={require('../image/bg_splash.jpg')}
+                source={require('../image/bg_header_bottom.png')}
                 resizeMode="cover"
                 style={{
                   width: screenWidth,
+                  height: screenWidth * (246 / 768),
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -765,50 +785,9 @@ export default class NewIssueScreen extends React.Component {
                   style={{
                     width: screenWidth * 0.8,
                     flexDirection: 'row',
-                    marginTop: 25,
                     alignItems: 'center',
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    borderColor: this.state.showEmptyNotice[1]
-                      ? c_bg_error_message
-                      : '#ffffff',
-                  }}>
-                  <RNFloatingInput
-                    ref={this.deviceTypeSelect}
-                    onPress={() => {
-                      this.showIssueNameChange();
-                    }}
-                    label={nameOfIssue}
-                    labelSize={8}
-                    labelSizeLarge={14}
-                    labelColor={c_text_white}
-                    textInputStyle={[
-                      mStyle.textBold,
-                      {
-                        borderWidth: 0,
-                        color: '#000000',
-                        width: screenWidth * 0.75,
-                        padding: 0,
-                        margin: 0,
-                        textAlign: 'right',
-                      },
-                    ]}
-                    style={{flex: 1}}
-                    value={this.state.deviceType}
-                    onChangeText={text => {
-                      this.onDeviceTitleChange(text);
-                    }}></RNFloatingInput>
-                </View>
-
-                <View
-                  style={{
-                    width: screenWidth * 0.8,
-                    flexDirection: 'row',
-                    marginTop: 25,
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    borderColor: this.state.showEmptyNotice[1]
+                    borderBottomWidth: 1,
+                    borderBottomColor: this.state.showEmptyNotice[1]
                       ? c_bg_error_message
                       : '#ffffff',
                   }}>
@@ -817,10 +796,11 @@ export default class NewIssueScreen extends React.Component {
                     onPress={() => {
                       this.showDeviceTypesPicker();
                     }}
-                    label={typeOfDevice}
-                    labelSize={8}
+                    label={nameOfIssue}
+                    labelSize={12}
                     labelSizeLarge={14}
                     labelColor={c_text_white}
+                    source={require('../image/icon_arrow_down_white.png')}
                     textInputStyle={[
                       mStyle.textBold,
                       {
@@ -838,223 +818,256 @@ export default class NewIssueScreen extends React.Component {
                       this.onDeviceTypeChange(text);
                     }}></RNFloatingInput>
                 </View>
+              </ImageBackground>
+              <View
+                style={{
+                  width: screenWidth * 0.8,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: this.state.showEmptyNotice[1]
+                    ? c_bg_error_message
+                    : '#000',
+                }}>
+                <RNFloatingInput
+                  ref={this.deviceTypeSelect}
+                  onPress={() => {
+                    this.showDeviceTypesPicker();
+                  }}
+                  label={typeOfDevice}
+                  labelSize={12}
+                  labelSizeLarge={14}
+                  source={require('../image/icon_arrow_down_black.png')}
+                  labelColor={c_grey_text}
+                  textInputStyle={[
+                    mStyle.textBold,
+                    {
+                      borderWidth: 0,
+                      color: '#000000',
+                      width: screenWidth * 0.75,
+                      padding: 0,
+                      margin: 0,
+                      textAlign: 'right',
+                    },
+                  ]}
+                  style={{flex: 1}}
+                  value={this.state.deviceType}
+                  onChangeText={text => {
+                    this.onDeviceTypeChange(text);
+                  }}></RNFloatingInput>
+              </View>
 
-                <View
-                  style={{
-                    width: screenWidth * 0.8,
-                    flexDirection: 'row',
-                    marginTop: 25,
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    borderColor: this.state.showEmptyNotice[1]
-                      ? c_bg_error_message
-                      : '#ffffff',
-                  }}>
-                  <RNFloatingInput
-                    ref={this.deviceNameSelect}
-                    onPress={() => {
-                      this.showDeviceNamesPicker();
-                    }}
-                    label={nameOfDevice}
-                    labelSize={8}
-                    labelSizeLarge={14}
-                    labelColor={c_text_white}
-                    textInputStyle={[
-                      mStyle.textBold,
-                      {
-                        borderWidth: 0,
-                        color: '#000000',
-                        width: screenWidth * 0.75,
-                        padding: 0,
-                        margin: 0,
-                        textAlign: 'right',
-                      },
-                    ]}
-                    style={{flex: 1}}
-                    value={this.state.deviceName}
-                    onChangeText={text => {
-                      this.onDeviceNameChange(text);
-                    }}></RNFloatingInput>
-                </View>
+              <View
+                style={{
+                  width: screenWidth * 0.8,
+                  marginTop: 25,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: this.state.showEmptyNotice[2]
+                    ? c_bg_error_message
+                    : '#000',
+                }}>
+                <RNFloatingInput
+                  ref={this.deviceNameSelect}
+                  onPress={() => {
+                    this.showDeviceNamesPicker();
+                  }}
+                  label={nameOfDevice}
+                  labelSize={12}
+                  labelSizeLarge={14}
+                  source={require('../image/icon_arrow_down_black.png')}
+                  labelColor={c_grey_text}
+                  textInputStyle={[
+                    mStyle.textBold,
+                    {
+                      borderWidth: 0,
+                      color: '#000000',
+                      width: screenWidth * 0.75,
+                      padding: 0,
+                      margin: 0,
+                      textAlign: 'right',
+                    },
+                  ]}
+                  style={{flex: 1}}
+                  value={this.state.deviceName}
+                  onChangeText={text => {
+                    this.onDeviceNameChange(text);
+                  }}></RNFloatingInput>
+              </View>
 
-                <View
-                  style={{
-                    width: screenWidth * 0.8,
-                    marginTop: 25,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    borderBottomWidth: 1,
-                    borderBottomColor: this.state.showEmptyNotice[3]
-                      ? c_bg_error_message
-                      : '#ffffff',
-                  }}>
-                  <RNFloatingInput
-                    ref={this.deviceSerialInput}
-                    label={deviceSerialName}
-                    labelSize={8}
-                    labelSizeLarge={14}
-                    labelColor={c_text_white}
-                    textInputStyle={[
-                      mStyle.textBold,
-                      {
-                        borderWidth: 0,
-                        color: '#ffffff',
-                        width: screenWidth * 0.75,
-                        padding: 0,
-                        margin: 0,
-                        textAlign: 'right',
-                      },
-                    ]}
-                    style={{flex: 1}}
-                    showArrow={false}
-                    editable={true}
-                    value={this.state.deviceSerialNumber}
-                    onChangeTextInput={text => {
-                      this.onDeviceSerialNumberChange(text);
-                    }}></RNFloatingInput>
-                </View>
+              <View
+                style={{
+                  width: screenWidth * 0.8,
+                  marginTop: 25,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: this.state.showEmptyNotice[3]
+                    ? c_bg_error_message
+                    : '#000',
+                }}>
+                <RNFloatingInput
+                  ref={this.deviceSerialInput}
+                  label={deviceSerialName}
+                  labelSize={12}
+                  labelSizeLarge={14}
+                  textInputStyle={[
+                    mStyle.textBold,
+                    {
+                      borderWidth: 0,
+                      color: '#000000',
+                      width: screenWidth * 0.75,
+                      padding: 0,
+                      margin: 0,
+                      textAlign: 'right',
+                    },
+                  ]}
+                  style={{flex: 1}}
+                  showArrow={false}
+                  editable={true}
+                  value={this.state.deviceSerialNumber}
+                  onChangeTextInput={text => {
+                    this.onDeviceSerialNumberChange(text);
+                  }}></RNFloatingInput>
+              </View>
 
-                <View
-                  style={{
-                    width: screenWidth * 0.8,
-                    flexDirection: 'row',
-                    marginTop: 25,
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    borderColor: this.state.showEmptyNotice[1]
-                      ? c_bg_error_message
-                      : '#ffffff',
-                  }}>
-                  <RNFloatingInput
-                    ref={this.issueTypeSelect}
-                    onPress={() => {
-                      this.showIssueTypesPicker();
-                    }}
-                    label={typeOfIssue}
-                    labelSize={8}
-                    labelColor={c_text_white}
-                    labelSizeLarge={14}
-                    textInputStyle={[
-                      mStyle.textBold,
-                      {
-                        borderWidth: 0,
-                        color: '#ffffff',
-                        width: screenWidth * 0.75,
-                        padding: 0,
-                        margin: 0,
-                        textAlign: 'right',
-                      },
-                    ]}
-                    style={{flex: 1}}
-                    value={this.state.issueType}
-                    onChangeText={text => {
-                      this.onIssueTypeChange(text);
-                    }}></RNFloatingInput>
-                </View>
+              <View
+                style={{
+                  width: screenWidth * 0.8,
+                  marginTop: 25,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: this.state.showEmptyNotice[4]
+                    ? c_bg_error_message
+                    : '#000',
+                }}>
+                <RNFloatingInput
+                  ref={this.issueTypeSelect}
+                  onPress={() => {
+                    this.showIssueTypesPicker();
+                  }}
+                  label={typeOfIssue}
+                  labelSize={12}
+                  labelSizeLarge={14}
+                  source={require('../image/icon_arrow_down_black.png')}
+                  textInputStyle={[
+                    mStyle.textBold,
+                    {
+                      borderWidth: 0,
+                      color: '#000000',
+                      width: screenWidth * 0.75,
+                      padding: 0,
+                      margin: 0,
+                      textAlign: 'right',
+                    },
+                  ]}
+                  style={{flex: 1}}
+                  value={this.state.issueType}
+                  onChangeText={text => {
+                    this.onIssueTypeChange(text);
+                  }}></RNFloatingInput>
+              </View>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => {
+                  this.setState({isShowInput: true}, () => {
+                    this.editText.current.focus();
+                  });
+                }}
+                style={{
+                  width: screenWidth * 0.8,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderColor: this.state.showEmptyNotice[5]
+                    ? c_bg_error_message
+                    : c_bg_issue_description,
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  flexDirection: 'column',
+                  marginTop: 10,
+                }}>
                 <TouchableOpacity
                   activeOpacity={1}
                   onPress={() => {
                     this.setState({isShowInput: true}, () => {
                       this.editText.current.focus();
                     });
-                  }}
-                  style={{
-                    width: screenWidth * 0.8,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderColor: this.state.showEmptyNotice[5]
-                      ? c_bg_error_message
-                      : c_bg_issue_description,
-                    borderWidth: 1,
-                    borderRadius: 10,
-                    flexDirection: 'column',
-                    marginTop: 10,
                   }}>
-                  <TouchableOpacity
-                    activeOpacity={1}
-                    onPress={() => {
-                      this.setState({isShowInput: true}, () => {
-                        this.editText.current.focus();
-                      });
-                    }}>
-                    <Image
-                      source={require('../image/icon_pencil_edit.png')}
-                      resizeMode="cover"
-                      style={{
-                        display: this.state.isShowInput ? 'none' : 'flex',
-                        width: screenWidth * 0.2,
-                        height: screenWidth * 0.2 * (234 / 264),
-                        margin: 10,
-                      }}
-                    />
-                  </TouchableOpacity>
-                  <TextInput
-                    ref={this.editText}
-                    onChangeText={text => {
-                      this.onIssueDescriptionChange(text);
+                  <Image
+                    source={require('../image/icon_pencil_edit.png')}
+                    resizeMode="cover"
+                    style={{
+                      display: this.state.isShowInput ? 'none' : 'flex',
+                      width: screenWidth * 0.2,
+                      height: screenWidth * 0.2 * (234 / 264),
+                      margin: 10,
                     }}
-                    onBlur={() => {
-                      if (this.state.descriptionOfIssue == '') {
-                        this.setState({isShowInput: false});
-                      } else {
-                        this.setState({isShowInput: true});
-                      }
-                    }}
-                    onFocus={() => {
-                      this.setState({isShowInput: true});
-                    }}
-                    multiline={true}
-                    numberOfLines={this.state.isShowInput ? 5 : 3}
-                    textAlignVertical={'top'}
-                    style={[
-                      mStyle.textDescription,
-                      {
-                        borderWidth: 0,
-                        width: screenWidth * 0.8,
-                        padding: 10,
-                        backgroundColor: 'c_bg_issue_description',
-                        borderRadius: 10,
-                        textAlign: 'center',
-                      },
-                    ]}
-                    placeholder={
-                      this.state.isShowInput ? '' : descriptionOfIssue
-                    }
-                    placeholderTextColor={'#000000'}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.showFilePicker();
+                <TextInput
+                  ref={this.editText}
+                  onChangeText={text => {
+                    this.onIssueDescriptionChange(text);
                   }}
+                  onBlur={() => {
+                    if (this.state.descriptionOfIssue == '') {
+                      this.setState({isShowInput: false});
+                    } else {
+                      this.setState({isShowInput: true});
+                    }
+                  }}
+                  onFocus={() => {
+                    this.setState({isShowInput: true});
+                  }}
+                  multiline={true}
+                  numberOfLines={this.state.isShowInput ? 5 : 3}
+                  textAlignVertical={'top'}
+                  style={[
+                    mStyle.textDescription,
+                    {
+                      borderWidth: 0,
+                      width: screenWidth * 0.8,
+                      padding: 10,
+                      backgroundColor: 'c_bg_issue_description',
+                      borderRadius: 10,
+                      textAlign: 'center',
+                    },
+                  ]}
+                  placeholder={this.state.isShowInput ? '' : descriptionOfIssue}
+                  placeholderTextColor={'#000000'}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.showFilePicker();
+                }}
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginTop: 15,
+                  display: this.state.fileAttach.length == 0 ? 'flex' : 'none',
+                }}>
+                <View
                   style={{
-                    flexDirection: 'column',
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    marginTop: 15,
-                    display:
-                      this.state.fileAttach.length == 0 ? 'flex' : 'none',
+                    justifyContent: 'center',
+                    backgroundColor: c_blue_light_filter,
+                    width: screenWidth * 0.15,
+                    height: screenWidth * 0.15,
+                    borderRadius: screenWidth * 0.075,
                   }}>
-                  <View
+                  <Image
+                    source={require('../image/icon_plus_white.png')}
+                    resizeMode="cover"
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: c_blue_light_filter,
-                      width: screenWidth * 0.15,
-                      height: screenWidth * 0.15,
-                      borderRadius: screenWidth * 0.075,
-                    }}>
-                    <Image
-                      source={require('../image/icon_plus_white.png')}
-                      resizeMode="cover"
-                      style={{
-                        width: screenWidth * 0.05,
-                        height: screenWidth * 0.05,
-                      }}
-                    />
-                    {/* <RNFileSelector
+                      width: screenWidth * 0.05,
+                      height: screenWidth * 0.05,
+                    }}
+                  />
+                  {/* <RNFileSelector
                     title={'Select File'}
                     visible={this.state.visible}
                     onDone={path => {
@@ -1064,88 +1077,86 @@ export default class NewIssueScreen extends React.Component {
                       console.log('cancelled');
                     }}
                   /> */}
-                  </View>
-                  <View
-                    style={{
-                      alignSelf: 'center',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <Text style={[mStyle.textDescription, {color: '#000000'}]}>
-                      {attachFileOrImage}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <ScrollView
-                  horizontal={true}
+                </View>
+                <View
                   style={{
-                    width: screenWidth * 0.8,
-                    display:
-                      this.state.fileAttach.length == 0 ? 'none' : 'flex',
-                    marginTop: 10,
-                    marginBottom: 10,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                   }}>
-                  {this.displayAttachList()}
-                </ScrollView>
-                <TouchableOpacity
-                  onPress={() => {
-                    // this.addIssue();
-                    if (
-                      this.state.issueName != '' &&
-                      this.state.deviceType != '' &&
-                      this.state.deviceName != '' &&
-                      this.state.issueType != '' &&
-                      this.state.deviceSerialNumber != '' &&
-                      this.state.descriptionOfIssue != ''
-                    ) {
-                      this.setState({isTwoQuestionDialogShow: true});
-                    } else {
-                      this.updateEmptyNotice();
-                    }
-                  }}
-                  style={[
+                  <Text style={[mStyle.textDescription, {color: '#000000'}]}>
+                    {attachFileOrImage}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <ScrollView
+                horizontal={true}
+                style={{
+                  width: screenWidth * 0.8,
+                  display: this.state.fileAttach.length == 0 ? 'none' : 'flex',
+                  marginTop: 10,
+                  marginBottom: 10,
+                }}>
+                {this.displayAttachList()}
+              </ScrollView>
+              <TouchableOpacity
+                onPress={() => {
+                  // this.addIssue();
+                  if (
                     this.state.issueName != '' &&
                     this.state.deviceType != '' &&
                     this.state.deviceName != '' &&
                     this.state.issueType != '' &&
                     this.state.deviceSerialNumber != '' &&
                     this.state.descriptionOfIssue != ''
-                      ? mStyle.buttonEnable
-                      : mStyle.buttonDisable,
+                  ) {
+                    this.setState({isTwoQuestionDialogShow: true});
+                  } else {
+                    this.updateEmptyNotice();
+                  }
+                }}
+                style={[
+                  this.state.issueName != '' &&
+                  this.state.deviceType != '' &&
+                  this.state.deviceName != '' &&
+                  this.state.issueType != '' &&
+                  this.state.deviceSerialNumber != '' &&
+                  this.state.descriptionOfIssue != ''
+                    ? mStyle.buttonEnable
+                    : mStyle.buttonDisable,
+                  {
+                    width: screenWidth * 0.8,
+                    marginTop: 10,
+                    padding: 15,
+                    borderRadius: 10,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                ]}>
+                <Text
+                  style={[
+                    mStyle.textNormal,
                     {
-                      width: screenWidth * 0.8,
-                      marginTop: 10,
-                      padding: 15,
-                      borderRadius: 10,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      color: '#ffffff',
+                      textAlign: 'center',
+                      fontSize: 18,
+                      marginStart: 10,
                     },
                   ]}>
-                  <Text
-                    style={[
-                      mStyle.textNormal,
-                      {
-                        color: '#ffffff',
-                        textAlign: 'center',
-                        fontSize: 18,
-                        marginStart: 10,
-                      },
-                    ]}>
-                    {send}
-                  </Text>
-                  <Image
-                    source={require('../image/icon_arrow_left.png')}
-                    resizeMode="cover"
-                    style={{
-                      width: screenWidth * 0.05,
-                      height: screenWidth * 0.05,
-                      marginStart: 10,
-                    }}
-                  />
-                </TouchableOpacity>
-                <View style={{height: screenHeight * 0.05}}></View>
-              </ImageBackground>
+                  {send}
+                </Text>
+                <Image
+                  source={require('../image/icon_arrow_left.png')}
+                  resizeMode="cover"
+                  style={{
+                    width: screenWidth * 0.05,
+                    height: screenWidth * 0.05,
+                    marginStart: 10,
+                  }}
+                />
+              </TouchableOpacity>
+              <View style={{height: screenHeight * 0.05}}></View>
             </View>
           </ScrollView>
           <View
