@@ -95,6 +95,7 @@ export const LoginScreen = () => {
         request: rq_send_sms_code,
         phone_num: phoneNumber,
       };
+      // console.log(dataObj);
       fetch(api_url, {
         method: 'POST',
         headers: {
