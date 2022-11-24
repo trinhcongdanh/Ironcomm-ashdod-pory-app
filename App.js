@@ -48,7 +48,7 @@ const Stack = createNativeStackNavigator();
 console.disableYellowBox = true;
 // crashlytics().recordError('abc');
 console.log('Run app');
-
+I18nManager.forceRTL(true);
 // Render the app container component with the provider around it
 export const App = () => {
   return (

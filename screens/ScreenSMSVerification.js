@@ -345,7 +345,8 @@ export const SmsVerificationScreen = () => {
             style={{
               justifyContent: 'space-between',
               alignItems: 'center',
-              flexDirection: 'row',
+              flexDirection: 'row-reverse',
+
               marginTop: 36,
             }}>
             {inputs.map((inp, index) => {
