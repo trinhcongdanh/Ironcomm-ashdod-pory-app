@@ -49,7 +49,8 @@ import {
   nameOfDevice,
   deviceSerialName,
   typeOfIssue,
-  attachFileOrImage,
+  attachFileOrImage1,
+  attachFileOrImage2,
   descriptionOfIssue,
   issueName,
   deviceType,
@@ -65,28 +66,34 @@ import {
   text_yes,
   text_no,
   ok_text,
+  locationName,
 } from '../resource/StringContentDefault';
 // import RNFileSelector from 'react-native-file-selector';
 import RNFloatingInput from '../comp/FloatingInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import RNFetchBlob from 'react-native-fetch-blob';
-import ImagePicker from 'react-native-image-picker';
+// import DocumentPicker, {types} from 'react-native-document-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 export default class NewIssueScreen extends React.Component {
   constructor(props) {
     super(props);
+    this.issuesNameSelect = React.createRef();
     this.deviceTypeSelect = React.createRef();
     this.deviceNameSelect = React.createRef();
-    this.issueTypeSelect = React.createRef();
+    this.issueTypeInput = React.createRef();
+    this.locationNameSelect = React.createRef();
     this.deviceSerialInput = React.createRef();
     this.editText = React.createRef();
     this.state = {
+      issueNames: [],
       deviceTypes: [],
       deviceNames: [],
-      issueTypes: [],
+      locationNames: [],
       selectingList: [],
       showEmptyNotice: [false, false, false, false, false, false],
       typeSelectingList: '',
+      issueNameId: '',
       issueName: '',
       deviceType: '',
       deviceTypeId: '',
@@ -94,7 +101,7 @@ export default class NewIssueScreen extends React.Component {
       deviceNameId: '',
       deviceSerialNumber: '',
       issueType: '',
-      issueTypeId: '',
+      locationName: '',
       isHaveImageUpload: false,
       descriptionOfIssue: '',
       indicatorSizeW: 0,
@@ -102,9 +109,11 @@ export default class NewIssueScreen extends React.Component {
       indicatorDisplay: false,
       userInfo: {},
       isSelectListShown: false,
-      isAttachDialogShown: false,
+      isAttachDialogShown1: false,
+      isAttachDialogShown2: false,
       isShowInput: false,
-      fileAttach: [],
+      fileAttach1: [],
+      fileAttach2: [],
       isTwoQuestionDialogShow: false,
       questionFirstSelected: text_no,
       questionSecondSelected: text_no,
@@ -114,7 +123,7 @@ export default class NewIssueScreen extends React.Component {
   componentDidMount() {
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
-        this.getDeviceTypes();
+        this.getIssuesName();
       });
     });
   }
@@ -126,10 +135,11 @@ export default class NewIssueScreen extends React.Component {
       const value = await AsyncStorage.getItem(key_user_info);
       if (value != null) {
         // value previously stored
-        console.log(value);
+        // console.log(value);
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.userInfo = jsonValue;
+        console.log(jsonValue);
         this.setState(allState);
       } else {
       }
@@ -146,12 +156,26 @@ export default class NewIssueScreen extends React.Component {
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.appConfig = jsonValue;
+        console.log(jsonValue);
         this.setState(allState);
       } else {
       }
     } catch (e) {
       // error reading value
     }
+  };
+
+  getIssuesName = async () => {
+    this._closeLoadingBox();
+    let allState = this.state;
+
+    allState.issueNames = [
+      {
+        id: allState.userInfo.unit_number,
+        name: allState.userInfo.user_type_name,
+      },
+    ];
+    this.setState(allState);
   };
 
   getDeviceTypes = async () => {
@@ -186,7 +210,6 @@ export default class NewIssueScreen extends React.Component {
 
     if (deviceList.length > 0) {
       allState.deviceNames = [];
-      allState.issueTypes = [];
       for (let i = 0; i < deviceList.length; i++) {
         let item = {
           id: deviceList[i]['id'],
@@ -194,31 +217,6 @@ export default class NewIssueScreen extends React.Component {
           issue_types: deviceList[i]['issue_types'],
         };
         allState.deviceNames.push(item);
-      }
-    }
-    this.setState(allState);
-  };
-
-  getIssueTyped = async () => {
-    let allState = this.state;
-    let issueList = [];
-    for (
-      let i = 0;
-      i < allState.deviceNames.length && issueList.length == 0;
-      i++
-    ) {
-      if (allState.deviceNames[i]['id'] == this.state.deviceNameId) {
-        issueList = allState.deviceNames[i]['issue_types'];
-      }
-    }
-    if (issueList.length > 0) {
-      allState.issueTypes = [];
-      for (let i = 0; i < issueList.length; i++) {
-        let item = {
-          id: issueList[i]['id'],
-          name: issueList[i]['name'],
-        };
-        allState.issueTypes.push(item);
       }
     }
     this.setState(allState);
@@ -237,10 +235,10 @@ export default class NewIssueScreen extends React.Component {
       let dataObj = {
         request: rq_add_issue,
         token: this.state.userInfo.token,
-        title: this.state.issueName,
+        title_id: parseInt(this.state.issueNameId),
         device_type_id: parseInt(this.state.deviceTypeId),
         device_id: parseInt(this.state.deviceNameId),
-        issue_type_id: parseInt(this.state.issueTypeId),
+        issue_type_id: this.state.issueType,
         serial_num: this.state.deviceSerialNumber,
         description: this.state.descriptionOfIssue,
       };
@@ -254,23 +252,40 @@ export default class NewIssueScreen extends React.Component {
       } else {
         dataObj.is_disabled = false;
       }
-      let attachments = [];
-      if (this.state.fileAttach.length > 0) {
-        for (let i = 0; i < this.state.fileAttach.length; i++) {
+      let attachments1 = [];
+      if (this.state.fileAttach1.length > 0) {
+        for (let i = 0; i < this.state.fileAttach1.length; i++) {
           let attachItem = {
-            attachment: this.state.fileAttach[i]['attachment'],
-            attachment_name: this.state.fileAttach[i]['attachment_name'],
+            attachment: this.state.fileAttach1[i]['attachment'],
+            attachment_name: this.state.fileAttach1[i]['attachment_name'],
             is_attachment_image:
-              this.state.fileAttach[i]['is_attachment_image'],
+              this.state.fileAttach1[i]['is_attachment_image'],
           };
-          attachments.push(attachItem);
+          attachments1.push(attachItem);
         }
         // let attachFileData = this.state.fileAttach[0];
         // dataObj.attachment = attachFileData.attachment;
         // dataObj.attachment_name = attachFileData.attachment_name;
         // dataObj.is_attachment_image = attachFileData.is_attachment_image;
       }
-      dataObj.attachments = attachments;
+      let attachments2 = [];
+      if (this.state.fileAttach2.length > 0) {
+        for (let i = 0; i < this.state.fileAttach2.length; i++) {
+          let attachItem = {
+            attachment: this.state.fileAttach2[i]['attachment'],
+            attachment_name: this.state.fileAttach2[i]['attachment_name'],
+            is_attachment_image:
+              this.state.fileAttach2[i]['is_attachment_image'],
+          };
+          attachments2.push(attachItem);
+        }
+        // let attachFileData = this.state.fileAttach[0];
+        // dataObj.attachment = attachFileData.attachment;
+        // dataObj.attachment_name = attachFileData.attachment_name;
+        // dataObj.is_attachment_image = attachFileData.is_attachment_image;
+      }
+      dataObj.attachments = attachments1;
+      dataObj.attachments = attachments2;
       console.log(dataObj);
       this.callAddIssueApi(dataObj);
     } else {
@@ -325,6 +340,15 @@ export default class NewIssueScreen extends React.Component {
         alert(error);
       });
   };
+
+  showIssuesNamesPicker = async () => {
+    let allState = this.state;
+    allState.selectingList = allState.issueNames;
+    allState.typeSelectingList = issueName;
+    allState.isSelectListShown = true;
+    this.setState(allState);
+  };
+
   showDeviceTypesPicker = async () => {
     let allState = this.state;
     allState.selectingList = allState.deviceTypes;
@@ -341,21 +365,28 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  showIssueTypesPicker = async () => {
-    let allState = this.state;
-    allState.selectingList = allState.issueTypes;
-    allState.typeSelectingList = issueType;
-    allState.isSelectListShown = true;
-    this.setState(allState);
-  };
+  onIssuesNameChange = text => {
+    console.log(text);
 
-  onIssueNameChange = text => {
     let allState = this.state;
     allState.issueName = text;
     if (text != '' && allState.showEmptyNotice[0]) {
       allState.showEmptyNotice[0] = false;
     }
+    if (allState.issueNames[0].name == text) {
+      if (allState.issueNameId != allState.issueNames[0].id) {
+        allState.deviceTypeId = '';
+        allState.deviceType = '';
+        allState.deviceNameId = '';
+        allState.deviceName = '';
+        this.deviceTypeSelect.current.updateValue('');
+        this.deviceNameSelect.current.updateValue('');
+      }
+      allState.issueNameId = allState.issueNames[0].id;
+    }
     this.setState(allState);
+    this.issuesNameSelect.current.updateValue(text);
+    this.getDeviceTypes();
   };
 
   onDeviceTypeChange = text => {
@@ -369,10 +400,7 @@ export default class NewIssueScreen extends React.Component {
         if (allState.deviceTypeId != allState.deviceTypes[i].id) {
           allState.deviceNameId = '';
           allState.deviceName = '';
-          allState.issueType = '';
-          allState.issueTypeId = '';
           this.deviceNameSelect.current.updateValue('');
-          this.issueTypeSelect.current.updateValue('');
         }
         allState.deviceTypeId = allState.deviceTypes[i].id;
       }
@@ -388,11 +416,6 @@ export default class NewIssueScreen extends React.Component {
     allState.deviceName = text;
     for (let i = 0; i < allState.deviceNames.length; i++) {
       if (allState.deviceNames[i].name == text) {
-        if (allState.deviceNameId != allState.deviceNames[i].id) {
-          allState.issueType = '';
-          allState.issueTypeId = '';
-          this.issueTypeSelect.current.updateValue('');
-        }
         allState.deviceNameId = allState.deviceNames[i].id;
       }
     }
@@ -401,7 +424,6 @@ export default class NewIssueScreen extends React.Component {
     }
     this.setState(allState);
     this.deviceNameSelect.current.updateValue(text);
-    this.getIssueTyped();
   };
 
   onDeviceSerialNumberChange = text => {
@@ -417,16 +439,11 @@ export default class NewIssueScreen extends React.Component {
   onIssueTypeChange = text => {
     let allState = this.state;
     allState.issueType = text;
-    for (let i = 0; i < allState.issueTypes.length; i++) {
-      if (allState.issueTypes[i].name == text) {
-        allState.issueTypeId = allState.issueTypes[i].id;
-      }
-    }
     if (text != '' && allState.showEmptyNotice[4]) {
       allState.showEmptyNotice[4] = false;
     }
     this.setState(allState);
-    this.issueTypeSelect.current.updateValue(text);
+    this.issueTypeInput.current.updateValue(text);
   };
 
   onIssueDescriptionChange = text => {
@@ -438,13 +455,19 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  showFilePicker = () => {
+  showFilePicker1 = () => {
     let allState = this.state;
-    allState.isAttachDialogShown = true;
+    allState.isAttachDialogShown1 = true;
     this.setState(allState);
   };
 
-  selectOptionInAttachDialog = index => {
+  showFilePicker2 = () => {
+    let allState = this.state;
+    allState.isAttachDialogShown2 = true;
+    this.setState(allState);
+  };
+
+  selectOptionInAttachDialog1 = async index => {
     const options = {
       storageOptions: {
         skipBackup: true,
@@ -453,39 +476,116 @@ export default class NewIssueScreen extends React.Component {
 
     let allState = this.state;
     if (index == 0) {
-      ImagePicker.launchCamera(options, response => {
-        console.log(response);
-        if (response.data != '' && response.data != undefined) {
+      const result = await launchCamera({mediaType: 'photo'});
+
+      result.assets?.map(item => {
+        console.log(item);
+        if (item != '' && item != undefined) {
           let attachItem = {
-            attachment_name: response.fileName,
-            attachment: response.data,
+            attachment_name: item.fileName,
+            attachment: item.uri,
             is_attachment_image: true,
           };
           let allState = this.state;
-          allState.fileAttach.push(attachItem);
+          allState.fileAttach1.push(attachItem);
           this.setState(allState);
-          // attachFileData.attachment_name = response.fileName;
-          // attachFileData.attachment = response.data;
-          // attachFileData.is_attachment_image = true;
-          // this.onHaveImageUploadChange(true);
         }
       });
     } else if (index == 1) {
-      ImagePicker.launchImageLibrary(options, response => {
-        console.log(response.data);
-        if (response.data != '' && response.data != undefined) {
+      const result = await launchImageLibrary({mediaType: 'photo'});
+
+      result.assets?.map(item => {
+        console.log(item);
+        if (item != '' && item != undefined) {
           let attachItem = {
-            attachment_name: response.fileName,
-            attachment: response.data,
+            attachment_name: item.fileName,
+            attachment: item.uri,
             is_attachment_image: true,
           };
           let allState = this.state;
-          allState.fileAttach.push(attachItem);
+          allState.fileAttach1.push(attachItem);
           this.setState(allState);
-          // attachFileData.attachment_name = response.fileName;
-          // attachFileData.attachment = response.data;
-          // attachFileData.is_attachment_image = true;
-          // this.onHaveImageUploadChange(true);
+        }
+      });
+    } else if (index == 2) {
+      RNFileSelector.Show({
+        title: 'Select File',
+        onDone: path => {
+          RNFetchBlob.fs.readFile(path, 'base64').then(data => {
+            console.log(data);
+            let fileStrArray = path.split('/');
+            let fileName = fileStrArray[fileStrArray.length - 1];
+            let isImage = true;
+            if (
+              fileName.endsWith('.png') ||
+              fileName.endsWith('.jpg') ||
+              fileName.endsWith('.jpge') ||
+              fileName.endsWith('.bmp') ||
+              fileName.endsWith('.gif')
+            ) {
+              isImage = true;
+            } else {
+              isImage = false;
+            }
+            let attachItem = {
+              attachment_name: fileName,
+              attachment: data,
+              is_attachment_image: isImage,
+            };
+            let allState = this.state;
+            allState.fileAttach.push(attachItem);
+            this.setState(allState);
+          });
+          if (path != '') {
+            this.onHaveImageUploadChange(true);
+          }
+        },
+        onCancel: () => {
+          console.log('cancelled');
+        },
+      });
+    }
+    allState.isAttachDialogShown1 = false;
+    this.setState(allState);
+  };
+  selectOptionInAttachDialog2 = async index => {
+    const options = {
+      storageOptions: {
+        skipBackup: true,
+      },
+    };
+
+    let allState = this.state;
+    if (index == 0) {
+      const result = await launchCamera({mediaType: 'photo'});
+
+      result.assets?.map(item => {
+        console.log(item);
+        if (item != '' && item != undefined) {
+          let attachItem = {
+            attachment_name: item.fileName,
+            attachment: item.uri,
+            is_attachment_image: true,
+          };
+          let allState = this.state;
+          allState.fileAttach2.push(attachItem);
+          this.setState(allState);
+        }
+      });
+    } else if (index == 1) {
+      const result = await launchImageLibrary({mediaType: 'photo'});
+
+      result.assets?.map(item => {
+        console.log(item);
+        if (item != '' && item != undefined) {
+          let attachItem = {
+            attachment_name: item.fileName,
+            attachment: item.uri,
+            is_attachment_image: true,
+          };
+          let allState = this.state;
+          allState.fileAttach2.push(attachItem);
+          this.setState(allState);
         }
       });
     } else if (index == 2) {
@@ -526,24 +626,30 @@ export default class NewIssueScreen extends React.Component {
       //   },
       // });
     }
-    allState.isAttachDialogShown = false;
+    allState.isAttachDialogShown2 = false;
     this.setState(allState);
   };
 
-  removeAttachFile = index => {
-    if (index < this.state.fileAttach.length) {
+  removeAttachFile1 = index => {
+    if (index < this.state.fileAttach1.length) {
       let allState = this.state;
-      allState.fileAttach.splice(index, 1);
+      allState.fileAttach1.splice(index, 1);
       this.setState(allState);
     }
   };
-
-  displayAttachList() {
-    let fileAttachList = this.state.fileAttach;
+  removeAttachFile2 = index => {
+    if (index < this.state.fileAttach2.length) {
+      let allState = this.state;
+      allState.fileAttach2.splice(index, 1);
+      this.setState(allState);
+    }
+  };
+  displayAttachList1() {
+    let fileAttachList1 = this.state.fileAttach1;
     let fileAttachDisplayView = [];
-    if (fileAttachList != null && fileAttachList.length > 0) {
-      for (let i = 0; i < fileAttachList.length; i++) {
-        let mediaItem = fileAttachList[i];
+    if (fileAttachList1 != null && fileAttachList1.length > 0) {
+      for (let i = 0; i < fileAttachList1.length; i++) {
+        let mediaItem = fileAttachList1[i];
         if (mediaItem.is_attachment_image == true) {
           console.log('is_attachment_image');
           fileAttachDisplayView.push(
@@ -557,13 +663,13 @@ export default class NewIssueScreen extends React.Component {
                 marginEnd: 10,
               }}>
               <Image
-                source={{uri: 'data:image/gif;base64,' + mediaItem.attachment}}
+                source={{uri: mediaItem.attachment}}
                 resizeMode="cover"
                 style={{width: screenWidth * 0.24, height: screenWidth * 0.24}}
               />
               <TouchableOpacity
                 onPress={() => {
-                  this.removeAttachFile(i);
+                  this.removeAttachFile1(i);
                 }}
                 style={{
                   width: screenWidth * 0.05,
@@ -611,7 +717,7 @@ export default class NewIssueScreen extends React.Component {
               />
               <TouchableOpacity
                 onPress={() => {
-                  this.removeAttachFile(i);
+                  this.removeAttachFile1(i);
                 }}
                 style={{
                   width: screenWidth * 0.05,
@@ -641,7 +747,129 @@ export default class NewIssueScreen extends React.Component {
       fileAttachDisplayView.push(
         <TouchableOpacity
           onPress={() => {
-            this.showFilePicker();
+            this.showFilePicker1();
+          }}
+          style={{
+            width: screenWidth * 0.24,
+            height: screenWidth * 0.24,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: c_grey,
+          }}>
+          <Image
+            source={require('../image/icon_plus_white.png')}
+            resizeMode="cover"
+            style={{width: screenWidth * 0.06, height: screenWidth * 0.06}}
+          />
+        </TouchableOpacity>,
+      );
+    }
+    return fileAttachDisplayView;
+  }
+  displayAttachList2() {
+    let fileAttachList2 = this.state.fileAttach2;
+    let fileAttachDisplayView = [];
+    if (fileAttachList2 != null && fileAttachList2.length > 0) {
+      for (let i = 0; i < fileAttachList2.length; i++) {
+        let mediaItem = fileAttachList2[i];
+        if (mediaItem.is_attachment_image == true) {
+          console.log('is_attachment_image');
+          fileAttachDisplayView.push(
+            <View
+              style={{
+                width: screenWidth * 0.24,
+                height: screenWidth * 0.24,
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                justifyContent: 'flex-start',
+                marginEnd: 10,
+              }}>
+              <Image
+                source={{uri: mediaItem.attachment}}
+                resizeMode="cover"
+                style={{width: screenWidth * 0.24, height: screenWidth * 0.24}}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  this.removeAttachFile2(i);
+                }}
+                style={{
+                  width: screenWidth * 0.05,
+                  height: screenWidth * 0.05,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  top: 2,
+                  start: 2,
+                  borderWidth: 1,
+                  borderColor: '#ffffff',
+                  borderRadius: screenWidth * 0.025,
+                }}>
+                <Image
+                  source={require('../image/icon_close_white.png')}
+                  resizeMode="cover"
+                  style={{
+                    width: screenWidth * 0.025,
+                    height: screenWidth * 0.025,
+                  }}
+                />
+              </TouchableOpacity>
+            </View>,
+          );
+        } else {
+          console.log('is_attachment_file');
+          fileAttachDisplayView.push(
+            <View
+              style={{
+                width: screenWidth * 0.24,
+                height: screenWidth * 0.24,
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                justifyContent: 'flex-start',
+                marginEnd: 10,
+                backgroundColor: c_grey,
+              }}>
+              <Image
+                source={require('../image/icon_file_attach.png')}
+                resizeMode="contain"
+                style={{
+                  width: screenWidth * 0.24 * (229 / 245),
+                  height: screenWidth * 0.24,
+                }}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  this.removeAttachFile2(i);
+                }}
+                style={{
+                  width: screenWidth * 0.05,
+                  height: screenWidth * 0.05,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  top: 2,
+                  start: 2,
+                  borderWidth: 1,
+                  borderColor: '#ffffff',
+                  borderRadius: screenWidth * 0.025,
+                }}>
+                <Image
+                  source={require('../image/icon_close_white.png')}
+                  resizeMode="cover"
+                  style={{
+                    width: screenWidth * 0.025,
+                    height: screenWidth * 0.025,
+                  }}
+                />
+              </TouchableOpacity>
+            </View>,
+          );
+        }
+      }
+      fileAttachDisplayView.push(
+        <TouchableOpacity
+          onPress={() => {
+            this.showFilePicker1();
           }}
           style={{
             width: screenWidth * 0.24,
@@ -662,12 +890,12 @@ export default class NewIssueScreen extends React.Component {
   }
 
   onPickerDialogSelected = (item, type) => {
-    if (type == deviceType) {
+    if (type == issueName) {
+      this.onIssuesNameChange(item.name);
+    } else if (type == deviceType) {
       this.onDeviceTypeChange(item.name);
     } else if (type == deviceName) {
       this.onDeviceNameChange(item.name);
-    } else if (type == issueType) {
-      this.onIssueTypeChange(item.name);
     }
     this.closeDialogSelected();
   };
@@ -787,14 +1015,14 @@ export default class NewIssueScreen extends React.Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderBottomWidth: 1,
-                    borderBottomColor: this.state.showEmptyNotice[1]
+                    borderBottomColor: this.state.showEmptyNotice[0]
                       ? c_bg_error_message
                       : '#ffffff',
                   }}>
                   <RNFloatingInput
-                    ref={this.deviceTypeSelect}
+                    ref={this.issuesNameSelect}
                     onPress={() => {
-                      this.showDeviceTypesPicker();
+                      this.showIssuesNamesPicker();
                     }}
                     label={nameOfIssue}
                     labelSize={12}
@@ -813,12 +1041,108 @@ export default class NewIssueScreen extends React.Component {
                       },
                     ]}
                     style={{flex: 1}}
-                    value={this.state.deviceType}
+                    value={this.state.issueName}
                     onChangeText={text => {
-                      this.onDeviceTypeChange(text);
+                      this.onIssuesNameChange(text);
                     }}></RNFloatingInput>
                 </View>
               </ImageBackground>
+
+              <View
+                style={{
+                  width: screenWidth * 0.8,
+                  marginTop: 25,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: this.state.showEmptyNotice[3]
+                    ? c_bg_error_message
+                    : '#000',
+                }}>
+                <RNFloatingInput
+                  ref={this.deviceSerialInput}
+                  label={deviceSerialName}
+                  labelSize={12}
+                  labelSizeLarge={14}
+                  textInputStyle={[
+                    mStyle.textBold,
+                    {
+                      borderWidth: 0,
+                      color: '#000000',
+                      width: screenWidth * 0.75,
+                      padding: 0,
+                      margin: 0,
+                      textAlign: 'right',
+                    },
+                  ]}
+                  style={{flex: 1}}
+                  showArrow={false}
+                  editable={true}
+                  value={this.state.deviceSerialNumber}
+                  onChangeTextInput={text => {
+                    this.onDeviceSerialNumberChange(text);
+                  }}></RNFloatingInput>
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  this.showFilePicker1();
+                }}
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginTop: 15,
+                  display: this.state.fileAttach1.length == 0 ? 'flex' : 'none',
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: c_blue_light_filter,
+                    width: screenWidth * 0.15,
+                    height: screenWidth * 0.15,
+                    borderRadius: screenWidth * 0.075,
+                  }}>
+                  <Image
+                    source={require('../image/icon_plus_white.png')}
+                    resizeMode="cover"
+                    style={{
+                      width: screenWidth * 0.05,
+                      height: screenWidth * 0.05,
+                    }}
+                  />
+                  {/* <RNFileSelector
+                    title={'Select File'}
+                    visible={this.state.visible}
+                    onDone={path => {
+                      console.log('file selected: ' + path);
+                    }}
+                    onCancel={() => {
+                      console.log('cancelled');
+                    }}
+                  /> */}
+                </View>
+                <View
+                  style={{
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={[mStyle.textDescription, {color: '#000000'}]}>
+                    {attachFileOrImage1}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <ScrollView
+                horizontal={true}
+                style={{
+                  width: screenWidth * 0.8,
+                  display: this.state.fileAttach1.length == 0 ? 'none' : 'flex',
+                  marginTop: 10,
+                  marginBottom: 10,
+                }}>
+                {this.displayAttachList1()}
+              </ScrollView>
               <View
                 style={{
                   width: screenWidth * 0.8,
@@ -895,7 +1219,6 @@ export default class NewIssueScreen extends React.Component {
                     this.onDeviceNameChange(text);
                   }}></RNFloatingInput>
               </View>
-
               <View
                 style={{
                   width: screenWidth * 0.8,
@@ -903,13 +1226,13 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[3]
+                  borderBottomColor: this.state.showEmptyNotice[4]
                     ? c_bg_error_message
                     : '#000',
                 }}>
                 <RNFloatingInput
-                  ref={this.deviceSerialInput}
-                  label={deviceSerialName}
+                  ref={this.issueTypeInput}
+                  label={typeOfIssue}
                   labelSize={12}
                   labelSizeLarge={14}
                   textInputStyle={[
@@ -926,12 +1249,11 @@ export default class NewIssueScreen extends React.Component {
                   style={{flex: 1}}
                   showArrow={false}
                   editable={true}
-                  value={this.state.deviceSerialNumber}
+                  value={this.state.issueType}
                   onChangeTextInput={text => {
-                    this.onDeviceSerialNumberChange(text);
+                    this.onIssueTypeChange(text);
                   }}></RNFloatingInput>
               </View>
-
               <View
                 style={{
                   width: screenWidth * 0.8,
@@ -939,19 +1261,20 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[4]
+                  borderBottomColor: this.state.showEmptyNotice[2]
                     ? c_bg_error_message
                     : '#000',
                 }}>
                 <RNFloatingInput
-                  ref={this.issueTypeSelect}
+                  ref={this.locationNameSelect}
                   onPress={() => {
-                    this.showIssueTypesPicker();
+                    this.showDeviceNamesPicker();
                   }}
-                  label={typeOfIssue}
+                  label={locationName}
                   labelSize={12}
                   labelSizeLarge={14}
                   source={require('../image/icon_arrow_down_black.png')}
+                  labelColor={c_grey_text}
                   textInputStyle={[
                     mStyle.textBold,
                     {
@@ -964,9 +1287,9 @@ export default class NewIssueScreen extends React.Component {
                     },
                   ]}
                   style={{flex: 1}}
-                  value={this.state.issueType}
+                  value={this.state.locationName}
                   onChangeText={text => {
-                    this.onIssueTypeChange(text);
+                    this.onLocationNameChange(text);
                   }}></RNFloatingInput>
               </View>
               <TouchableOpacity
@@ -1041,13 +1364,13 @@ export default class NewIssueScreen extends React.Component {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  this.showFilePicker();
+                  this.showFilePicker2();
                 }}
                 style={{
                   flexDirection: 'column',
                   alignItems: 'center',
                   marginTop: 15,
-                  display: this.state.fileAttach.length == 0 ? 'flex' : 'none',
+                  display: this.state.fileAttach2.length == 0 ? 'flex' : 'none',
                 }}>
                 <View
                   style={{
@@ -1085,7 +1408,7 @@ export default class NewIssueScreen extends React.Component {
                     alignItems: 'center',
                   }}>
                   <Text style={[mStyle.textDescription, {color: '#000000'}]}>
-                    {attachFileOrImage}
+                    {attachFileOrImage2}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -1093,11 +1416,11 @@ export default class NewIssueScreen extends React.Component {
                 horizontal={true}
                 style={{
                   width: screenWidth * 0.8,
-                  display: this.state.fileAttach.length == 0 ? 'none' : 'flex',
+                  display: this.state.fileAttach2.length == 0 ? 'none' : 'flex',
                   marginTop: 10,
                   marginBottom: 10,
                 }}>
-                {this.displayAttachList()}
+                {this.displayAttachList2()}
               </ScrollView>
               <TouchableOpacity
                 onPress={() => {
@@ -1355,7 +1678,7 @@ export default class NewIssueScreen extends React.Component {
           <Modal
             animationType="slide"
             presentationStyle="fullScreen"
-            visible={this.state.isAttachDialogShown}
+            visible={this.state.isAttachDialogShown1}
             transparent={false}>
             <View
               style={{
@@ -1370,7 +1693,7 @@ export default class NewIssueScreen extends React.Component {
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  this.selectOptionInAttachDialog(3);
+                  this.selectOptionInAttachDialog1(3);
                 }}>
                 <Image
                   source={require('../image/icon_close_dialog.png')}
@@ -1393,28 +1716,98 @@ export default class NewIssueScreen extends React.Component {
                 }}>
                 <TouchableOpacity
                   onPress={() => {
-                    this.selectOptionInAttachDialog(0);
+                    this.selectOptionInAttachDialog1(0);
                   }}
                   style={{padding: 10}}>
                   <Text style={[mStyle.textBold]}>{takePicture}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    this.selectOptionInAttachDialog(1);
+                    this.selectOptionInAttachDialog1(1);
                   }}
                   style={{padding: 10}}>
                   <Text style={[mStyle.textBold]}>{selectFromGallery}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    this.selectOptionInAttachDialog(2);
+                    this.selectOptionInAttachDialog1(2);
                   }}
                   style={{padding: 10}}>
                   <Text style={[mStyle.textBold]}>{selectOtherFile}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    this.selectOptionInAttachDialog(3);
+                    this.selectOptionInAttachDialog1(3);
+                  }}
+                  style={{padding: 10}}>
+                  <Text style={[mStyle.textBold]}>{cancel}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+          <Modal
+            animationType="slide"
+            presentationStyle="fullScreen"
+            visible={this.state.isAttachDialogShown2}
+            transparent={false}>
+            <View
+              style={{
+                flexDirection: 'column',
+                flex: 1,
+                padding: 10,
+                alignItems: 'flex-end',
+                justifyContent: 'flex-start',
+                backgroundColor: '#ffffff',
+                borderRadius: 10,
+                marginTop: 30,
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.selectOptionInAttachDialog2(3);
+                }}>
+                <Image
+                  source={require('../image/icon_close_dialog.png')}
+                  resizeMode="cover"
+                  style={{
+                    width: screenWidth * 0.09,
+                    height: screenWidth * 0.09,
+                    alignSelf: 'flex-end',
+                    margin: 10,
+                  }}
+                />
+              </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  width: screenWidth,
+                  padding: 10,
+                  backgroundColor: '#ffffff',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.selectOptionInAttachDialog2(0);
+                  }}
+                  style={{padding: 10}}>
+                  <Text style={[mStyle.textBold]}>{takePicture}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.selectOptionInAttachDialog2(1);
+                  }}
+                  style={{padding: 10}}>
+                  <Text style={[mStyle.textBold]}>{selectFromGallery}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.selectOptionInAttachDialog2(2);
+                  }}
+                  style={{padding: 10}}>
+                  <Text style={[mStyle.textBold]}>{selectOtherFile}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.selectOptionInAttachDialog2(3);
                   }}
                   style={{padding: 10}}>
                   <Text style={[mStyle.textBold]}>{cancel}</Text>
