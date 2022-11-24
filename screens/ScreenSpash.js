@@ -30,7 +30,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {splashScreenContent} from '../resource/StringContentDefault';
 import {StackActions, useNavigation} from '@react-navigation/native';
-
+// I18nManager.forceRTL(true);
 export const SplashScreen = () => {
   const [indicatorSizeW, setIndicatorSizeW] = useState(0);
   const [indicatorSizeH, setIndicatorSizeH] = useState(0);
@@ -50,7 +50,6 @@ export const SplashScreen = () => {
 
   useEffect(() => {
     getAppConfig();
-    I18nManager.forceRTL(true);
   }, []);
 
   const getAppConfig = async () => {
