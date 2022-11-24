@@ -223,13 +223,13 @@ export const SmsVerificationScreen = () => {
       // };
       AsyncStorage.setItem(key_user_info, JSON.stringify(dataJson)).then(() => {
         _closeLoadingBox();
-        const resetAction = StackActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({routeName: MyIssuesScreenName}),
-          ],
-        });
-        navigation.dispatch(resetAction);
+        // const resetAction = StackActions.reset({
+        //   index: 0,
+        //   actions: [NavigationActions.push({routeName: MyIssuesScreenName})],
+        // });
+        // navigation.dispatch(Stack);
+        const pushAction = StackActions.push(MyIssuesScreenName);
+        navigation.dispatch(pushAction);
         // props.navigation.pop(2);
         // props.navigation.navigate(MyIssuesScreenName);
       });
@@ -338,14 +338,14 @@ export const SmsVerificationScreen = () => {
 
         <View
           style={{
-            flexDirection: 'row-reverse',
+            flexDirection: 'row',
             justifyContent: 'space-around',
           }}>
           <View
             style={{
               justifyContent: 'space-between',
               alignItems: 'center',
-              flexDirection: 'row-reverse',
+              flexDirection: 'row',
               marginTop: 36,
             }}>
             {inputs.map((inp, index) => {
