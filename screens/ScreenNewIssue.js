@@ -67,12 +67,18 @@ import {
   text_no,
   ok_text,
   locationName,
+  locationID,
+  sub_option_a_1,
+  sub_option_a_title,
+  sub_option_a_2,
+  sub_option_b_title,
+  sub_option_b_1,
+  sub_option_b_2,
 } from '../resource/StringContentDefault';
 // import RNFileSelector from 'react-native-file-selector';
 import RNFloatingInput from '../comp/FloatingInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import RNFetchBlob from 'react-native-fetch-blob';
-// import DocumentPicker, {types} from 'react-native-document-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 export default class NewIssueScreen extends React.Component {
@@ -117,6 +123,8 @@ export default class NewIssueScreen extends React.Component {
       isTwoQuestionDialogShow: false,
       questionFirstSelected: text_no,
       questionSecondSelected: text_no,
+      sub_option_a: 0,
+      sub_option_b: 0,
     };
   }
 
@@ -156,7 +164,6 @@ export default class NewIssueScreen extends React.Component {
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.appConfig = jsonValue;
-        console.log(jsonValue);
         this.setState(allState);
       } else {
       }
@@ -188,6 +195,7 @@ export default class NewIssueScreen extends React.Component {
       };
       allState.deviceTypes.push(item);
     }
+
     this.setState(allState);
   };
 
@@ -217,6 +225,7 @@ export default class NewIssueScreen extends React.Component {
           issue_types: deviceList[i]['issue_types'],
         };
         allState.deviceNames.push(item);
+        console.log(allState.deviceNames[0].issue_types);
       }
     }
     this.setState(allState);
@@ -468,12 +477,6 @@ export default class NewIssueScreen extends React.Component {
   };
 
   selectOptionInAttachDialog1 = async index => {
-    const options = {
-      storageOptions: {
-        skipBackup: true,
-      },
-    };
-
     let allState = this.state;
     if (index == 0) {
       const result = await launchCamera({mediaType: 'photo'});
@@ -508,53 +511,47 @@ export default class NewIssueScreen extends React.Component {
         }
       });
     } else if (index == 2) {
-      RNFileSelector.Show({
-        title: 'Select File',
-        onDone: path => {
-          RNFetchBlob.fs.readFile(path, 'base64').then(data => {
-            console.log(data);
-            let fileStrArray = path.split('/');
-            let fileName = fileStrArray[fileStrArray.length - 1];
-            let isImage = true;
-            if (
-              fileName.endsWith('.png') ||
-              fileName.endsWith('.jpg') ||
-              fileName.endsWith('.jpge') ||
-              fileName.endsWith('.bmp') ||
-              fileName.endsWith('.gif')
-            ) {
-              isImage = true;
-            } else {
-              isImage = false;
-            }
-            let attachItem = {
-              attachment_name: fileName,
-              attachment: data,
-              is_attachment_image: isImage,
-            };
-            let allState = this.state;
-            allState.fileAttach.push(attachItem);
-            this.setState(allState);
-          });
-          if (path != '') {
-            this.onHaveImageUploadChange(true);
-          }
-        },
-        onCancel: () => {
-          console.log('cancelled');
-        },
-      });
+      // RNFileSelector.Show({
+      //   title: 'Select File',
+      //   onDone: path => {
+      //     RNFetchBlob.fs.readFile(path, 'base64').then(data => {
+      //       console.log(data);
+      //       let fileStrArray = path.split('/');
+      //       let fileName = fileStrArray[fileStrArray.length - 1];
+      //       let isImage = true;
+      //       if (
+      //         fileName.endsWith('.png') ||
+      //         fileName.endsWith('.jpg') ||
+      //         fileName.endsWith('.jpge') ||
+      //         fileName.endsWith('.bmp') ||
+      //         fileName.endsWith('.gif')
+      //       ) {
+      //         isImage = true;
+      //       } else {
+      //         isImage = false;
+      //       }
+      //       let attachItem = {
+      //         attachment_name: fileName,
+      //         attachment: data,
+      //         is_attachment_image: isImage,
+      //       };
+      //       let allState = this.state;
+      //       allState.fileAttach.push(attachItem);
+      //       this.setState(allState);
+      //     });
+      //     if (path != '') {
+      //       this.onHaveImageUploadChange(true);
+      //     }
+      //   },
+      //   onCancel: () => {
+      //     console.log('cancelled');
+      //   },
+      // });
     }
     allState.isAttachDialogShown1 = false;
     this.setState(allState);
   };
   selectOptionInAttachDialog2 = async index => {
-    const options = {
-      storageOptions: {
-        skipBackup: true,
-      },
-    };
-
     let allState = this.state;
     if (index == 0) {
       const result = await launchCamera({mediaType: 'photo'});
@@ -654,6 +651,7 @@ export default class NewIssueScreen extends React.Component {
           console.log('is_attachment_image');
           fileAttachDisplayView.push(
             <View
+              key={i}
               style={{
                 width: screenWidth * 0.24,
                 height: screenWidth * 0.24,
@@ -698,6 +696,7 @@ export default class NewIssueScreen extends React.Component {
           console.log('is_attachment_file');
           fileAttachDisplayView.push(
             <View
+              key={i}
               style={{
                 width: screenWidth * 0.24,
                 height: screenWidth * 0.24,
@@ -776,6 +775,7 @@ export default class NewIssueScreen extends React.Component {
           console.log('is_attachment_image');
           fileAttachDisplayView.push(
             <View
+              key={i}
               style={{
                 width: screenWidth * 0.24,
                 height: screenWidth * 0.24,
@@ -820,6 +820,7 @@ export default class NewIssueScreen extends React.Component {
           console.log('is_attachment_file');
           fileAttachDisplayView.push(
             <View
+              key={i}
               style={{
                 width: screenWidth * 0.24,
                 height: screenWidth * 0.24,
@@ -869,7 +870,7 @@ export default class NewIssueScreen extends React.Component {
       fileAttachDisplayView.push(
         <TouchableOpacity
           onPress={() => {
-            this.showFilePicker1();
+            this.showFilePicker2();
           }}
           style={{
             width: screenWidth * 0.24,
@@ -1292,6 +1293,197 @@ export default class NewIssueScreen extends React.Component {
                     this.onLocationNameChange(text);
                   }}></RNFloatingInput>
               </View>
+              <View
+                style={{
+                  marginTop: 25,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    console.log('Location Id');
+                  }}>
+                  <Image
+                    source={require('../image/location_red.png')}
+                    style={{
+                      width: 30,
+                      height: 30,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    width: screenWidth * 0.8 - 30,
+                    borderBottomWidth: 1,
+                    borderBottomColor: this.state.showEmptyNotice[4]
+                      ? c_bg_error_message
+                      : '#000',
+                  }}>
+                  <RNFloatingInput
+                    ref={this.issueTypeInput}
+                    label={locationID}
+                    labelSize={12}
+                    labelSizeLarge={14}
+                    textInputStyle={[
+                      mStyle.textBold,
+                      {
+                        borderWidth: 0,
+                        color: '#000000',
+                        width: screenWidth * 0.75,
+                        padding: 0,
+                        margin: 0,
+                        textAlign: 'right',
+                      },
+                    ]}
+                    style={{flex: 1}}
+                    showArrow={false}
+                    editable={true}
+                    value={this.state.issueType}
+                    onChangeTextInput={text => {
+                      this.onIssueTypeChange(text);
+                    }}></RNFloatingInput>
+                </View>
+              </View>
+              <View style={{marginTop: 25}}>
+                <View
+                  style={{
+                    flexDirection: 'row-reverse',
+                    justifyContent: 'flex-end',
+                    width: screenWidth * 0.8,
+                    alignItems: 'center',
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row-reverse',
+                      backgroundColor: '#fff',
+                      padding: 4,
+                      borderRadius: 10,
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        let allState = this.state;
+                        allState.sub_option_a = 1;
+                        this.setState(allState);
+                      }}
+                      style={{
+                        paddingHorizontal: 4,
+                        paddingVertical: 8,
+                        marginLeft: 10,
+                        borderRadius: 10,
+                        backgroundColor:
+                          this.state.sub_option_a === 1 ? '#020047' : '#fff',
+                      }}>
+                      <Text
+                        style={{
+                          color:
+                            this.state.sub_option_a === 1 ? '#fff' : '#000',
+                        }}>
+                        {sub_option_a_2}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        let allState = this.state;
+                        allState.sub_option_a = 0;
+                        this.setState(allState);
+                      }}
+                      style={{
+                        paddingHorizontal: 4,
+                        paddingVertical: 8,
+                        borderRadius: 10,
+                        backgroundColor:
+                          this.state.sub_option_a === 0 ? '#020047' : '#fff',
+                      }}>
+                      <Text
+                        style={{
+                          color:
+                            this.state.sub_option_a === 0 ? '#fff' : '#000',
+                        }}>
+                        {sub_option_a_1}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text
+                    style={{
+                      fontWeight: '700',
+                      color: '#020047',
+                      marginRight: 10,
+                    }}>
+                    {sub_option_a_title}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row-reverse',
+                    justifyContent: 'flex-end',
+                    width: screenWidth * 0.8,
+                    alignItems: 'center',
+                    marginTop: 10,
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row-reverse',
+                      backgroundColor: '#fff',
+                      padding: 4,
+                      borderRadius: 10,
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        let allState = this.state;
+                        allState.sub_option_b = 1;
+                        this.setState(allState);
+                      }}
+                      style={{
+                        paddingHorizontal: 4,
+                        paddingVertical: 8,
+                        marginLeft: 10,
+                        borderRadius: 10,
+                        backgroundColor:
+                          this.state.sub_option_b === 1 ? '#020047' : '#fff',
+                      }}>
+                      <Text
+                        style={{
+                          color:
+                            this.state.sub_option_b === 1 ? '#fff' : '#000',
+                        }}>
+                        {sub_option_b_2}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        let allState = this.state;
+                        allState.sub_option_b = 0;
+                        this.setState(allState);
+                      }}
+                      style={{
+                        paddingHorizontal: 4,
+                        paddingVertical: 8,
+                        borderRadius: 10,
+                        backgroundColor:
+                          this.state.sub_option_b === 0 ? '#020047' : '#fff',
+                      }}>
+                      <Text
+                        style={{
+                          color:
+                            this.state.sub_option_b === 0 ? '#fff' : '#000',
+                        }}>
+                        {sub_option_b_1}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text
+                    style={{
+                      fontWeight: '700',
+                      color: '#020047',
+                      marginRight: 10,
+                    }}>
+                    {sub_option_b_title}
+                  </Text>
+                </View>
+              </View>
+
               <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => {
