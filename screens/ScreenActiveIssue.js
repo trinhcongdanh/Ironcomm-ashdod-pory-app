@@ -69,6 +69,7 @@ import {
   LoginScreenName,
   c_color_chat_list,
   format_date_in_chat,
+  c_priority_immediate,
 } from '../resource/BaseValue';
 import {
   unit,
@@ -86,6 +87,7 @@ import {
   idfApproved,
   idfNotApproved,
   priorityLow,
+  priorityImmediate,
   sectionStatusTitle,
   inPriority,
   inClose,
@@ -149,7 +151,8 @@ export default class ActiveIssueScreen extends React.Component {
       chatRefresh: true,
       isAttachDialogShown: false,
       isStatusDialogShown: false,
-      issueId: '',
+      issueId: props.route.params.issue_id,
+      issueStatus: props.route.params.issue_status,
       indicatorSizeW: 0,
       indicatorSizeH: 0,
       indicatorDisplay: false,
@@ -193,11 +196,6 @@ export default class ActiveIssueScreen extends React.Component {
       this.handleBackButtonClick,
     );
     I18nManager.forceRTL(true);
-    const {navigation} = this.props;
-    var allState = this.state;
-    allState.issueId = navigation.getParam('issue_id', '');
-    allState.issueStatus = navigation.getParam('issue_status', '');
-    this.setState(allState);
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
         this.getIssueDetails(this.state.issueId);
@@ -227,7 +225,7 @@ export default class ActiveIssueScreen extends React.Component {
       const value = await AsyncStorage.getItem(key_user_info);
       if (value != null) {
         // value previously stored
-        console.log('userinfo: ' + value);
+        // console.log('userinfo: ' + value);
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.userInfo = jsonValue;
@@ -311,11 +309,12 @@ export default class ActiveIssueScreen extends React.Component {
       .then(response => response.json())
       .then(responseJson => {
         this._closeLoadingBox();
-        console.log(responseJson);
+        // console.log(responseJson);
         if (responseJson.rc == rc_success) {
           // console.log(responseJson.chat_messages);
           let allState = this.state;
           allState.issueDetail = responseJson;
+          console.log(allState.issueDetail);
           // create user color list
           allState.userColorList = this.getUserColorList(
             allState.issueDetail.chat_messages,
@@ -324,10 +323,10 @@ export default class ActiveIssueScreen extends React.Component {
             let colorString = this.getUsernameColor(
               allState.issueDetail.chat_messages[i]['user_name'],
             );
-            console.log(colorString);
+            // console.log(colorString);
             allState.issueDetail.chat_messages[i]['user_color'] = colorString;
           }
-          console.log(allState.issueDetail.chat_messages);
+          // console.log(allState.issueDetail.chat_messages);
           this.setState(allState);
           this.getDeviceTypes();
         } else if (responseJson.rc == rc_token_expire) {
@@ -335,12 +334,12 @@ export default class ActiveIssueScreen extends React.Component {
             isTokenExpire: true,
           });
         } else {
-          console.log(responseJson.message);
+          // console.log(responseJson.message);
         }
       })
       .catch(error => {
         this._closeLoadingBox();
-        console.log(error + ' - getIssueDetails');
+        // console.log(error + ' - getIssueDetails');
       });
   };
 
@@ -351,7 +350,7 @@ export default class ActiveIssueScreen extends React.Component {
     let countStop = c_color_chat_list.length;
     for (let i = 0; i < chatList.length; i++) {
       let itemChat = chatList[i];
-      console.log(currentColorIndex);
+      // console.log(currentColorIndex);
       if (
         userColorList[itemChat.user_name] == null ||
         userColorList[itemChat.user_name] == '' ||
@@ -359,7 +358,7 @@ export default class ActiveIssueScreen extends React.Component {
       ) {
         if (currentColorIndex > colorArray.length - 1) {
           for (let j = 0; j < countStop; j++) {
-            console.log(c_color_chat_list[j]);
+            // console.log(c_color_chat_list[j]);
             colorArray.push(c_color_chat_list[j]);
           }
         }
@@ -412,7 +411,7 @@ export default class ActiveIssueScreen extends React.Component {
       let allState = this.state;
       if (index == 0) {
         ImagePicker.launchCamera(options, response => {
-          console.log(response);
+          // console.log(response);
           allState.fileName = response.fileName;
           allState.fileUri = response.data;
           allState.isImageAttach = true;
@@ -420,7 +419,7 @@ export default class ActiveIssueScreen extends React.Component {
         });
       } else if (index == 1) {
         ImagePicker.launchImageLibrary(options, response => {
-          console.log(response);
+          // console.log(response);
           allState.fileName = response.fileName;
           allState.fileUri = response.data;
           allState.isImageAttach = true;
@@ -499,83 +498,83 @@ export default class ActiveIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  callAcceptIssue = async classValue => {
-    if (this.state.issueDetail.can_accept == 1) {
-      this._showLoadingBox();
-      let dataObj = {
-        request: rq_accept_issue,
-        token: this.state.userInfo.token,
-        issue_id: this.state.issueDetail.issue_id,
-      };
-      if (this.state.userInfo.type == 3) {
-        dataObj.class = classValue;
-      }
-      fetch(api_url, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataObj),
-      })
-        .then(response => response.json())
-        .then(responseJson => {
-          this._closeLoadingBox();
-          if (responseJson.rc == rc_success) {
-            console.log(responseJson);
-            let allState = this.state;
-            allState.issueDetail.accept_status = 1;
-            allState.issueDetail.class = classValue;
-            this.setState(allState);
-          } else if (responseJson.rc == rc_token_expire) {
-            this.props.navigation.navigate(LoginScreenName, {
-              isTokenExpire: true,
-            });
-          } else {
-            console.log(responseJson.message + ' ' + dataObj.toString());
-          }
-        })
-        .catch(error => {
-          this._closeLoadingBox();
-          console.log(error);
-        });
-    } else {
-      this.showAlert(youHaveNoPermissionToDoThi);
-    }
-  };
+  // callAcceptIssue = async classValue => {
+  //   if (this.state.issueDetail.can_accept == 1) {
+  //     this._showLoadingBox();
+  //     let dataObj = {
+  //       request: rq_accept_issue,
+  //       token: this.state.userInfo.token,
+  //       issue_id: this.state.issueDetail.issue_id,
+  //     };
+  //     if (this.state.userInfo.type == 3) {
+  //       dataObj.class = classValue;
+  //     }
+  //     fetch(api_url, {
+  //       method: 'POST',
+  //       headers: {
+  //         Accept: 'application/json',
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(dataObj),
+  //     })
+  //       .then(response => response.json())
+  //       .then(responseJson => {
+  //         this._closeLoadingBox();
+  //         if (responseJson.rc == rc_success) {
+  //           console.log(responseJson);
+  //           let allState = this.state;
+  //           allState.issueDetail.accept_status = 1;
+  //           allState.issueDetail.class = classValue;
+  //           this.setState(allState);
+  //         } else if (responseJson.rc == rc_token_expire) {
+  //           this.props.navigation.navigate(LoginScreenName, {
+  //             isTokenExpire: true,
+  //           });
+  //         } else {
+  //           console.log(responseJson.message + ' ' + dataObj.toString());
+  //         }
+  //       })
+  //       .catch(error => {
+  //         this._closeLoadingBox();
+  //         console.log(error);
+  //       });
+  //   } else {
+  //     this.showAlert(youHaveNoPermissionToDoThi);
+  //   }
+  // };
 
-  showRejectIssueDialog = () => {
-    if (this.state.issueDetail.can_accept == 1) {
-      if (this.state.userInfo.type == 3) {
-        Alert.alert(
-          '',
-          rejectConfirmForType3,
-          [
-            {
-              text: rejectConfirmForType3ButtonYes,
-              onPress: () => {
-                this.callAcceptIssue(2);
-              },
-            },
-            {
-              text: rejectConfirmForType3ButtonNo,
-              onPress: () => {
-                this.setState({isRejectIssueDialogShown: true});
-              },
-              style: 'cancel',
-            },
-          ],
-          {
-            cancelable: true,
-          },
-        );
-      } else {
-        this.setState({isRejectIssueDialogShown: true});
-      }
-    } else {
-      this.showAlert(youHaveNoPermissionToDoThi);
-    }
-  };
+  // showRejectIssueDialog = () => {
+  //   if (this.state.issueDetail.can_accept == 1) {
+  //     if (this.state.userInfo.type == 3) {
+  //       Alert.alert(
+  //         '',
+  //         rejectConfirmForType3,
+  //         [
+  //           {
+  //             text: rejectConfirmForType3ButtonYes,
+  //             onPress: () => {
+  //               this.callAcceptIssue(2);
+  //             },
+  //           },
+  //           {
+  //             text: rejectConfirmForType3ButtonNo,
+  //             onPress: () => {
+  //               this.setState({isRejectIssueDialogShown: true});
+  //             },
+  //             style: 'cancel',
+  //           },
+  //         ],
+  //         {
+  //           cancelable: true,
+  //         },
+  //       );
+  //     } else {
+  //       this.setState({isRejectIssueDialogShown: true});
+  //     }
+  //   } else {
+  //     this.showAlert(youHaveNoPermissionToDoThi);
+  //   }
+  // };
 
   closeRejectIssueDialog = () => {
     this.setState({isRejectIssueDialogShown: false});
@@ -606,7 +605,7 @@ export default class ActiveIssueScreen extends React.Component {
               .then(responseJson => {
                 this._closeLoadingBox();
                 if (responseJson.rc == rc_success) {
-                  console.log(responseJson);
+                  // console.log(responseJson);
                   let allState = this.state;
                   allState.isRejectIssueDialogShown = false;
                   allState.issueDetail.accept_status = 2;
@@ -621,7 +620,7 @@ export default class ActiveIssueScreen extends React.Component {
               })
               .catch(error => {
                 this._closeLoadingBox();
-                console.log(error);
+                // console.log(error);
               });
           },
         },
@@ -664,7 +663,7 @@ export default class ActiveIssueScreen extends React.Component {
         .then(responseJson => {
           this._closeLoadingBox();
           if (responseJson.rc == rc_success) {
-            console.log(responseJson);
+            // console.log(responseJson);
             let allState = this.state;
             allState.issueDetail.approve_status = 1;
             this.setState(allState);
@@ -678,7 +677,7 @@ export default class ActiveIssueScreen extends React.Component {
         })
         .catch(error => {
           this._closeLoadingBox();
-          console.log(error);
+          // console.log(error);
         });
     } else {
       this.showAlert(youHaveNoPermissionToDoThi);
@@ -686,6 +685,7 @@ export default class ActiveIssueScreen extends React.Component {
   };
 
   setPriorityIssue = async priorityValue => {
+    // console.log(this.state.issueDetail.can_prioritize);
     if (this.state.issueDetail.can_prioritize == 1) {
       this._showLoadingBox();
       let dataObj = {
@@ -706,7 +706,7 @@ export default class ActiveIssueScreen extends React.Component {
         .then(responseJson => {
           this._closeLoadingBox();
           if (responseJson.rc == rc_success) {
-            console.log(responseJson);
+            // console.log(responseJson);
             let allState = this.state;
             allState.issueDetail.priority = priorityValue;
             this.setState(allState);
@@ -720,7 +720,7 @@ export default class ActiveIssueScreen extends React.Component {
         })
         .catch(error => {
           this._closeLoadingBox();
-          console.log(error);
+          // console.log(error);
         });
     } else {
       this.showAlert(youHaveNoPermissionToDoThi);
@@ -749,7 +749,7 @@ export default class ActiveIssueScreen extends React.Component {
         .then(responseJson => {
           this._closeLoadingBox();
           if (responseJson.rc == rc_success) {
-            console.log(responseJson);
+            // console.log(responseJson);
             let allState = this.state;
             allState.issueDetail.arrive_date = dateStr;
             allState.issueDetail.status = responseJson.status;
@@ -775,7 +775,7 @@ export default class ActiveIssueScreen extends React.Component {
         })
         .catch(error => {
           this._closeLoadingBox();
-          console.log(error);
+          // console.log(error);
         });
     } else {
       this.showAlert(youHaveNoPermissionToDoThi);
@@ -815,7 +815,7 @@ export default class ActiveIssueScreen extends React.Component {
         .then(responseJson => {
           this._closeLoadingBox();
           if (responseJson.rc == rc_success) {
-            console.log(responseJson);
+            // console.log(responseJson);
             let allState = this.state;
             allState.issueDetail.approve_status = 2;
             allState.isDisapproveDialogShown = false;
@@ -834,7 +834,7 @@ export default class ActiveIssueScreen extends React.Component {
         })
         .catch(error => {
           this._closeLoadingBox();
-          console.log(error);
+          // console.log(error);
         });
     } else {
       this.setState({showDisapproveReasonNotice: true});
@@ -850,7 +850,7 @@ export default class ActiveIssueScreen extends React.Component {
   };
 
   updateStatusIssue = async statusValue => {
-    console.log('updateStatusIssue ' + statusValue);
+    // console.log('updateStatusIssue ' + statusValue);
     if (this.state.issueDetail.can_change_status == 1) {
       if (statusValue == 6) {
         Alert.alert('', closeIssueMessage, [
@@ -894,7 +894,7 @@ export default class ActiveIssueScreen extends React.Component {
       .then(responseJson => {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
-          console.log(responseJson);
+          // console.log(responseJson);
           let allState = this.state;
           allState.issueDetail.status = parseInt(statusValue);
           this.setState(allState);
@@ -908,7 +908,7 @@ export default class ActiveIssueScreen extends React.Component {
       })
       .catch(error => {
         this._closeLoadingBox();
-        console.log(error);
+        // console.log(error);
       });
   };
 
@@ -926,7 +926,7 @@ export default class ActiveIssueScreen extends React.Component {
       dataObj.attachment_name = this.state.fileName;
       dataObj.is_attachment_image = this.state.isImageAttach;
     }
-    console.log(dataObj);
+    // console.log(dataObj);
     this.createTempMessage(dataObj);
   };
 
@@ -942,7 +942,7 @@ export default class ActiveIssueScreen extends React.Component {
       .then(response => response.json())
       .then(responseJson => {
         if (responseJson.rc == rc_success) {
-          console.log(responseJson);
+          // console.log(responseJson);
           this.refreshIssueDetails(this.state.issueId);
           let allState = this.state;
           allState.fileUri = '';
@@ -964,12 +964,12 @@ export default class ActiveIssueScreen extends React.Component {
       })
       .catch(error => {
         this._closeLoadingBox();
-        console.log(error);
+        // console.log(error);
       });
   };
 
   createTempMessage = async dataObj => {
-    console.log(this.state.composeText);
+    // console.log(this.state.composeText);
     if (
       this.state.composeText != '' ||
       (typeof dataObj.attachment !== 'undefined' && dataObj.attachment != '')
@@ -981,7 +981,7 @@ export default class ActiveIssueScreen extends React.Component {
         ')';
       let allState = this.state;
       let colorString = this.getUsernameColor(displayNameInChat);
-      console.log(colorString);
+      // console.log(colorString);
       let chatItem = {
         chat_message_id: -1,
         user_name: displayNameInChat,
@@ -1060,7 +1060,7 @@ export default class ActiveIssueScreen extends React.Component {
       .then(response => response.json())
       .then(responseJson => {
         this._closeLoadingBox();
-        console.log(responseJson);
+        // console.log(responseJson);
         if (responseJson.rc == rc_success) {
           // console.log(responseJson.chat_messages);
           let allState = this.state;
@@ -1073,34 +1073,34 @@ export default class ActiveIssueScreen extends React.Component {
             let colorString = this.getUsernameColor(
               allState.issueDetail.chat_messages[i]['user_name'],
             );
-            console.log(colorString);
+            // console.log(colorString);
             allState.issueDetail.chat_messages[i]['user_color'] = colorString;
           }
-          console.log(allState.issueDetail.chat_messages);
+          // console.log(allState.issueDetail.chat_messages);
           this.setState(allState);
         } else if (responseJson.rc == rc_token_expire) {
           this.props.navigation.navigate(LoginScreenName, {
             isTokenExpire: true,
           });
         } else {
-          console.log(responseJson.message);
+          // console.log(responseJson.message);
         }
         this.scrollView.current.scrollToEnd({animated: true});
       })
       .catch(error => {
         this._closeLoadingBox();
-        console.log(error + ' - getIssueDetails');
+        // console.log(error + ' - getIssueDetails');
       });
   };
 
   measureSectionTopDistance() {
     this.issueDetailSection.current.measure((fx, fy, width, height, px, py) => {
-      console.log('Component width is: ' + width);
-      console.log('Component height is: ' + height);
-      console.log('X offset to frame: ' + fx);
-      console.log('Y offset to frame: ' + fy);
-      console.log('X offset to page: ' + px);
-      console.log('Y offset to page: ' + py);
+      // console.log('Component width is: ' + width);
+      // console.log('Component height is: ' + height);
+      // console.log('X offset to frame: ' + fx);
+      // console.log('Y offset to frame: ' + fy);
+      // console.log('X offset to page: ' + px);
+      // console.log('Y offset to page: ' + py);
     });
   }
 
@@ -1711,7 +1711,7 @@ export default class ActiveIssueScreen extends React.Component {
         if (supported) {
           Linking.openURL(url);
         } else {
-          console.log("Don't know how to open URI: " + this.props.url);
+          // console.log("Don't know how to open URI: " + this.props.url);
         }
       });
     }
@@ -1737,7 +1737,7 @@ export default class ActiveIssueScreen extends React.Component {
     if (this.state.userInfo.type != 2) {
       return (
         <View style={{flexDirection: 'column'}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text style={[mStyle.textInfoLabel, {flex: 1}]}>
               {mcaApprovalLabel}
             </Text>
@@ -1785,7 +1785,7 @@ export default class ActiveIssueScreen extends React.Component {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
             <Text style={[mStyle.textInfoLabel, {flex: 1}]}>
@@ -1801,7 +1801,7 @@ export default class ActiveIssueScreen extends React.Component {
                     this.state.issueDetail.priority == 1
                       ? mStyle.priorityCircleSelected
                       : mStyle.priorityCircleNormal,
-                    {backgroundColor: c_priority_high},
+                    {backgroundColor: c_priority_immediate},
                   ]}>
                   1
                 </Text>
@@ -1815,7 +1815,7 @@ export default class ActiveIssueScreen extends React.Component {
                     this.state.issueDetail.priority == 2
                       ? mStyle.priorityCircleSelected
                       : mStyle.priorityCircleNormal,
-                    {backgroundColor: c_priority_medium},
+                    {backgroundColor: c_priority_high},
                   ]}>
                   2
                 </Text>
@@ -1829,9 +1829,23 @@ export default class ActiveIssueScreen extends React.Component {
                     this.state.issueDetail.priority == 3
                       ? mStyle.priorityCircleSelected
                       : mStyle.priorityCircleNormal,
-                    {backgroundColor: c_priority_low},
+                    {backgroundColor: c_priority_medium},
                   ]}>
                   3
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setPriorityIssue(4);
+                }}>
+                <Text
+                  style={[
+                    this.state.issueDetail.priority == 4
+                      ? mStyle.priorityCircleSelected
+                      : mStyle.priorityCircleNormal,
+                    {backgroundColor: c_priority_low},
+                  ]}>
+                  4
                 </Text>
               </TouchableOpacity>
               <Text
@@ -1845,10 +1859,12 @@ export default class ActiveIssueScreen extends React.Component {
                   },
                 ]}>
                 {this.state.issueDetail.priority == 1
-                  ? priorityHigh
+                  ? priorityImmediate
                   : this.state.issueDetail.priority == 2
-                  ? priorityMedium
+                  ? priorityHigh
                   : this.state.issueDetail.priority == 3
+                  ? priorityMedium
+                  : this.state.issueDetail.priority == 4
                   ? priorityLow
                   : ''}
               </Text>
@@ -2017,24 +2033,8 @@ export default class ActiveIssueScreen extends React.Component {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-              <Text
-                style={[
-                  mStyle.textNormal,
-                  {color: c_blue_light_filter, marginEnd: 5},
-                ]}>
-                {location}
-              </Text>
-              <Image
-                source={require('../image/icon_target.png')}
-                resizeMode="cover"
-                style={{
-                  width: screenWidth * 0.05,
-                  height: screenWidth * 0.05,
-                  marginEnd: 5,
-                }}
-              />
               <Text style={[mStyle.textNormal, {color: 'white'}]}>
-                {this.state.userInfo.command_name}
+                {this.state.userInfo.first_name}
               </Text>
             </View>
             <View
@@ -2044,22 +2044,6 @@ export default class ActiveIssueScreen extends React.Component {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-              <Text
-                style={[
-                  mStyle.textNormal,
-                  {color: c_blue_light_filter, marginEnd: 5},
-                ]}>
-                {unit}
-              </Text>
-              <Image
-                source={require('../image/icon_reload.png')}
-                resizeMode="cover"
-                style={{
-                  width: screenWidth * 0.05,
-                  height: screenWidth * 0.05 * (33 / 27),
-                  marginEnd: 5,
-                }}
-              />
               <Text style={[mStyle.textNormal, {color: 'white'}]}>
                 {this.state.userInfo.unit_number}
               </Text>
@@ -2269,7 +2253,7 @@ export default class ActiveIssueScreen extends React.Component {
                       alignItems: 'flex-start',
                       marginEnd: 5,
                     }}>
-                    <Text style={[mStyle.textNormal]}>{issueType}</Text>
+                    <Text style={[mStyle.textNormal]}>{serialNumber}</Text>
                     <Text style={[mStyle.textBold]}>
                       {this.state.issueDetail.issue_type_name}
                     </Text>
@@ -2280,7 +2264,7 @@ export default class ActiveIssueScreen extends React.Component {
                       flex: 1,
                       alignItems: 'flex-start',
                     }}>
-                    <Text style={[mStyle.textNormal]}>{serialNumber}</Text>
+                    <Text style={[mStyle.textNormal]}>{issueType}</Text>
                     <Text style={[mStyle.textBold]}>
                       {this.state.issueDetail.serial_number}
                     </Text>
@@ -2705,7 +2689,7 @@ export default class ActiveIssueScreen extends React.Component {
                     let allState = this.state;
                     allState.composeText = text;
                     this.setState(allState);
-                    console.log(this.state.composeText);
+                    // console.log(this.state.composeText);
                   }}
                   value={this.state.composeText}
                   multiline={true}

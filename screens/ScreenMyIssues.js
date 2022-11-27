@@ -1616,7 +1616,7 @@ export default class MyIssuesScreen extends React.Component {
 
   checkNotification = async () => {
     console.log('checkNotification');
-    const value = AsyncStorage.getItem(key_bg_notification);
+    const value = await AsyncStorage.getItem(key_bg_notification);
     console.log(value);
     if (value != null && value != '') {
       const jsonValue = JSON.parse(value);
