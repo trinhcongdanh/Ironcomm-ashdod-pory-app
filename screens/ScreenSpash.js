@@ -89,6 +89,9 @@ export const SplashScreen = () => {
         issue_statuses: jsonObj.issue_statuses,
         commands: jsonObj.commands,
         devices_and_issues: jsonObj.devices_and_issues,
+        place_description: jsonObj.locations,
+        issue_conditions: jsonObj.issue_conditions,
+        issue_wornings: jsonObj.issue_wornings,
       };
       AsyncStorage.setItem(key_app_config, JSON.stringify(appConfig));
     } catch (e) {
