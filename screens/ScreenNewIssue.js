@@ -97,7 +97,7 @@ export default class NewIssueScreen extends React.Component {
       deviceNames: [],
       locationNames: [],
       selectingList: [],
-      showEmptyNotice: [false, false, false, false, false, false],
+      showEmptyNotice: [false, false, false, false, false, false, false],
       typeSelectingList: '',
       issueNameId: '',
       issueName: '',
@@ -108,6 +108,9 @@ export default class NewIssueScreen extends React.Component {
       deviceSerialNumber: '',
       issueType: '',
       locationName: '',
+      locationNameId: '',
+      condition: '',
+      worning: '',
       isHaveImageUpload: false,
       descriptionOfIssue: '',
       indicatorSizeW: 0,
@@ -164,6 +167,9 @@ export default class NewIssueScreen extends React.Component {
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.appConfig = jsonValue;
+        // Set default the status
+        allState.condition = allState.appConfig.issue_conditions[0];
+        allState.worning = allState.appConfig.issue_wornings[0];
         this.setState(allState);
       } else {
       }
@@ -231,6 +237,19 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
+  getLocations = async () => {
+    this._closeLoadingBox();
+    let allState = this.state;
+    for (let i = 0; i < allState.appConfig.place_description.length; i++) {
+      let item = {
+        id: i + 1,
+        name: allState.appConfig.place_description[i],
+      };
+      allState.locationNames.push(item);
+    }
+    this.setState(allState);
+  };
+
   addIssue = async () => {
     if (
       this.state.issueName != '' &&
@@ -238,18 +257,22 @@ export default class NewIssueScreen extends React.Component {
       this.state.deviceName != '' &&
       this.state.issueType != '' &&
       this.state.deviceSerialNumber != '' &&
-      this.state.descriptionOfIssue != ''
+      this.state.descriptionOfIssue != '' &&
+      this.state.locationName != ''
     ) {
       this._showLoadingBox();
       let dataObj = {
         request: rq_add_issue,
         token: this.state.userInfo.token,
-        title_id: parseInt(this.state.issueNameId),
+        title: this.state.issueName,
         device_type_id: parseInt(this.state.deviceTypeId),
         device_id: parseInt(this.state.deviceNameId),
         issue_type_id: this.state.issueType,
         serial_num: this.state.deviceSerialNumber,
         description: this.state.descriptionOfIssue,
+        place_description: this.state.locationName,
+        condition: this.state.condition,
+        worning: this.state.worning,
       };
       if (this.state.questionFirstSelected == text_yes) {
         dataObj.is_operational = true;
@@ -261,7 +284,7 @@ export default class NewIssueScreen extends React.Component {
       } else {
         dataObj.is_disabled = false;
       }
-      let attachments1 = [];
+      let attachments = [];
       if (this.state.fileAttach1.length > 0) {
         for (let i = 0; i < this.state.fileAttach1.length; i++) {
           let attachItem = {
@@ -270,14 +293,13 @@ export default class NewIssueScreen extends React.Component {
             is_attachment_image:
               this.state.fileAttach1[i]['is_attachment_image'],
           };
-          attachments1.push(attachItem);
+          attachments.push(attachItem);
         }
         // let attachFileData = this.state.fileAttach[0];
         // dataObj.attachment = attachFileData.attachment;
         // dataObj.attachment_name = attachFileData.attachment_name;
         // dataObj.is_attachment_image = attachFileData.is_attachment_image;
       }
-      let attachments2 = [];
       if (this.state.fileAttach2.length > 0) {
         for (let i = 0; i < this.state.fileAttach2.length; i++) {
           let attachItem = {
@@ -286,16 +308,15 @@ export default class NewIssueScreen extends React.Component {
             is_attachment_image:
               this.state.fileAttach2[i]['is_attachment_image'],
           };
-          attachments2.push(attachItem);
+          attachments.push(attachItem);
         }
         // let attachFileData = this.state.fileAttach[0];
         // dataObj.attachment = attachFileData.attachment;
         // dataObj.attachment_name = attachFileData.attachment_name;
         // dataObj.is_attachment_image = attachFileData.is_attachment_image;
       }
-      dataObj.attachments = attachments1;
-      dataObj.attachments = attachments2;
-      console.log(dataObj);
+      dataObj.attachments = attachments;
+      // console.log(dataObj);
       this.callAddIssueApi(dataObj);
     } else {
       // show empty
@@ -322,6 +343,9 @@ export default class NewIssueScreen extends React.Component {
     }
     if (this.state.descriptionOfIssue == '') {
       allState.showEmptyNotice[5] = true;
+    }
+    if (this.state.locationName == '') {
+      allState.showEmptyNotice[6] = true;
     }
     this.setState(allState);
   };
@@ -374,9 +398,15 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  onIssuesNameChange = text => {
-    console.log(text);
+  showLocationsPicker = async () => {
+    let allState = this.state;
+    allState.selectingList = allState.locationNames;
+    allState.typeSelectingList = locationName;
+    allState.isSelectListShown = true;
+    this.setState(allState);
+  };
 
+  onIssuesNameChange = text => {
     let allState = this.state;
     allState.issueName = text;
     if (text != '' && allState.showEmptyNotice[0]) {
@@ -388,8 +418,11 @@ export default class NewIssueScreen extends React.Component {
         allState.deviceType = '';
         allState.deviceNameId = '';
         allState.deviceName = '';
+        allState.locationNameId = '';
+        allState.locationName = '';
         this.deviceTypeSelect.current.updateValue('');
         this.deviceNameSelect.current.updateValue('');
+        this.locationNameSelect.current.updateValue('');
       }
       allState.issueNameId = allState.issueNames[0].id;
     }
@@ -409,6 +442,8 @@ export default class NewIssueScreen extends React.Component {
         if (allState.deviceTypeId != allState.deviceTypes[i].id) {
           allState.deviceNameId = '';
           allState.deviceName = '';
+          allState.locationNameId = '';
+          allState.locationName = '';
           this.deviceNameSelect.current.updateValue('');
         }
         allState.deviceTypeId = allState.deviceTypes[i].id;
@@ -425,6 +460,11 @@ export default class NewIssueScreen extends React.Component {
     allState.deviceName = text;
     for (let i = 0; i < allState.deviceNames.length; i++) {
       if (allState.deviceNames[i].name == text) {
+        if (allState.deviceNameId != allState.deviceNames[i].id) {
+          allState.locationNameId = '';
+          allState.locationName = '';
+          this.locationNameSelect.current.updateValue('');
+        }
         allState.deviceNameId = allState.deviceNames[i].id;
       }
     }
@@ -433,6 +473,22 @@ export default class NewIssueScreen extends React.Component {
     }
     this.setState(allState);
     this.deviceNameSelect.current.updateValue(text);
+    this.getLocations();
+  };
+
+  onLocationChange = text => {
+    let allState = this.state;
+    allState.locationName = text;
+    for (let i = 0; i < allState.locationNames.length; i++) {
+      if (allState.locationNames[i] == text) {
+        allState.locationNameId = i + 1;
+      }
+    }
+    if (text != '' && allState.showEmptyNotice[6]) {
+      allState.showEmptyNotice[6] = false;
+    }
+    this.setState(allState);
+    this.locationNameSelect.current.updateValue(text);
   };
 
   onDeviceSerialNumberChange = text => {
@@ -897,6 +953,8 @@ export default class NewIssueScreen extends React.Component {
       this.onDeviceTypeChange(item.name);
     } else if (type == deviceName) {
       this.onDeviceNameChange(item.name);
+    } else if (type == locationName) {
+      this.onLocationChange(item.name);
     }
     this.closeDialogSelected();
   };
@@ -1262,14 +1320,14 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[2]
+                  borderBottomColor: this.state.showEmptyNotice[6]
                     ? c_bg_error_message
                     : '#000',
                 }}>
                 <RNFloatingInput
                   ref={this.locationNameSelect}
                   onPress={() => {
-                    this.showDeviceNamesPicker();
+                    this.showLocationsPicker();
                   }}
                   label={locationName}
                   labelSize={12}
@@ -1290,7 +1348,7 @@ export default class NewIssueScreen extends React.Component {
                   style={{flex: 1}}
                   value={this.state.locationName}
                   onChangeText={text => {
-                    this.onLocationNameChange(text);
+                    this.onLocationChange(text);
                   }}></RNFloatingInput>
               </View>
               <View
@@ -1322,7 +1380,7 @@ export default class NewIssueScreen extends React.Component {
                       : '#000',
                   }}>
                   <RNFloatingInput
-                    ref={this.issueTypeInput}
+                    // ref={this.issueTypeInput}
                     label={locationID}
                     labelSize={12}
                     labelSizeLarge={14}
@@ -1340,10 +1398,11 @@ export default class NewIssueScreen extends React.Component {
                     style={{flex: 1}}
                     showArrow={false}
                     editable={true}
-                    value={this.state.issueType}
-                    onChangeTextInput={text => {
-                      this.onIssueTypeChange(text);
-                    }}></RNFloatingInput>
+                    // value={this.state.issueType}
+                    // onChangeTextInput={text => {
+                    //   this.onIssueTypeChange(text);
+                    // }}
+                  ></RNFloatingInput>
                 </View>
               </View>
               <View style={{marginTop: 25}}>
@@ -1364,6 +1423,8 @@ export default class NewIssueScreen extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
+                        allState.condition =
+                          allState.appConfig.issue_conditions[1];
                         allState.sub_option_a = 1;
                         this.setState(allState);
                       }}
@@ -1380,12 +1441,14 @@ export default class NewIssueScreen extends React.Component {
                           color:
                             this.state.sub_option_a === 1 ? '#fff' : '#000',
                         }}>
-                        {sub_option_a_2}
+                        {sub_option_a_1}
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
+                        allState.condition =
+                          allState.appConfig.issue_conditions[0];
                         allState.sub_option_a = 0;
                         this.setState(allState);
                       }}
@@ -1401,7 +1464,7 @@ export default class NewIssueScreen extends React.Component {
                           color:
                             this.state.sub_option_a === 0 ? '#fff' : '#000',
                         }}>
-                        {sub_option_a_1}
+                        {sub_option_a_2}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -1432,6 +1495,7 @@ export default class NewIssueScreen extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
+                        allState.worning = allState.appConfig.issue_wornings[1];
                         allState.sub_option_b = 1;
                         this.setState(allState);
                       }}
@@ -1448,12 +1512,13 @@ export default class NewIssueScreen extends React.Component {
                           color:
                             this.state.sub_option_b === 1 ? '#fff' : '#000',
                         }}>
-                        {sub_option_b_2}
+                        {sub_option_b_1}
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
+                        allState.worning = allState.appConfig.issue_wornings[0];
                         allState.sub_option_b = 0;
                         this.setState(allState);
                       }}
@@ -1469,7 +1534,7 @@ export default class NewIssueScreen extends React.Component {
                           color:
                             this.state.sub_option_b === 0 ? '#fff' : '#000',
                         }}>
-                        {sub_option_b_1}
+                        {sub_option_b_2}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -1623,7 +1688,8 @@ export default class NewIssueScreen extends React.Component {
                     this.state.deviceName != '' &&
                     this.state.issueType != '' &&
                     this.state.deviceSerialNumber != '' &&
-                    this.state.descriptionOfIssue != ''
+                    this.state.descriptionOfIssue != '' &&
+                    this.state.locationName != ''
                   ) {
                     this.setState({isTwoQuestionDialogShow: true});
                   } else {
@@ -1636,7 +1702,8 @@ export default class NewIssueScreen extends React.Component {
                   this.state.deviceName != '' &&
                   this.state.issueType != '' &&
                   this.state.deviceSerialNumber != '' &&
-                  this.state.descriptionOfIssue != ''
+                  this.state.descriptionOfIssue != '' &&
+                  this.state.locationName != ''
                     ? mStyle.buttonEnable
                     : mStyle.buttonDisable,
                   {
