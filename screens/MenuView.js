@@ -47,9 +47,9 @@ import {
 import DeviceInfo from 'react-native-device-info';
 
 export default function MenuView({onItemSelected}) {
-  useEffect(() => {
-    I18nManager.forceRTL(true);
-  }, []);
+  // useEffect(() => {
+  //   I18nManager.forceRTL(true);
+  // }, []);
   return (
     <View
       style={{

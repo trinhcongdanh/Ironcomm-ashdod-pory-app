@@ -1573,6 +1573,7 @@ export default class ActiveIssueScreen extends React.Component {
         if (mediaItem.is_image == 1) {
           mediaItemList.push(
             <TouchableOpacity
+              key={i}
               onPress={() => {
                 this.openFileMedia(mediaItem.file, true);
               }}
@@ -1604,6 +1605,7 @@ export default class ActiveIssueScreen extends React.Component {
         } else {
           mediaItemList.push(
             <TouchableOpacity
+              key={i}
               onPress={() => {
                 this.openFileMedia(mediaItem.file, false);
               }}
@@ -1739,55 +1741,6 @@ export default class ActiveIssueScreen extends React.Component {
     if (this.state.userInfo.type != 2) {
       return (
         <View style={{flexDirection: 'column'}}>
-          {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text style={[mStyle.textInfoLabel, {flex: 1}]}>
-              {mcaApprovalLabel}
-            </Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                flex: 2,
-                backgroundColor: '#ffffff',
-                padding: 5,
-                alignItems: 'center',
-                borderColor: c_select_box_border,
-                borderWidth: 1,
-                borderRadius: 5,
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  this.callAcceptIssue(3);
-                }}
-                style={{flex: 1}}>
-                <Text
-                  style={[
-                    this.state.issueDetail.accept_status == 1 &&
-                    this.state.issueDetail.class == 3
-                      ? mStyle.textOptionSelected
-                      : mStyle.textOptionUnselected,
-                    {flex: 1},
-                  ]}>
-                  {mcaAccept}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  this.showRejectIssueDialog();
-                }}
-                style={{flex: 1}}>
-                <Text
-                  style={[
-                    this.state.issueDetail.accept_status == 2 ||
-                    this.state.issueDetail.class == 2
-                      ? mStyle.textOptionSelected
-                      : mStyle.textOptionUnselected,
-                    {flex: 1},
-                  ]}>
-                  {mcaReject}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
             <Text style={[mStyle.textInfoLabel, {flex: 1}]}>
@@ -2490,6 +2443,7 @@ export default class ActiveIssueScreen extends React.Component {
                     if (canView) {
                       rowView.push(
                         <View
+                          key={tempDate}
                           style={{
                             backgroundColor: '#ffffff',
                             paddingTop: 5,
@@ -2511,6 +2465,7 @@ export default class ActiveIssueScreen extends React.Component {
                     if (item.chat_message_type == 5) {
                       rowView.push(
                         <View
+                          key={item.chat_message_id}
                           style={{
                             width: screenWidth,
                             flexDirection: 'row',
@@ -2557,7 +2512,9 @@ export default class ActiveIssueScreen extends React.Component {
                       if (item.is_me == 1) {
                         // is from user
                         rowView.push(
-                          <View style={{flexDirection: 'row', padding: 5}}>
+                          <View
+                            key={item.chat_message_id}
+                            style={{flexDirection: 'row', padding: 5}}>
                             <View style={[mStyle.triangleCornerStart]}></View>
                             <View
                               style={{
@@ -2606,7 +2563,8 @@ export default class ActiveIssueScreen extends React.Component {
                               padding: 5,
                               justifyContent: 'flex-end',
                               marginBottom: 10,
-                            }}>
+                            }}
+                            key={item.chat_message_id}>
                             <View
                               style={{
                                 flexDirection: 'column',

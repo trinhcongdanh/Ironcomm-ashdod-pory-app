@@ -819,13 +819,13 @@ export default class NewIssueScreen extends React.Component {
     let fileAttachList2 = this.state.fileAttach2;
     let fileAttachDisplayView = [];
     if (fileAttachList2 != null && fileAttachList2.length > 0) {
-      for (let i = 0; i < fileAttachList2.length; i++) {
-        let mediaItem = fileAttachList2[i];
+      for (let j = 0; j < fileAttachList2.length; j++) {
+        let mediaItem = fileAttachList2[j];
         if (mediaItem.is_attachment_image == true) {
           console.log('is_attachment_image');
           fileAttachDisplayView.push(
             <View
-              key={i}
+              key={j}
               style={{
                 width: screenWidth * 0.24,
                 height: screenWidth * 0.24,
@@ -841,7 +841,7 @@ export default class NewIssueScreen extends React.Component {
               />
               <TouchableOpacity
                 onPress={() => {
-                  this.removeAttachFile2(i);
+                  this.removeAttachFile2(j);
                 }}
                 style={{
                   width: screenWidth * 0.05,
@@ -870,7 +870,7 @@ export default class NewIssueScreen extends React.Component {
           console.log('is_attachment_file');
           fileAttachDisplayView.push(
             <View
-              key={i}
+              key={j}
               style={{
                 width: screenWidth * 0.24,
                 height: screenWidth * 0.24,
@@ -890,7 +890,7 @@ export default class NewIssueScreen extends React.Component {
               />
               <TouchableOpacity
                 onPress={() => {
-                  this.removeAttachFile2(i);
+                  this.removeAttachFile2(j);
                 }}
                 style={{
                   width: screenWidth * 0.05,
