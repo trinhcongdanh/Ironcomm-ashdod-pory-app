@@ -123,14 +123,15 @@ export default class IssuesFilterScreen extends React.Component {
         // value previously stored
         const jsonValue = JSON.parse(value);
         let allState = this.state;
+        let locationsObj = Object.assign({}, jsonValue.locations);
         let appConfig = {
           issue_statuses: jsonValue.issue_statuses,
-          commands: {},
+          locations: {},
         };
-        Object.keys(jsonValue.commands).map(key => {
-          appConfig.commands[key] = {
+        Object.keys(locationsObj).map(key => {
+          appConfig.locations[key] = {
             selected: false,
-            name: jsonValue.commands[key],
+            name: locationsObj[key],
           };
         });
         allState.appConfig = appConfig;
@@ -192,13 +193,14 @@ export default class IssuesFilterScreen extends React.Component {
             break;
 
           case 'filter_location':
-            Object.keys(allState.appConfig.commands).map(key => {
+            Object.keys(allState.appConfig.locations).map(key => {
               if (
-                filterItem['name'] == allState.appConfig.commands[key]['name']
+                filterItem['name'] == allState.appConfig.locations[key]['name']
               ) {
-                allState.appConfig.commands[key]['selected'] = true;
+                allState.appConfig.locations[key]['selected'] = true;
               }
             });
+            // for (let i=0;i<allState.appConfig.locations)
             break;
 
           case 'filter_issue_types':
@@ -321,29 +323,29 @@ export default class IssuesFilterScreen extends React.Component {
     return statusCounterComponent;
   }
 
-  displayCommandSelection() {
-    let commandComponent = [];
-    let commandList = this.state.appConfig.commands;
-    if (commandList != null) {
-      Object.keys(commandList).map(key => {
-        commandComponent.push(
+  displayLocationSelection() {
+    let locationComponent = [];
+    let locationList = this.state.appConfig.locations;
+    if (locationList != null) {
+      Object.keys(locationList).map(key => {
+        locationComponent.push(
           <TouchableOpacity
             onPress={() => {
-              this.updateFilter('command_' + key);
+              this.updateFilter('location_' + key);
             }}
             style={[
-              this.state.appConfig.commands[key]['selected']
+              this.state.appConfig.locations[key]['selected']
                 ? mStyleFilterType.selectedContainer
                 : mStyleFilterType.normalContainer,
               {marginTop: 5, marginBottom: 5},
             ]}>
             <Text
               style={
-                this.state.appConfig.commands[key]['selected']
+                this.state.appConfig.locations[key]['selected']
                   ? mStyleFilterType.selectedText
                   : mStyleFilterType.normalText
               }>
-              {commandList[key]['name']}
+              {locationList[key]['name']}
             </Text>
             <Image
               source={require('../image/icon_close_white.png')}
@@ -352,14 +354,16 @@ export default class IssuesFilterScreen extends React.Component {
                 width: screenWidth * 0.03,
                 height: screenWidth * 0.03,
                 marginStart: 5,
-                opacity: this.state.appConfig.commands[key]['selected'] ? 1 : 0,
+                opacity: this.state.appConfig.locations[key]['selected']
+                  ? 1
+                  : 0,
               }}
             />
           </TouchableOpacity>,
         );
       });
     }
-    return commandComponent;
+    return locationComponent;
   }
 
   // displayIssueType () {
@@ -424,11 +428,11 @@ export default class IssuesFilterScreen extends React.Component {
         });
       }
     });
-    Object.keys(allState.appConfig.commands).map(key => {
-      if (allState.appConfig.commands[key]['selected']) {
+    Object.keys(allState.appConfig.locations).map(key => {
+      if (allState.appConfig.locations[key]['selected']) {
         selectedFilterList.push({
           type: 'filter_location',
-          name: allState.appConfig.commands[key]['name'],
+          name: allState.appConfig.locations[key]['name'],
           value: key,
         });
       }
@@ -479,13 +483,13 @@ export default class IssuesFilterScreen extends React.Component {
       let pos = type.split('status_')[1];
       allState.statusCounter[pos]['selected'] =
         !allState.statusCounter[pos]['selected'];
-    } else if (type.indexOf('command_') >= 0) {
-      let pos = type.split('command_')[1];
-      let setValue = !allState.appConfig.commands[pos.toString()]['selected'];
-      Object.keys(allState.appConfig.commands).map(key => {
-        allState.appConfig.commands[key]['selected'] = false;
+    } else if (type.indexOf('location_') >= 0) {
+      let pos = type.split('location_')[1];
+      let setValue = !allState.appConfig.locations[pos.toString()]['selected'];
+      Object.keys(allState.appConfig.locations).map(key => {
+        allState.appConfig.locations[key]['selected'] = false;
       });
-      allState.appConfig.commands[pos]['selected'] = setValue;
+      allState.appConfig.locations[pos]['selected'] = setValue;
     }
     this.setState(allState);
   };
@@ -683,7 +687,7 @@ export default class IssuesFilterScreen extends React.Component {
                 backgroundColor: '#ffffff',
                 padding: 10,
               }}>
-              {this.displayCommandSelection()}
+              {this.displayLocationSelection()}
             </View>
             <Text
               style={[
