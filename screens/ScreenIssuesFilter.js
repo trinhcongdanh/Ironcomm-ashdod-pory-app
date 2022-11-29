@@ -123,11 +123,11 @@ export default class IssuesFilterScreen extends React.Component {
         // value previously stored
         const jsonValue = JSON.parse(value);
         let allState = this.state;
-        let locationsObj = Object.assign({}, jsonValue.locations);
         let appConfig = {
           issue_statuses: jsonValue.issue_statuses,
           locations: {},
         };
+        let locationsObj = Object.assign({}, jsonValue.place_description);
         Object.keys(locationsObj).map(key => {
           appConfig.locations[key] = {
             selected: false,
@@ -283,6 +283,7 @@ export default class IssuesFilterScreen extends React.Component {
     Object.keys(statusCounterList).map(key => {
       statusCounterComponent.push(
         <TouchableOpacity
+          key={key}
           onPress={() => {
             this.updateFilter('status_' + key);
           }}
@@ -684,6 +685,7 @@ export default class IssuesFilterScreen extends React.Component {
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-around',
+                flexWrap: 'wrap',
                 backgroundColor: '#ffffff',
                 padding: 10,
               }}>
