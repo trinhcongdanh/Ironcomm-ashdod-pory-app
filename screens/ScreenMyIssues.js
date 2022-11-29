@@ -349,7 +349,6 @@ export default class MyIssuesScreen extends React.Component {
       const value = await AsyncStorage.getItem(key_app_config);
       if (value != null) {
         // value previously stored
-        console.log('Load App Config:' + value);
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.appConfig = jsonValue;
@@ -394,8 +393,6 @@ export default class MyIssuesScreen extends React.Component {
       dataObj.sort_by = 3;
     } else if (this.state.sortText == sortByLastUpdate) {
       dataObj.sort_by = 4;
-    } else if (this.state.sortText == sortBySmallSort) {
-      dataObj.sort_by = 5;
     }
 
     console.log('filterList: ' + JSON.stringify(this.state.filterList));

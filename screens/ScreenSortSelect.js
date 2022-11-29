@@ -20,7 +20,6 @@ import {
   sortByDateCreated,
   sortByLastUpdate,
   sortByPrior,
-  sortBySmallSort,
   sortByStatus,
   sortScreenTitle,
 } from '../resource/StringContentDefault';
@@ -41,7 +40,6 @@ export default class SortSelectScreen extends React.Component {
       sortByPrioritySelected: false,
       sortByStatusSelected: false,
       sortByLastUpdate: true,
-      sortBySmallSort: false,
       userInfo: this.props.userInfo,
     };
   }
@@ -58,8 +56,6 @@ export default class SortSelectScreen extends React.Component {
       this.selectSortType(2);
     } else if (sortTypeName == sortByLastUpdate) {
       this.selectSortType(3);
-    } else if (sortTypeName == sortBySmallSort) {
-      this.selectSortType(4);
     } else {
       this.selectSortType(3);
     }
@@ -79,8 +75,6 @@ export default class SortSelectScreen extends React.Component {
       selectecText = sortByStatus;
     } else if (this.state.sortByLastUpdate) {
       selectecText = sortByLastUpdate;
-    } else if (this.state.sortBySmallSort) {
-      selectecText = sortBySmallSort;
     }
     this.props.closeSortDialog(selectecText);
   };
@@ -91,7 +85,7 @@ export default class SortSelectScreen extends React.Component {
     allState.sortByPrioritySelected = false;
     allState.sortByStatusSelected = false;
     allState.sortByLastUpdate = false;
-    allState.sortBySmallSort = false;
+
     if (pos == 0) {
       allState.sortByDateCreatedSelected = true;
     } else if (pos == 1) {
@@ -100,8 +94,6 @@ export default class SortSelectScreen extends React.Component {
       allState.sortByStatusSelected = true;
     } else if (pos == 3) {
       allState.sortByLastUpdate = true;
-    } else if (pos == 4) {
-      allState.sortBySmallSort = true;
     }
     this.setState(allState);
   };
@@ -316,49 +308,7 @@ export default class SortSelectScreen extends React.Component {
               {sortByLastUpdate}
             </Text>
           </TouchableOpacity>
-          <View
-            style={{
-              width: screenWidth,
-              height: 0.5,
-              backgroundColor: c_bg_line,
-            }}></View>
-          <TouchableOpacity
-            onPress={() => {
-              this.selectSortType(4);
-            }}
-            style={{
-              width: screenWidth,
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: this.state.sortBySmallSort
-                ? '#ffffff'
-                : c_background_issue_item,
-              display:
-                this.state.userInfo.type == 3 || this.state.userInfo.type == 6
-                  ? 'flex'
-                  : 'none',
-            }}>
-            <Image
-              source={require('../image/icon_ok.png')}
-              resizeMode="contain"
-              style={{
-                width: screenWidth * 0.03,
-                height: screenWidth * 0.03 * (19 / 21),
-                position: 'absolute',
-                start: screenWidth * 0.1,
-                opacity: this.state.sortBySmallSort ? 1 : 0,
-              }}
-            />
-            <Text
-              style={[
-                this.state.sortBySmallSort
-                  ? mStyle.textSelected
-                  : mStyle.textNormal,
-                {textAlign: 'center', marginTop: 15, marginBottom: 10},
-              ]}>
-              {sortBySmallSort}
-            </Text>
-          </TouchableOpacity>
+
           <View
             style={{
               width: screenWidth,
