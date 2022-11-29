@@ -132,7 +132,7 @@ import {Picker} from '@react-native-picker/picker';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import ImagePicker from 'react-native-image-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // import RNFileSelector from 'react-native-file-selector';
 // import RNFetchBlob from 'react-native-fetch-blob';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -402,63 +402,61 @@ export default class ActiveIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  selectOptionInAttachDialog = index => {
-    const options = {
-      // storageOptions: {
-      //     skipBackup: true,
-      // },
-    };
-
+  selectOptionInAttachDialog = async index => {
     let allState = this.state;
     allState.isAttachDialogShown = false;
-    this.setState(allState, () => {
-      let allState = this.state;
-      if (index == 0) {
-        ImagePicker.launchCamera(options, response => {
-          // console.log(response);
-          allState.fileName = response.fileName;
-          allState.fileUri = response.data;
+
+    if (index == 0) {
+      const result = await launchCamera({mediaType: 'photo'});
+      result.assets?.map(item => {
+        console.log(item);
+        if (item != '' && item != undefined) {
+          allState.fileName = item.fileName;
+          allState.fileUri = item.uri;
           allState.isImageAttach = true;
           this.setState(allState);
-        });
-      } else if (index == 1) {
-        ImagePicker.launchImageLibrary(options, response => {
-          // console.log(response);
-          allState.fileName = response.fileName;
-          allState.fileUri = response.data;
+        }
+      });
+    } else if (index == 1) {
+      const result = await launchImageLibrary({mediaType: 'photo'});
+      result.assets?.map(item => {
+        console.log(item);
+        if (item != '' && item != undefined) {
+          allState.fileName = item.fileName;
+          allState.fileUri = item.uri;
           allState.isImageAttach = true;
           this.setState(allState);
-        });
-      } else if (index == 2) {
-        // RNFileSelector.Show({
-        //   title: 'Select File',
-        //   onDone: path => {
-        //     RNFetchBlob.fs.readFile(path, 'base64').then(data => {
-        //       console.log(data);
-        //       let fileStrArray = path.split('/');
-        //       let fileName = fileStrArray[fileStrArray.length - 1];
-        //       if (
-        //         fileName.endsWith('.png') ||
-        //         fileName.endsWith('.jpg') ||
-        //         fileName.endsWith('.jpge') ||
-        //         fileName.endsWith('.bmp') ||
-        //         fileName.endsWith('.gif')
-        //       ) {
-        //         allState.isImageAttach = true;
-        //       } else {
-        //         allState.isImageAttach = false;
-        //       }
-        //       allState.fileName = fileName;
-        //       allState.fileUri = data;
-        //       this.setState(allState);
-        //     });
-        //   },
-        //   onCancel: () => {
-        //     console.log('cancelled');
-        //   },
-        // });
-      }
-    });
+        }
+      });
+    } else if (index == 2) {
+      // RNFileSelector.Show({
+      //   title: 'Select File',
+      //   onDone: path => {
+      //     RNFetchBlob.fs.readFile(path, 'base64').then(data => {
+      //       console.log(data);
+      //       let fileStrArray = path.split('/');
+      //       let fileName = fileStrArray[fileStrArray.length - 1];
+      //       if (
+      //         fileName.endsWith('.png') ||
+      //         fileName.endsWith('.jpg') ||
+      //         fileName.endsWith('.jpge') ||
+      //         fileName.endsWith('.bmp') ||
+      //         fileName.endsWith('.gif')
+      //       ) {
+      //         allState.isImageAttach = true;
+      //       } else {
+      //         allState.isImageAttach = false;
+      //       }
+      //       allState.fileName = fileName;
+      //       allState.fileUri = data;
+      //       this.setState(allState);
+      //     });
+      //   },
+      //   onCancel: () => {
+      //     console.log('cancelled');
+      //   },
+      // });
+    }
   };
 
   getDeviceTypes = async () => {

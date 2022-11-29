@@ -536,7 +536,6 @@ export default class NewIssueScreen extends React.Component {
     let allState = this.state;
     if (index == 0) {
       const result = await launchCamera({mediaType: 'photo'});
-
       result.assets?.map(item => {
         console.log(item);
         if (item != '' && item != undefined) {
