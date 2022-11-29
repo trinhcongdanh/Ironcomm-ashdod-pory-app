@@ -340,8 +340,8 @@ export default class MyIssuesScreen extends React.Component {
     }
   };
 
-  getCommandName(commandId) {
-    return this.state.appConfig.commands[commandId];
+  getLocationName(commandId) {
+    return this.state.appConfig.place_description[commandId];
   }
 
   loadAppConfig = async () => {
@@ -1192,7 +1192,7 @@ export default class MyIssuesScreen extends React.Component {
                               mStyleIssueItem.textCommendentName,
                               {marginEnd: 5},
                             ]}>
-                            {this.getCommandName(item.command_id)}
+                            {this.getLocationName(item.command_id)}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
                             {item.title}
