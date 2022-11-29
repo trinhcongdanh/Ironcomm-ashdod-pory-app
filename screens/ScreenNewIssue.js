@@ -274,16 +274,11 @@ export default class NewIssueScreen extends React.Component {
         condition: this.state.condition,
         worning: this.state.worning,
       };
-      if (this.state.questionFirstSelected == text_yes) {
-        dataObj.is_operational = true;
-      } else {
-        dataObj.is_operational = false;
-      }
-      if (this.state.questionSecondSelected == text_yes) {
-        dataObj.is_disabled = true;
-      } else {
-        dataObj.is_disabled = false;
-      }
+
+      dataObj.is_operational = false;
+
+      dataObj.is_disabled = false;
+
       let attachments = [];
       if (this.state.fileAttach1.length > 0) {
         for (let i = 0; i < this.state.fileAttach1.length; i++) {
@@ -1432,6 +1427,7 @@ export default class NewIssueScreen extends React.Component {
                         paddingVertical: 8,
                         marginLeft: 10,
                         borderRadius: 10,
+                        width: screenWidth * 0.25,
                         backgroundColor:
                           this.state.sub_option_a === 1 ? '#020047' : '#fff',
                       }}>
@@ -1439,6 +1435,7 @@ export default class NewIssueScreen extends React.Component {
                         style={{
                           color:
                             this.state.sub_option_a === 1 ? '#fff' : '#000',
+                          textAlign: 'center',
                         }}>
                         {sub_option_a_1}
                       </Text>
@@ -1455,6 +1452,7 @@ export default class NewIssueScreen extends React.Component {
                         paddingHorizontal: 4,
                         paddingVertical: 8,
                         borderRadius: 10,
+                        width: screenWidth * 0.25,
                         backgroundColor:
                           this.state.sub_option_a === 0 ? '#020047' : '#fff',
                       }}>
@@ -1462,6 +1460,7 @@ export default class NewIssueScreen extends React.Component {
                         style={{
                           color:
                             this.state.sub_option_a === 0 ? '#fff' : '#000',
+                          textAlign: 'center',
                         }}>
                         {sub_option_a_2}
                       </Text>
@@ -1472,6 +1471,7 @@ export default class NewIssueScreen extends React.Component {
                       fontWeight: '700',
                       color: '#020047',
                       marginRight: 10,
+                      width: screenWidth * 0.25,
                     }}>
                     {sub_option_a_title}
                   </Text>
@@ -1503,6 +1503,7 @@ export default class NewIssueScreen extends React.Component {
                         paddingVertical: 8,
                         marginLeft: 10,
                         borderRadius: 10,
+                        width: screenWidth * 0.25,
                         backgroundColor:
                           this.state.sub_option_b === 1 ? '#020047' : '#fff',
                       }}>
@@ -1510,6 +1511,7 @@ export default class NewIssueScreen extends React.Component {
                         style={{
                           color:
                             this.state.sub_option_b === 1 ? '#fff' : '#000',
+                          textAlign: 'center',
                         }}>
                         {sub_option_b_1}
                       </Text>
@@ -1525,6 +1527,7 @@ export default class NewIssueScreen extends React.Component {
                         paddingHorizontal: 4,
                         paddingVertical: 8,
                         borderRadius: 10,
+                        width: screenWidth * 0.25,
                         backgroundColor:
                           this.state.sub_option_b === 0 ? '#020047' : '#fff',
                       }}>
@@ -1532,6 +1535,7 @@ export default class NewIssueScreen extends React.Component {
                         style={{
                           color:
                             this.state.sub_option_b === 0 ? '#fff' : '#000',
+                          textAlign: 'center',
                         }}>
                         {sub_option_b_2}
                       </Text>
@@ -1542,6 +1546,7 @@ export default class NewIssueScreen extends React.Component {
                       fontWeight: '700',
                       color: '#020047',
                       marginRight: 10,
+                      width: screenWidth * 0.25,
                     }}>
                     {sub_option_b_title}
                   </Text>
@@ -1680,7 +1685,7 @@ export default class NewIssueScreen extends React.Component {
               </ScrollView>
               <TouchableOpacity
                 onPress={() => {
-                  // this.addIssue();
+                  this.addIssue();
                   if (
                     this.state.issueName != '' &&
                     this.state.deviceType != '' &&
@@ -1820,117 +1825,6 @@ export default class NewIssueScreen extends React.Component {
                 )}
                 keyExtractor={item => item.id}
               />
-            </View>
-          </Modal>
-          <Modal
-            animationType="fade"
-            presentationStyle="fullScreen"
-            visible={this.state.isTwoQuestionDialogShow}
-            onRequestClose={() => {
-              this.setState({isTwoQuestionDialogShow: false});
-            }}
-            transparent={false}>
-            <View
-              activeOpacity={1}
-              style={{
-                flexDirection: 'column',
-                flex: 1,
-                padding: 10,
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-                backgroundColor: '#ffffff',
-                borderRadius: 10,
-                marginTop: 30,
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({isTwoQuestionDialogShow: false});
-                }}
-                style={{alignSelf: 'flex-end'}}>
-                <Image
-                  source={require('../image/icon_close_dialog.png')}
-                  resizeMode="cover"
-                  style={{
-                    width: screenWidth * 0.09,
-                    height: screenWidth * 0.09,
-                    alignSelf: 'flex-end',
-                    margin: 10,
-                  }}
-                />
-              </TouchableOpacity>
-              <Text style={[mStyle.textTitle]}>{isDeviceOperational}</Text>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({questionFirstSelected: text_yes});
-                  }}
-                  style={[mStyle.radioAnswerContainer]}>
-                  <View
-                    style={[
-                      this.state.questionFirstSelected == text_yes
-                        ? mStyle.selectedItem
-                        : mStyle.unselectedItem,
-                    ]}
-                  />
-                  <Text>{text_yes}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({questionFirstSelected: text_no});
-                  }}
-                  style={[mStyle.radioAnswerContainer]}>
-                  <View
-                    style={[
-                      this.state.questionFirstSelected == text_no
-                        ? mStyle.selectedItem
-                        : mStyle.unselectedItem,
-                    ]}
-                  />
-                  <Text>{text_no}</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={[mStyle.textTitle]}>{isDeviceDisable}</Text>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({questionSecondSelected: text_yes});
-                  }}
-                  style={[mStyle.radioAnswerContainer]}>
-                  <View
-                    style={[
-                      this.state.questionSecondSelected == text_yes
-                        ? mStyle.selectedItem
-                        : mStyle.unselectedItem,
-                    ]}
-                  />
-                  <Text>{text_yes}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({questionSecondSelected: text_no});
-                  }}
-                  style={[mStyle.radioAnswerContainer]}>
-                  <View
-                    style={[
-                      this.state.questionSecondSelected == text_no
-                        ? mStyle.selectedItem
-                        : mStyle.unselectedItem,
-                    ]}
-                  />
-                  <Text>{text_no}</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({isTwoQuestionDialogShow: false}, () => {
-                    this.addIssue();
-                  });
-                }}
-                style={[mStyle.buttonConfirmQuestion]}>
-                <Text style={[mStyle.textTitle, {color: '#ffffff'}]}>
-                  {ok_text}
-                </Text>
-              </TouchableOpacity>
             </View>
           </Modal>
           <Modal
