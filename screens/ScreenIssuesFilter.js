@@ -331,6 +331,7 @@ export default class IssuesFilterScreen extends React.Component {
       Object.keys(locationList).map(key => {
         locationComponent.push(
           <TouchableOpacity
+            key={key}
             onPress={() => {
               this.updateFilter('location_' + key);
             }}

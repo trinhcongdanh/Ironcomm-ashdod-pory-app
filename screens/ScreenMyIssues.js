@@ -114,7 +114,7 @@ export default class MyIssuesScreen extends React.Component {
     };
   }
 
-  componentDidMount() {
+  UNSAFE_componentWillMount() {
     console.log('componentDidMount');
     I18nManager.forceRTL(true);
     isStartListenFCM = false;
