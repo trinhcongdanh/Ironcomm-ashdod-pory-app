@@ -720,6 +720,7 @@ export default class NewIssueScreen extends React.Component {
       }
       fileAttachDisplayView.push(
         <TouchableOpacity
+          key="button_add"
           onPress={() => {
             this.showFilePicker1();
           }}
@@ -844,6 +845,7 @@ export default class NewIssueScreen extends React.Component {
       }
       fileAttachDisplayView.push(
         <TouchableOpacity
+          key="button_add"
           onPress={() => {
             this.showFilePicker2();
           }}
