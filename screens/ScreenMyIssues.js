@@ -114,8 +114,7 @@ export default class MyIssuesScreen extends React.Component {
     };
   }
 
-  UNSAFE_componentWillMount() {
-    console.log('componentDidMount');
+  componentDidMount() {
     I18nManager.forceRTL(true);
     isStartListenFCM = false;
     BackHandler.addEventListener('hardwareBackPress', this.backAction);
@@ -123,12 +122,6 @@ export default class MyIssuesScreen extends React.Component {
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
         this.loadIssues();
-        didFocusSubscription = this.props.navigation.addListener(
-          'didFocus',
-          payload => {
-            this.loadIssues();
-          },
-        );
       });
     });
   }

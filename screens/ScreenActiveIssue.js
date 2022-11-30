@@ -15,7 +15,6 @@ import {
   BackHandler,
   Dimensions,
   KeyboardAvoidingView,
-  ScrollView,
   Linking,
   ImageBackground,
   StyleSheet,
@@ -24,7 +23,10 @@ import {
   Modal,
   ActivityIndicator,
   I18nManager,
+  LogBox,
+  ScrollView,
 } from 'react-native';
+
 import {
   c_bg_filter_selected,
   c_blue_light_filter,
@@ -197,6 +199,7 @@ export default class ActiveIssueScreen extends React.Component {
       'hardwareBackPress',
       this.handleBackButtonClick,
     );
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 
     I18nManager.forceRTL(true);
     this.loadUserInfo().then(() => {
@@ -314,7 +317,7 @@ export default class ActiveIssueScreen extends React.Component {
       .then(responseJson => {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
-          // console.log(responseJson.chat_messages);
+          // console.log(Object.keys(responseJson.chat_messages));
           console.log(responseJson.chat_messages);
           let allState = this.state;
           allState.issueDetail = responseJson;
@@ -2624,196 +2627,198 @@ export default class ActiveIssueScreen extends React.Component {
                     }
                   }}
                   showsVerticalScrollIndicator={false}>
-                  {this.state.issueDetail.chat_messages.map(item => {
-                    let chatData = item.chat_message_data;
-                    let canView = false;
-                    let tempDateStr = '';
-                    if (tempDate == '') {
-                      canView = true;
-                      tempDate = item.created_on;
-                      tempDateStr = moment
-                        .utc(tempDate)
-                        .local()
-                        .format(format_date_in_chat);
-                    } else {
-                      tempDateStr = moment
-                        .utc(tempDate)
-                        .local()
-                        .format(format_date_in_chat);
-                      let currentDateStr = moment
-                        .utc(item.created_on)
-                        .local()
-                        .format(format_date_in_chat);
-                      if (tempDateStr != currentDateStr) {
+                  {Object.keys(this.state.issueDetail.chat_messages).forEach(
+                    (key, index) => {
+                      let chatData = item.chat_message_data;
+                      let canView = false;
+                      let tempDateStr = '';
+                      if (tempDate == '') {
                         canView = true;
-                        tempDateStr = currentDateStr;
                         tempDate = item.created_on;
+                        tempDateStr = moment
+                          .utc(tempDate)
+                          .local()
+                          .format(format_date_in_chat);
+                      } else {
+                        tempDateStr = moment
+                          .utc(tempDate)
+                          .local()
+                          .format(format_date_in_chat);
+                        let currentDateStr = moment
+                          .utc(item.created_on)
+                          .local()
+                          .format(format_date_in_chat);
+                        if (tempDateStr != currentDateStr) {
+                          canView = true;
+                          tempDateStr = currentDateStr;
+                          tempDate = item.created_on;
+                        }
                       }
-                    }
-                    let rowView = [];
-                    if (canView) {
-                      rowView.push(
-                        <View
-                          style={{
-                            backgroundColor: '#ffffff',
-                            paddingTop: 5,
-                            paddingBottom: 5,
-                            paddingStart: 15,
-                            paddingEnd: 15,
-                            marginTop: 10,
-                            borderRadius: 10,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                          }}>
-                          <Text style={[mStyle.textSectionLabel]}>
-                            {tempDateStr}
-                          </Text>
-                        </View>,
-                      );
-                    }
-                    if (item.chat_message_type == 5) {
-                      rowView.push(
-                        <View
-                          style={{
-                            width: screenWidth,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginTop: 20,
-                          }}>
-                          <View
-                            style={{
-                              flex: 1,
-                              height: 1,
-                              backgroundColor: c_bg_section_line,
-                            }}></View>
-                          <Text
-                            style={[
-                              mStyle.textNormal,
-                              {
-                                color: '#ffffff',
-                                paddingStart: 20,
-                                paddingEnd: 20,
-                                paddingTop: 2,
-                                paddingBottom: 2,
-                                backgroundColor:
-                                  this.state.appConfig.issue_statuses[
-                                    chatData.status
-                                  ]['color'],
-                                borderRadius: 5,
-                              },
-                            ]}>
-                            {
-                              this.state.appConfig.issue_statuses[
-                                chatData.status
-                              ]['name']
-                            }
-                          </Text>
-                          <View
-                            style={{
-                              flex: 1,
-                              height: 1,
-                              backgroundColor: c_bg_section_line,
-                            }}></View>
-                        </View>,
-                      );
-                    } else {
-                      if (item.is_me == 1) {
-                        // is from user
+                      let rowView = [];
+                      if (canView) {
                         rowView.push(
-                          <View style={{flexDirection: 'row', padding: 5}}>
-                            <View style={[mStyle.triangleCornerStart]}></View>
-                            <View
-                              style={{
-                                flexDirection: 'column',
-                                width: screenWidth * 0.8,
-                                alignItems: 'flex-start',
-                                alignSelf: 'flex-start',
-                                backgroundColor: '#ffffff',
-                                borderTopEndRadius: 8,
-                                borderBottomEndRadius: 8,
-                                borderBottomStartRadius: 8,
-                                padding: 10,
-                              }}>
-                              <View style={{flexDirection: 'row'}}>
-                                <Text
-                                  style={[
-                                    mStyle.textNormal,
-                                    {color: item.user_color},
-                                  ]}>
-                                  {item.user_name}
-                                </Text>
-                                <View style={{flex: 1}}></View>
-                                <Text
-                                  style={[
-                                    mStyle.textNormal,
-                                    {color: c_grey_text},
-                                  ]}>
-                                  {moment
-                                    .utc(item.created_on)
-                                    .local()
-                                    .format('HH:mm')}
-                                </Text>
-                              </View>
-                              {this.displayChatContent(
-                                item.chat_message_type,
-                                chatData,
-                              )}
-                            </View>
+                          <View
+                            style={{
+                              backgroundColor: '#ffffff',
+                              paddingTop: 5,
+                              paddingBottom: 5,
+                              paddingStart: 15,
+                              paddingEnd: 15,
+                              marginTop: 10,
+                              borderRadius: 10,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              alignSelf: 'center',
+                            }}>
+                            <Text style={[mStyle.textSectionLabel]}>
+                              {tempDateStr}
+                            </Text>
                           </View>,
                         );
-                      } else {
+                      }
+                      if (item.chat_message_type == 5) {
                         rowView.push(
                           <View
                             style={{
+                              width: screenWidth,
                               flexDirection: 'row',
-                              padding: 5,
-                              justifyContent: 'flex-end',
-                              marginBottom: 10,
+                              alignItems: 'center',
+                              marginTop: 20,
                             }}>
                             <View
                               style={{
-                                flexDirection: 'column',
-                                width: screenWidth * 0.8,
-                                alignItems: 'flex-end',
-                                alignSelf: 'flex-end',
-                                backgroundColor: '#ffffff',
-                                borderTopStartRadius: 8,
-                                borderBottomEndRadius: 8,
-                                borderBottomStartRadius: 8,
-                                padding: 10,
-                              }}>
-                              <View style={{flexDirection: 'row'}}>
-                                <Text
-                                  style={[
-                                    mStyle.textNormal,
-                                    {color: item.user_color},
-                                  ]}>
-                                  {item.user_name}
-                                </Text>
-                                <View style={{flex: 1}}></View>
-                                <Text
-                                  style={[
-                                    mStyle.textNormal,
-                                    {color: c_grey_text},
-                                  ]}>
-                                  {moment
-                                    .utc(item.created_on)
-                                    .local()
-                                    .format('HH:mm')}
-                                </Text>
-                              </View>
-                              {this.displayChatContent(
-                                item.chat_message_type,
-                                chatData,
-                              )}
-                            </View>
-                            <View style={[mStyle.triangleCornerEnd]}></View>
+                                flex: 1,
+                                height: 1,
+                                backgroundColor: c_bg_section_line,
+                              }}></View>
+                            <Text
+                              style={[
+                                mStyle.textNormal,
+                                {
+                                  color: '#ffffff',
+                                  paddingStart: 20,
+                                  paddingEnd: 20,
+                                  paddingTop: 2,
+                                  paddingBottom: 2,
+                                  backgroundColor:
+                                    this.state.appConfig.issue_statuses[
+                                      chatData.status
+                                    ]['color'],
+                                  borderRadius: 5,
+                                },
+                              ]}>
+                              {
+                                this.state.appConfig.issue_statuses[
+                                  chatData.status
+                                ]['name']
+                              }
+                            </Text>
+                            <View
+                              style={{
+                                flex: 1,
+                                height: 1,
+                                backgroundColor: c_bg_section_line,
+                              }}></View>
                           </View>,
                         );
+                      } else {
+                        if (item.is_me == 1) {
+                          // is from user
+                          rowView.push(
+                            <View style={{flexDirection: 'row', padding: 5}}>
+                              <View style={[mStyle.triangleCornerStart]}></View>
+                              <View
+                                style={{
+                                  flexDirection: 'column',
+                                  width: screenWidth * 0.8,
+                                  alignItems: 'flex-start',
+                                  alignSelf: 'flex-start',
+                                  backgroundColor: '#ffffff',
+                                  borderTopEndRadius: 8,
+                                  borderBottomEndRadius: 8,
+                                  borderBottomStartRadius: 8,
+                                  padding: 10,
+                                }}>
+                                <View style={{flexDirection: 'row'}}>
+                                  <Text
+                                    style={[
+                                      mStyle.textNormal,
+                                      {color: item.user_color},
+                                    ]}>
+                                    {item.user_name}
+                                  </Text>
+                                  <View style={{flex: 1}}></View>
+                                  <Text
+                                    style={[
+                                      mStyle.textNormal,
+                                      {color: c_grey_text},
+                                    ]}>
+                                    {moment
+                                      .utc(item.created_on)
+                                      .local()
+                                      .format('HH:mm')}
+                                  </Text>
+                                </View>
+                                {this.displayChatContent(
+                                  item.chat_message_type,
+                                  chatData,
+                                )}
+                              </View>
+                            </View>,
+                          );
+                        } else {
+                          rowView.push(
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                padding: 5,
+                                justifyContent: 'flex-end',
+                                marginBottom: 10,
+                              }}>
+                              <View
+                                style={{
+                                  flexDirection: 'column',
+                                  width: screenWidth * 0.8,
+                                  alignItems: 'flex-end',
+                                  alignSelf: 'flex-end',
+                                  backgroundColor: '#ffffff',
+                                  borderTopStartRadius: 8,
+                                  borderBottomEndRadius: 8,
+                                  borderBottomStartRadius: 8,
+                                  padding: 10,
+                                }}>
+                                <View style={{flexDirection: 'row'}}>
+                                  <Text
+                                    style={[
+                                      mStyle.textNormal,
+                                      {color: item.user_color},
+                                    ]}>
+                                    {item.user_name}
+                                  </Text>
+                                  <View style={{flex: 1}}></View>
+                                  <Text
+                                    style={[
+                                      mStyle.textNormal,
+                                      {color: c_grey_text},
+                                    ]}>
+                                    {moment
+                                      .utc(item.created_on)
+                                      .local()
+                                      .format('HH:mm')}
+                                  </Text>
+                                </View>
+                                {this.displayChatContent(
+                                  item.chat_message_type,
+                                  chatData,
+                                )}
+                              </View>
+                              <View style={[mStyle.triangleCornerEnd]}></View>
+                            </View>,
+                          );
+                        }
                       }
-                    }
-                  })}
+                    },
+                  )}
                 </ScrollView> */}
               </View>
             </View>
@@ -2878,7 +2883,7 @@ export default class ActiveIssueScreen extends React.Component {
                 <Image
                   source={
                     this.state.isImageAttach
-                      ? {uri: `data:image/gif;base64,` + this.state.fileUri}
+                      ? {uri: this.state.fileUri}
                       : require('../image/icon_file_attach.png')
                   }
                   resizeMode="contain"
