@@ -531,8 +531,8 @@ export default class NewIssueScreen extends React.Component {
     let allState = this.state;
     if (index == 0) {
       const result = await launchCamera({mediaType: 'photo'});
+      console.log(result);
       result.assets?.map(item => {
-        console.log(item);
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
@@ -548,7 +548,6 @@ export default class NewIssueScreen extends React.Component {
       const result = await launchImageLibrary({mediaType: 'photo'});
 
       result.assets?.map(item => {
-        console.log(item);
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
@@ -561,42 +560,6 @@ export default class NewIssueScreen extends React.Component {
         }
       });
     } else if (index == 2) {
-      // RNFileSelector.Show({
-      //   title: 'Select File',
-      //   onDone: path => {
-      //     RNFetchBlob.fs.readFile(path, 'base64').then(data => {
-      //       console.log(data);
-      //       let fileStrArray = path.split('/');
-      //       let fileName = fileStrArray[fileStrArray.length - 1];
-      //       let isImage = true;
-      //       if (
-      //         fileName.endsWith('.png') ||
-      //         fileName.endsWith('.jpg') ||
-      //         fileName.endsWith('.jpge') ||
-      //         fileName.endsWith('.bmp') ||
-      //         fileName.endsWith('.gif')
-      //       ) {
-      //         isImage = true;
-      //       } else {
-      //         isImage = false;
-      //       }
-      //       let attachItem = {
-      //         attachment_name: fileName,
-      //         attachment: data,
-      //         is_attachment_image: isImage,
-      //       };
-      //       let allState = this.state;
-      //       allState.fileAttach.push(attachItem);
-      //       this.setState(allState);
-      //     });
-      //     if (path != '') {
-      //       this.onHaveImageUploadChange(true);
-      //     }
-      //   },
-      //   onCancel: () => {
-      //     console.log('cancelled');
-      //   },
-      // });
     }
     allState.isAttachDialogShown1 = false;
     this.setState(allState);
@@ -607,7 +570,6 @@ export default class NewIssueScreen extends React.Component {
       const result = await launchCamera({mediaType: 'photo'});
 
       result.assets?.map(item => {
-        console.log(item);
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
@@ -623,7 +585,6 @@ export default class NewIssueScreen extends React.Component {
       const result = await launchImageLibrary({mediaType: 'photo'});
 
       result.assets?.map(item => {
-        console.log(item);
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
@@ -636,42 +597,6 @@ export default class NewIssueScreen extends React.Component {
         }
       });
     } else if (index == 2) {
-      // RNFileSelector.Show({
-      //   title: 'Select File',
-      //   onDone: path => {
-      //     RNFetchBlob.fs.readFile(path, 'base64').then(data => {
-      //       console.log(data);
-      //       let fileStrArray = path.split('/');
-      //       let fileName = fileStrArray[fileStrArray.length - 1];
-      //       let isImage = true;
-      //       if (
-      //         fileName.endsWith('.png') ||
-      //         fileName.endsWith('.jpg') ||
-      //         fileName.endsWith('.jpge') ||
-      //         fileName.endsWith('.bmp') ||
-      //         fileName.endsWith('.gif')
-      //       ) {
-      //         isImage = true;
-      //       } else {
-      //         isImage = false;
-      //       }
-      //       let attachItem = {
-      //         attachment_name: fileName,
-      //         attachment: data,
-      //         is_attachment_image: isImage,
-      //       };
-      //       let allState = this.state;
-      //       allState.fileAttach.push(attachItem);
-      //       this.setState(allState);
-      //     });
-      //     // if (path != "") {
-      //     //     this.onHaveImageUploadChange(true);
-      //     // }
-      //   },
-      //   onCancel: () => {
-      //     console.log('cancelled');
-      //   },
-      // });
     }
     allState.isAttachDialogShown2 = false;
     this.setState(allState);
