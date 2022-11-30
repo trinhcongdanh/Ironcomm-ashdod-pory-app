@@ -37,11 +37,11 @@ import EditIssueScreen from './screens/ScreenEditIssue';
 // import PushNotification from 'react-native-push-notification';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import StatusInformationScreen from './screens/ScreenStatusInformation';
-import RNUxcam from 'react-native-ux-cam';
+// import RNUxcam from 'react-native-ux-cam';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SplashScreen} from './screens/ScreenSpash';
-RNUxcam.optIntoSchematicRecordings(); // Add this line to enable iOS screen recordings
-RNUxcam.startWithKey(uxcamKey);
+// RNUxcam.optIntoSchematicRecordings(); // Add this line to enable iOS screen recordings
+// RNUxcam.startWithKey(uxcamKey);
 
 const Stack = createNativeStackNavigator();
 

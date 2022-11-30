@@ -5976,11 +5976,6 @@ react-native-side-menu@^1.1.3:
   dependencies:
     prop-types "^15.5.10"
 
-react-native-ux-cam@^5.4.3:
-  version "5.4.3"
-  resolved "https://registry.yarnpkg.com/react-native-ux-cam/-/react-native-ux-cam-5.4.3.tgz#0cc27d00dbfbccfb84643c2c5ad9d41623c725a9"
-  integrity sha512-32fugXEqOndbMSQj1HNOOIqjsjgQBRPoKXoE+rGai3hCv3+FAqc8qP5Lk9zsmQplNFCcBdOIgeVUElqMWUVkFg==
-
 react-native-vector-icons@^9.2.0:
   version "9.2.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-9.2.0.tgz#3c0c82e95defd274d56363cbe8fead8d53167ebd"
