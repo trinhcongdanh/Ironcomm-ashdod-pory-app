@@ -129,6 +129,8 @@ import {
   rejectConfirmForType3ButtonNo,
   issueDetailTitle,
   locationIssues,
+  conditon,
+  warning
 } from '../resource/StringContentDefault';
 import {Picker} from '@react-native-picker/picker';
 import moment from 'moment';
@@ -2267,9 +2269,12 @@ export default class ActiveIssueScreen extends React.Component {
                       borderRadius: 8,
                       alignItems: 'center',
                       marginRight: 10,
+                      display: this.state.issueDetail.condition_satatus
+                      ? 'flex'
+                      : 'none',
                     }}>
                     <Text style={{color: '#fff'}}>
-                      {this.state.issueDetail.condition}
+                      {conditon}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -2280,9 +2285,12 @@ export default class ActiveIssueScreen extends React.Component {
                       paddingVertical: 10,
                       borderRadius: 8,
                       alignItems: 'center',
+                      display: this.state.issueDetail.worning
+                      ? 'flex'
+                      : 'none',
                     }}>
                     <Text style={{color: '#fff'}}>
-                      {this.state.issueDetail.worning}
+                      {warning}
                     </Text>
                   </TouchableOpacity>
                 </View>

@@ -142,3 +142,6 @@ export const isDeviceDisable = 'האם הציוד מושבת?';
 export const rejectConfirmForType3 = "תקלת דרג ב'. האם לקבל או לדחות?";
 export const rejectConfirmForType3ButtonNo = 'דחה';
 export const rejectConfirmForType3ButtonYes = 'קבל';
+
+export const conditon = 'מכולה תקולה';
+export const warning = 'אזהרת חמ/״ס';
