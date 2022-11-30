@@ -170,10 +170,10 @@ export default class EditIssueScreen extends React.Component {
   getDeviceTypes = async () => {
     this._closeLoadingBox();
     let allState = this.state;
-    for (let i = 0; i < allState.appConfig.devices_and_issues.length; i++) {
+    for (let i = 0; i < allState.appConfig.containers.length; i++) {
       let item = {
-        id: allState.appConfig.devices_and_issues[i]['id'],
-        name: allState.appConfig.devices_and_issues[i]['name'],
+        id: allState.appConfig.containers[i]['id'],
+        name: allState.appConfig.containers[i]['name'],
       };
       allState.deviceTypes.push(item);
     }
@@ -185,15 +185,15 @@ export default class EditIssueScreen extends React.Component {
     let deviceList = [];
     for (
       let i = 0;
-      i < allState.appConfig.devices_and_issues.length &&
+      i < allState.appConfig.containers.length &&
       deviceList.length == 0;
       i++
     ) {
       if (
-        allState.appConfig.devices_and_issues[i]['id'] ==
+        allState.appConfig.containers[i]['id'] ==
         this.state.deviceTypeId
       ) {
-        deviceList = allState.appConfig.devices_and_issues[i]['devices'];
+        deviceList = allState.appConfig.containers[i]['devices'];
       }
     }
 

@@ -379,6 +379,7 @@ export default class MyIssuesScreen extends React.Component {
       token: this.state.userInfo.token,
       filter_period: 0,
       sort_by: 4,
+      project: 1
     };
     if (this.state.sortText == sortByDateCreated) {
       dataObj.sort_by = 1;

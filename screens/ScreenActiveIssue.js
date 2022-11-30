@@ -467,15 +467,15 @@ export default class ActiveIssueScreen extends React.Component {
     let allState = this.state;
     let deviceList = [];
     let issueList = [];
-    for (let i = 0; i < allState.appConfig.devices_and_issues.length; i++) {
+    for (let i = 0; i < allState.appConfig.containers.length; i++) {
       if (
-        allState.appConfig.devices_and_issues[i]['id'] ==
+        allState.appConfig.containers[i]['id'] ==
         allState.issueDetail.device_type_id
       ) {
         allState.issueDetail.device_type_name =
-          allState.appConfig.devices_and_issues[i]['name'];
+          allState.appConfig.containers[i]['name'];
       }
-      deviceList = allState.appConfig.devices_and_issues[i]['devices'];
+      deviceList = allState.appConfig.containers[i]['devices'];
       for (let j = 0; j < deviceList.length; j++) {
         if (deviceList[j]['id'] == allState.issueDetail.device_id) {
           allState.issueDetail.device_name = deviceList[j]['name'];

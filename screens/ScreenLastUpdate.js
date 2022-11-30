@@ -72,6 +72,7 @@ export default class LastUpdateScreen extends React.Component {
     let dataObj = {
       request: rq_get_last_updates,
       token: this.state.token,
+      project: 1
     };
     console.log(dataObj);
     fetch(api_url, {
