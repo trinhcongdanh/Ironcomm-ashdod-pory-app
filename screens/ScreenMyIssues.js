@@ -23,6 +23,7 @@ import {
   BackHandler,
   TextInput,
   I18nManager,
+  LogBox,
 } from 'react-native';
 import {
   MyIssuesTitle,
@@ -116,6 +117,7 @@ export default class MyIssuesScreen extends React.Component {
 
   componentDidMount() {
     I18nManager.forceRTL(true);
+    LogBox.ignoreLogs(['componentWillMount', 'componentWillReceiveProps']);
     isStartListenFCM = false;
     BackHandler.addEventListener('hardwareBackPress', this.backAction);
     this.checkPermission();
