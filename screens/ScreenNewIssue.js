@@ -88,6 +88,7 @@ export default class NewIssueScreen extends React.Component {
     this.deviceSelect = React.createRef();
     this.issueTypeSelect = React.createRef();
     this.cartNumInput = React.createRef();
+    this.placeInput = React.createRef();
     this.locationNameSelect = React.createRef();
     this.deviceSerialInput = React.createRef();
     this.editText = React.createRef();
@@ -109,6 +110,9 @@ export default class NewIssueScreen extends React.Component {
       cartNum: '',
       locationName: '',
       locationNameId: '',
+      placeLat: '',
+      placeLon: '',
+      place: '',
       condition: '',
       worning: '',
       isHaveImageUpload: false,
@@ -140,8 +144,19 @@ export default class NewIssueScreen extends React.Component {
     });
   }
   locationGps() {
-    Geolocation.watchPosition(info => console.log(info));
+    Geolocation.getCurrentPosition(info => {
+      let allState = this.state;
+      allState.placeLat = info.coords.latitude;
+      allState.placeLon = info.coords.longitude;
+      allState.place = `${allState.placeLat} - ${allState.placeLon}`;
+      this.placeInput.current.updateValue(allState.place);
+      this.setState(allState);
+    });
   }
+
+  onPlaceChange = text => {
+    console.log(text);
+  };
 
   componentWillUnmount() {}
 
@@ -280,6 +295,8 @@ export default class NewIssueScreen extends React.Component {
         cart_num: this.state.cartNum,
         serial_num: this.state.deviceSerialNumber,
         description: this.state.descriptionOfIssue,
+        place_lat: this.state.placeLat,
+        place_lon: this.state.placeLon,
         place_description: this.state.locationName,
         condition: this.state.condition,
         worning: this.state.worning,
@@ -301,10 +318,6 @@ export default class NewIssueScreen extends React.Component {
           };
           media.push(attachItem1);
         }
-        // let attachFileData = this.state.fileAttach[0];
-        // dataObj.attachment = attachFileData.attachment;
-        // dataObj.attachment_name = attachFileData.attachment_name;
-        // dataObj.is_attachment_image = attachFileData.is_attachment_image;
       }
       if (this.state.fileAttach2.length > 0) {
         for (let i = 0; i < this.state.fileAttach2.length; i++) {
@@ -316,10 +329,6 @@ export default class NewIssueScreen extends React.Component {
           };
           media.push(attachItem2);
         }
-        // let attachFileData = this.state.fileAttach[0];
-        // dataObj.attachment = attachFileData.attachment;
-        // dataObj.attachment_name = attachFileData.attachment_name;
-        // dataObj.is_attachment_image = attachFileData.is_attachment_image;
       }
       dataObj.media = media;
       console.log(dataObj);
@@ -1312,7 +1321,7 @@ export default class NewIssueScreen extends React.Component {
                       : '#000',
                   }}>
                   <RNFloatingInput
-                    // ref={this.issueTypeInput}
+                    ref={this.placeInput}
                     label={locationID}
                     labelSize={12}
                     labelSizeLarge={14}
@@ -1330,11 +1339,10 @@ export default class NewIssueScreen extends React.Component {
                     style={{flex: 1}}
                     showArrow={false}
                     editable={true}
-                    // value={this.state.issueType}
-                    // onChangeTextInput={text => {
-                    //   this.onIssueTypeChange(text);
-                    // }}
-                  ></RNFloatingInput>
+                    value={this.state.place}
+                    onChangeTextInput={text => {
+                      this.onPlaceChange(text);
+                    }}></RNFloatingInput>
                 </View>
               </View>
               <View style={{marginTop: 25}}>
