@@ -52,9 +52,8 @@ import {
   attachFileOrImage1,
   attachFileOrImage2,
   descriptionOfIssue,
-  issueName,
   deviceType,
-  deviceName,
+  device,
   issueType,
   takePicture,
   selectFromGallery,
@@ -80,33 +79,34 @@ import RNFloatingInput from '../comp/FloatingInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import RNFetchBlob from 'react-native-fetch-blob';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import Geolocation from '@react-native-community/geolocation';
 
 export default class NewIssueScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.issuesNameSelect = React.createRef();
     this.deviceTypeSelect = React.createRef();
-    this.deviceNameSelect = React.createRef();
-    this.issueTypeInput = React.createRef();
+    this.deviceSelect = React.createRef();
+    this.issueTypeSelect = React.createRef();
+    this.cartNumInput = React.createRef();
     this.locationNameSelect = React.createRef();
     this.deviceSerialInput = React.createRef();
     this.editText = React.createRef();
     this.state = {
-      issueNames: [],
       deviceTypes: [],
-      deviceNames: [],
+      devices: [],
+      issueTypes: [],
       locationNames: [],
       selectingList: [],
       showEmptyNotice: [false, false, false, false, false, false, false],
       typeSelectingList: '',
-      issueNameId: '',
-      issueName: '',
       deviceType: '',
       deviceTypeId: '',
-      deviceName: '',
-      deviceNameId: '',
-      deviceSerialNumber: '',
+      device: '',
       issueType: '',
+      deviceId: '',
+      issueTypeId: '',
+      deviceSerialNumber: '',
+      cartNum: '',
       locationName: '',
       locationNameId: '',
       condition: '',
@@ -128,15 +128,19 @@ export default class NewIssueScreen extends React.Component {
       questionSecondSelected: text_no,
       sub_option_a: 0,
       sub_option_b: 0,
+      textAlign: false,
     };
   }
 
   componentDidMount() {
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
-        this.getIssuesName();
+        this.getDeviceTypes();
       });
     });
+  }
+  locationGps() {
+    Geolocation.watchPosition(info => console.log(info));
   }
 
   componentWillUnmount() {}
@@ -150,7 +154,6 @@ export default class NewIssueScreen extends React.Component {
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.userInfo = jsonValue;
-        console.log(jsonValue);
         this.setState(allState);
       } else {
       }
@@ -178,20 +181,20 @@ export default class NewIssueScreen extends React.Component {
     }
   };
 
-  getIssuesName = async () => {
+  getDeviceTypes = async () => {
     this._closeLoadingBox();
     let allState = this.state;
 
-    allState.issueNames = [
+    allState.deviceTypes = [
       {
         id: 999,
-        name: "מכולה לא משוייכת",
+        name: 'מכולה לא משוייכת',
       },
     ];
     this.setState(allState);
   };
 
-  getDeviceTypes = async () => {
+  getDevice = async () => {
     this._closeLoadingBox();
     let allState = this.state;
     for (let i = 0; i < allState.appConfig.containers.length; i++) {
@@ -199,39 +202,34 @@ export default class NewIssueScreen extends React.Component {
         id: allState.appConfig.containers[i]['id'],
         name: allState.appConfig.containers[i]['name'],
       };
-      allState.deviceTypes.push(item);
+      allState.devices.push(item);
     }
-
     this.setState(allState);
   };
 
-  getDeviceNames = async () => {
+  getIssueTypes = async () => {
     let allState = this.state;
     let deviceList = [];
     for (
       let i = 0;
-      i < allState.appConfig.containers.length &&
-      deviceList.length == 0;
+      i < allState.appConfig.containers.length && deviceList.length == 0;
       i++
     ) {
-      if (
-        allState.appConfig.containers[i]['id'] ==
-        this.state.deviceTypeId
-      ) {
+      if (allState.appConfig.containers[i]['id'] == this.state.deviceId) {
         deviceList = allState.appConfig.containers[i]['devices'];
       }
     }
 
     if (deviceList.length > 0) {
-      allState.deviceNames = [];
+      allState.issueTypes = [];
       for (let i = 0; i < deviceList.length; i++) {
         let item = {
           id: deviceList[i]['id'],
           name: deviceList[i]['name'],
           issue_types: deviceList[i]['issue_types'],
         };
-        allState.deviceNames.push(item);
-        console.log(allState.deviceNames[0].issue_types);
+        allState.issueTypes.push(item);
+        console.log(allState.issueTypes[0].issue_types);
       }
     }
     this.setState(allState);
@@ -251,45 +249,37 @@ export default class NewIssueScreen extends React.Component {
   };
 
   addIssue = async () => {
-    if (
-      this.state.issueName != '' &&
-      this.state.deviceType != '' &&
-      this.state.deviceName != '' &&
-      this.state.issueType != '' &&
-      this.state.deviceSerialNumber != '' &&
-      this.state.descriptionOfIssue != '' &&
-      this.state.locationName != ''
-    ) {
+    if (this.state.deviceType != '' && this.state.deviceSerialNumber != '') {
       this._showLoadingBox();
       let dataObj = {
         request: rq_add_issue,
         token: this.state.userInfo.token,
-        title: this.state.issueName,
-        device_type_id: parseInt(this.state.deviceTypeId),
-        device_id: parseInt(this.state.deviceNameId),
-        issue_type_id: this.state.issueType,
+        device_type: this.state.deviceType,
+        device: this.state.device,
+        issue_type: this.state.issueType,
+        cart_num: this.state.cartNum,
         serial_num: this.state.deviceSerialNumber,
         description: this.state.descriptionOfIssue,
         place_description: this.state.locationName,
         condition: this.state.condition,
         worning: this.state.worning,
-        project: 1
+        project: 1,
       };
 
       dataObj.is_operational = false;
 
       dataObj.is_disabled = false;
 
-      let attachments = [];
+      let media = [];
       if (this.state.fileAttach1.length > 0) {
         for (let i = 0; i < this.state.fileAttach1.length; i++) {
-          let attachItem = {
+          let attachItem1 = {
             attachment: this.state.fileAttach1[i]['attachment'],
             attachment_name: this.state.fileAttach1[i]['attachment_name'],
             is_attachment_image:
               this.state.fileAttach1[i]['is_attachment_image'],
           };
-          attachments.push(attachItem);
+          media.push(attachItem1);
         }
         // let attachFileData = this.state.fileAttach[0];
         // dataObj.attachment = attachFileData.attachment;
@@ -298,21 +288,21 @@ export default class NewIssueScreen extends React.Component {
       }
       if (this.state.fileAttach2.length > 0) {
         for (let i = 0; i < this.state.fileAttach2.length; i++) {
-          let attachItem = {
+          let attachItem2 = {
             attachment: this.state.fileAttach2[i]['attachment'],
             attachment_name: this.state.fileAttach2[i]['attachment_name'],
             is_attachment_image:
               this.state.fileAttach2[i]['is_attachment_image'],
           };
-          attachments.push(attachItem);
+          media.push(attachItem2);
         }
         // let attachFileData = this.state.fileAttach[0];
         // dataObj.attachment = attachFileData.attachment;
         // dataObj.attachment_name = attachFileData.attachment_name;
         // dataObj.is_attachment_image = attachFileData.is_attachment_image;
       }
-      dataObj.attachments = attachments;
-      // console.log(dataObj);
+      dataObj.media = media;
+      console.log(dataObj);
       this.callAddIssueApi(dataObj);
     } else {
       // show empty
@@ -322,19 +312,19 @@ export default class NewIssueScreen extends React.Component {
 
   updateEmptyNotice = () => {
     let allState = this.state;
-    if (this.state.issueName == '') {
+    if (this.state.deviceType == '') {
       allState.showEmptyNotice[0] = true;
     }
-    if (this.state.deviceType == '') {
+    if (this.state.device == '') {
       allState.showEmptyNotice[1] = true;
     }
-    if (this.state.deviceName == '') {
+    if (this.state.issueType == '') {
       allState.showEmptyNotice[2] = true;
     }
     if (this.state.deviceSerialNumber == '') {
       allState.showEmptyNotice[3] = true;
     }
-    if (this.state.issueType == '') {
+    if (this.state.cartNum == '') {
       allState.showEmptyNotice[4] = true;
     }
     if (this.state.descriptionOfIssue == '') {
@@ -370,14 +360,6 @@ export default class NewIssueScreen extends React.Component {
       });
   };
 
-  showIssuesNamesPicker = async () => {
-    let allState = this.state;
-    allState.selectingList = allState.issueNames;
-    allState.typeSelectingList = issueName;
-    allState.isSelectListShown = true;
-    this.setState(allState);
-  };
-
   showDeviceTypesPicker = async () => {
     let allState = this.state;
     allState.selectingList = allState.deviceTypes;
@@ -386,10 +368,18 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  showDeviceNamesPicker = async () => {
+  showDevicesPicker = async () => {
     let allState = this.state;
-    allState.selectingList = allState.deviceNames;
-    allState.typeSelectingList = deviceName;
+    allState.selectingList = allState.devices;
+    allState.typeSelectingList = device;
+    allState.isSelectListShown = true;
+    this.setState(allState);
+  };
+
+  showIssueTypesPicker = async () => {
+    let allState = this.state;
+    allState.selectingList = allState.issueTypes;
+    allState.typeSelectingList = issueType;
     allState.isSelectListShown = true;
     this.setState(allState);
   };
@@ -402,73 +392,73 @@ export default class NewIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  onIssuesNameChange = text => {
-    let allState = this.state;
-    allState.issueName = text;
-    if (text != '' && allState.showEmptyNotice[0]) {
-      allState.showEmptyNotice[0] = false;
-    }
-    if (allState.issueNames[0].name == text) {
-      if (allState.issueNameId != allState.issueNames[0].id) {
-        allState.deviceTypeId = '';
-        allState.deviceType = '';
-        allState.deviceNameId = '';
-        allState.deviceName = '';
-        allState.locationNameId = '';
-        allState.locationName = '';
-        this.deviceTypeSelect.current.updateValue('');
-        this.deviceNameSelect.current.updateValue('');
-        this.locationNameSelect.current.updateValue('');
-      }
-      allState.issueNameId = allState.issueNames[0].id;
-    }
-    this.setState(allState);
-    this.issuesNameSelect.current.updateValue(text);
-    this.getDeviceTypes();
-  };
-
   onDeviceTypeChange = text => {
     let allState = this.state;
     allState.deviceType = text;
-    if (text != '' && allState.showEmptyNotice[1]) {
-      allState.showEmptyNotice[1] = false;
+    if (text != '' && allState.showEmptyNotice[0]) {
+      allState.showEmptyNotice[0] = false;
     }
-    for (let i = 0; i < allState.deviceTypes.length; i++) {
-      if (allState.deviceTypes[i].name == text) {
-        if (allState.deviceTypeId != allState.deviceTypes[i].id) {
-          allState.deviceNameId = '';
-          allState.deviceName = '';
-          allState.locationNameId = '';
-          allState.locationName = '';
-          this.deviceNameSelect.current.updateValue('');
-        }
-        allState.deviceTypeId = allState.deviceTypes[i].id;
+    if (allState.deviceTypes[0].name == text) {
+      if (allState.deviceTypeId != allState.deviceTypes[0].id) {
+        allState.deviceId = '';
+        allState.device = '';
+        allState.issueTypeId = '';
+        allState.issueType = '';
+        allState.locationNameId = '';
+        allState.locationName = '';
+        this.deviceSelect.current.updateValue('');
+        this.issueTypeSelect.current.updateValue('');
+        this.locationNameSelect.current.updateValue('');
       }
+      allState.deviceTypeId = allState.deviceTypes[0].id;
     }
     this.setState(allState);
     this.deviceTypeSelect.current.updateValue(text);
-    // call get device name
-    this.getDeviceNames();
+    this.getDevice();
   };
 
-  onDeviceNameChange = text => {
+  onDeviceChange = text => {
     let allState = this.state;
-    allState.deviceName = text;
-    for (let i = 0; i < allState.deviceNames.length; i++) {
-      if (allState.deviceNames[i].name == text) {
-        if (allState.deviceNameId != allState.deviceNames[i].id) {
+    allState.device = text;
+    if (text != '' && allState.showEmptyNotice[1]) {
+      allState.showEmptyNotice[1] = false;
+    }
+    for (let i = 0; i < allState.devices.length; i++) {
+      if (allState.devices[i].name == text) {
+        if (allState.deviceId != allState.devices[i].id) {
+          allState.issueTypeId = '';
+          allState.issueType = '';
+          allState.locationNameId = '';
+          allState.locationName = '';
+          this.issueTypeSelect.current.updateValue('');
+        }
+        allState.deviceId = allState.devices[i].id;
+      }
+    }
+    this.setState(allState);
+    this.deviceSelect.current.updateValue(text);
+    // call get device name
+    this.getIssueTypes();
+  };
+
+  onIssueTypeChange = text => {
+    let allState = this.state;
+    allState.issueType = text;
+    for (let i = 0; i < allState.issueTypes.length; i++) {
+      if (allState.issueTypes[i].name == text) {
+        if (allState.issueTypeId != allState.issueTypes[i].id) {
           allState.locationNameId = '';
           allState.locationName = '';
           this.locationNameSelect.current.updateValue('');
         }
-        allState.deviceNameId = allState.deviceNames[i].id;
+        allState.issueTypeId = allState.issueTypes[i].id;
       }
     }
     if (text != '' && allState.showEmptyNotice[2]) {
       allState.showEmptyNotice[2] = false;
     }
     this.setState(allState);
-    this.deviceNameSelect.current.updateValue(text);
+    this.issueTypeSelect.current.updateValue(text);
     this.getLocations();
   };
 
@@ -497,14 +487,14 @@ export default class NewIssueScreen extends React.Component {
     this.deviceSerialInput.current.updateValue(text);
   };
 
-  onIssueTypeChange = text => {
+  onCartNumChange = text => {
     let allState = this.state;
-    allState.issueType = text;
+    allState.cartNum = text;
     if (text != '' && allState.showEmptyNotice[4]) {
       allState.showEmptyNotice[4] = false;
     }
     this.setState(allState);
-    this.issueTypeInput.current.updateValue(text);
+    this.cartNumInput.current.updateValue(text);
   };
 
   onIssueDescriptionChange = text => {
@@ -869,12 +859,12 @@ export default class NewIssueScreen extends React.Component {
   }
 
   onPickerDialogSelected = (item, type) => {
-    if (type == issueName) {
-      this.onIssuesNameChange(item.name);
-    } else if (type == deviceType) {
+    if (type == deviceType) {
       this.onDeviceTypeChange(item.name);
-    } else if (type == deviceName) {
-      this.onDeviceNameChange(item.name);
+    } else if (type == device) {
+      this.onDeviceChange(item.name);
+    } else if (type == issueType) {
+      this.onIssueTypeChange(item.name);
     } else if (type == locationName) {
       this.onLocationChange(item.name);
     }
@@ -1001,9 +991,9 @@ export default class NewIssueScreen extends React.Component {
                       : '#ffffff',
                   }}>
                   <RNFloatingInput
-                    ref={this.issuesNameSelect}
+                    ref={this.deviceTypeSelect}
                     onPress={() => {
-                      this.showIssuesNamesPicker();
+                      this.showDeviceTypesPicker();
                     }}
                     label={nameOfIssue}
                     labelSize={12}
@@ -1022,9 +1012,9 @@ export default class NewIssueScreen extends React.Component {
                       },
                     ]}
                     style={{flex: 1}}
-                    value={this.state.issueName}
+                    value={this.state.deviceType}
                     onChangeText={text => {
-                      this.onIssuesNameChange(text);
+                      this.onDeviceTypeChange(text);
                     }}></RNFloatingInput>
                 </View>
               </ImageBackground>
@@ -1135,9 +1125,9 @@ export default class NewIssueScreen extends React.Component {
                     : '#000',
                 }}>
                 <RNFloatingInput
-                  ref={this.deviceTypeSelect}
+                  ref={this.deviceSelect}
                   onPress={() => {
-                    this.showDeviceTypesPicker();
+                    this.showDevicesPicker();
                   }}
                   label={typeOfDevice}
                   labelSize={12}
@@ -1156,9 +1146,9 @@ export default class NewIssueScreen extends React.Component {
                     },
                   ]}
                   style={{flex: 1}}
-                  value={this.state.deviceType}
+                  value={this.state.device}
                   onChangeText={text => {
-                    this.onDeviceTypeChange(text);
+                    this.onDeviceChange(text);
                   }}></RNFloatingInput>
               </View>
 
@@ -1174,9 +1164,9 @@ export default class NewIssueScreen extends React.Component {
                     : '#000',
                 }}>
                 <RNFloatingInput
-                  ref={this.deviceNameSelect}
+                  ref={this.issueTypeSelect}
                   onPress={() => {
-                    this.showDeviceNamesPicker();
+                    this.showIssueTypesPicker();
                   }}
                   label={nameOfDevice}
                   labelSize={12}
@@ -1195,9 +1185,9 @@ export default class NewIssueScreen extends React.Component {
                     },
                   ]}
                   style={{flex: 1}}
-                  value={this.state.deviceName}
+                  value={this.state.issueType}
                   onChangeText={text => {
-                    this.onDeviceNameChange(text);
+                    this.onIssueTypeChange(text);
                   }}></RNFloatingInput>
               </View>
               <View
@@ -1212,7 +1202,7 @@ export default class NewIssueScreen extends React.Component {
                     : '#000',
                 }}>
                 <RNFloatingInput
-                  ref={this.issueTypeInput}
+                  ref={this.cartNumInput}
                   label={typeOfIssue}
                   labelSize={12}
                   labelSizeLarge={14}
@@ -1230,9 +1220,9 @@ export default class NewIssueScreen extends React.Component {
                   style={{flex: 1}}
                   showArrow={false}
                   editable={true}
-                  value={this.state.issueType}
+                  value={this.state.cartNum}
                   onChangeTextInput={text => {
-                    this.onIssueTypeChange(text);
+                    this.onCartNumChange(text);
                   }}></RNFloatingInput>
               </View>
               <View
@@ -1282,7 +1272,7 @@ export default class NewIssueScreen extends React.Component {
                 }}>
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('Location Id');
+                    this.locationGps();
                   }}>
                   <Image
                     source={require('../image/location_red.png')}
@@ -1526,12 +1516,15 @@ export default class NewIssueScreen extends React.Component {
                   onBlur={() => {
                     if (this.state.descriptionOfIssue == '') {
                       this.setState({isShowInput: false});
+                      this.setState({textAlign: false});
                     } else {
                       this.setState({isShowInput: true});
+                      this.setState({textAlign: true});
                     }
                   }}
                   onFocus={() => {
                     this.setState({isShowInput: true});
+                    this.setState({textAlign: true});
                   }}
                   multiline={true}
                   numberOfLines={this.state.isShowInput ? 5 : 3}
@@ -1544,7 +1537,8 @@ export default class NewIssueScreen extends React.Component {
                       padding: 10,
                       backgroundColor: 'c_bg_issue_description',
                       borderRadius: 10,
-                      textAlign: 'center',
+                      textAlign:
+                        this.state.textAlign == true ? 'right' : 'center',
                     },
                   ]}
                   placeholder={this.state.isShowInput ? '' : descriptionOfIssue}
@@ -1615,13 +1609,8 @@ export default class NewIssueScreen extends React.Component {
                 onPress={() => {
                   this.addIssue();
                   if (
-                    this.state.issueName != '' &&
                     this.state.deviceType != '' &&
-                    this.state.deviceName != '' &&
-                    this.state.issueType != '' &&
-                    this.state.deviceSerialNumber != '' &&
-                    this.state.descriptionOfIssue != '' &&
-                    this.state.locationName != ''
+                    this.state.deviceSerialNumber != ''
                   ) {
                     this.setState({isTwoQuestionDialogShow: true});
                   } else {
@@ -1629,13 +1618,8 @@ export default class NewIssueScreen extends React.Component {
                   }
                 }}
                 style={[
-                  this.state.issueName != '' &&
                   this.state.deviceType != '' &&
-                  this.state.deviceName != '' &&
-                  this.state.issueType != '' &&
-                  this.state.deviceSerialNumber != '' &&
-                  this.state.descriptionOfIssue != '' &&
-                  this.state.locationName != ''
+                  this.state.deviceSerialNumber != ''
                     ? mStyle.buttonEnable
                     : mStyle.buttonDisable,
                   {

@@ -130,7 +130,8 @@ import {
   issueDetailTitle,
   locationIssues,
   conditon,
-  warning
+  warning,
+  device,
 } from '../resource/StringContentDefault';
 import {Picker} from '@react-native-picker/picker';
 import moment from 'moment';
@@ -320,7 +321,7 @@ export default class ActiveIssueScreen extends React.Component {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
           // console.log(Object.keys(responseJson.chat_messages));
-          console.log(responseJson.chat_messages);
+          console.log(responseJson);
           let allState = this.state;
           allState.issueDetail = responseJson;
           // create user color list
@@ -1973,7 +1974,7 @@ export default class ActiveIssueScreen extends React.Component {
                   mStyle.textTitle,
                   {color: '#ffffff', textAlign: 'center', flex: 1},
                 ]}>
-                {issueDetailTitle}
+                {this.state.issueDetail.device_type}
               </Text>
               <View style={{width: screenWidth * 0.05}}></View>
             </View>
@@ -2180,9 +2181,9 @@ export default class ActiveIssueScreen extends React.Component {
                       alignItems: 'flex-start',
                       marginEnd: 5,
                     }}>
-                    <Text style={[mStyle.textNormal]}>{deviceType}</Text>
+                    <Text style={[mStyle.textNormal]}>{device}</Text>
                     <Text style={[mStyle.textBold]}>
-                      {this.state.issueDetail.device_type_name}
+                      {this.state.issueDetail.device}
                     </Text>
                   </View>
                   <View
@@ -2191,9 +2192,9 @@ export default class ActiveIssueScreen extends React.Component {
                       flex: 1,
                       alignItems: 'flex-start',
                     }}>
-                    <Text style={[mStyle.textNormal]}>{deviceName}</Text>
+                    <Text style={[mStyle.textNormal]}>{issueType}</Text>
                     <Text style={[mStyle.textBold]}>
-                      {this.state.issueDetail.device_name}
+                      {this.state.issueDetail.issue_type}
                     </Text>
                   </View>
                 </View>
@@ -2270,12 +2271,10 @@ export default class ActiveIssueScreen extends React.Component {
                       alignItems: 'center',
                       marginRight: 10,
                       display: this.state.issueDetail.condition_satatus
-                      ? 'flex'
-                      : 'none',
+                        ? 'flex'
+                        : 'none',
                     }}>
-                    <Text style={{color: '#fff'}}>
-                      {conditon}
-                    </Text>
+                    <Text style={{color: '#fff'}}>{conditon}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{
@@ -2285,13 +2284,9 @@ export default class ActiveIssueScreen extends React.Component {
                       paddingVertical: 10,
                       borderRadius: 8,
                       alignItems: 'center',
-                      display: this.state.issueDetail.worning
-                      ? 'flex'
-                      : 'none',
+                      display: this.state.issueDetail.worning ? 'flex' : 'none',
                     }}>
-                    <Text style={{color: '#fff'}}>
-                      {warning}
-                    </Text>
+                    <Text style={{color: '#fff'}}>{warning}</Text>
                   </TouchableOpacity>
                 </View>
               </View>

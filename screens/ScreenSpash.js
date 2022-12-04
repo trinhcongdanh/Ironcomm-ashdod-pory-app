@@ -69,7 +69,6 @@ export const SplashScreen = () => {
       .then(responseJson => {
         _closeLoadingBox();
         if (responseJson.rc == rc_success) {
-          console.log(responseJson);
           saveAppConfig(responseJson).then(() => {
             checkToken();
           });

@@ -77,12 +77,17 @@ export default class RNFloatingInput extends React.Component {
           <Text style={labelStyle}>{label}</Text>
           <TextInput
             {...props}
+            autoCapitalize={'characters'}
+            keyboardType={
+              Platform.OS === 'ios' ? 'default' : 'visible-password'
+            }
             style={[textInputStyle]}
             onFocus={this.handleFocus}
             onBlur={this.handleBlur}
             editable={editable}
             value={this.state.displayText}
             onChangeText={text => {
+              this.setState({displayText: text.toUpperCase()});
               this.setState({displayName: text});
               if (editable) {
                 this.props.onChangeTextInput(text);

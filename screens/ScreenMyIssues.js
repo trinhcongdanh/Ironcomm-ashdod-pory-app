@@ -295,7 +295,7 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        allState.issuesList[i]['title'].includes(text) ||
+        allState.issuesList[i]['device_type'].includes(text) ||
         allState.issuesList[i]['serial_number'].includes(text) ||
         text == ''
       ) {
@@ -379,7 +379,7 @@ export default class MyIssuesScreen extends React.Component {
       token: this.state.userInfo.token,
       filter_period: 0,
       sort_by: 4,
-      project: 1
+      project: 1,
     };
     if (this.state.sortText == sortByDateCreated) {
       dataObj.sort_by = 1;
@@ -556,6 +556,7 @@ export default class MyIssuesScreen extends React.Component {
         let filterItem = filterList[i];
         fastFilterList.push(
           <TouchableOpacity
+            key={i}
             onPress={() => {
               let aState = this.state;
               aState.filterList = [];
@@ -595,10 +596,10 @@ export default class MyIssuesScreen extends React.Component {
         if (filterItem.type == 'filter_statuses') {
           fastFilterList.push(
             <TouchableOpacity
+              key={i}
               onPress={() => {
                 this.removeFilterItem(filterItem);
               }}
-              key={filterItem['name']}
               style={{
                 flexDirection: 'row',
                 alignSelf: 'flex-start',
@@ -642,6 +643,7 @@ export default class MyIssuesScreen extends React.Component {
         } else {
           fastFilterList.push(
             <TouchableOpacity
+              key={i}
               onPress={() => {
                 this.removeFilterItem(filterItem);
               }}
@@ -1191,7 +1193,7 @@ export default class MyIssuesScreen extends React.Component {
                             {this.getLocationName(item.command_id)}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
-                            {item.title}
+                            {item.device_type}
                           </Text>
                         </View>
                         <View style={{flexDirection: 'row', padding: 5}}>
