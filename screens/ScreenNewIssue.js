@@ -184,30 +184,18 @@ export default class NewIssueScreen extends React.Component {
   getDeviceTypes = async () => {
     this._closeLoadingBox();
     let allState = this.state;
-
-    allState.deviceTypes = [
-      {
-        id: 999,
-        name: 'מכולה לא משוייכת',
-      },
-    ];
-    this.setState(allState);
-  };
-
-  getDevice = async () => {
-    this._closeLoadingBox();
-    let allState = this.state;
     for (let i = 0; i < allState.appConfig.containers.length; i++) {
       let item = {
         id: allState.appConfig.containers[i]['id'],
         name: allState.appConfig.containers[i]['name'],
       };
-      allState.devices.push(item);
+      allState.deviceTypes.push(item);
     }
     this.setState(allState);
   };
 
-  getIssueTypes = async () => {
+  getDevice = async () => {
+    this._closeLoadingBox();
     let allState = this.state;
     let deviceList = [];
     for (
@@ -215,21 +203,53 @@ export default class NewIssueScreen extends React.Component {
       i < allState.appConfig.containers.length && deviceList.length == 0;
       i++
     ) {
-      if (allState.appConfig.containers[i]['id'] == this.state.deviceId) {
+      if (allState.appConfig.containers[i]['id'] == this.state.deviceTypeId) {
         deviceList = allState.appConfig.containers[i]['devices'];
       }
     }
 
     if (deviceList.length > 0) {
-      allState.issueTypes = [];
+      allState.devices = [];
       for (let i = 0; i < deviceList.length; i++) {
         let item = {
           id: deviceList[i]['id'],
           name: deviceList[i]['name'],
           issue_types: deviceList[i]['issue_types'],
         };
+        allState.devices.push(item);
+      }
+    }
+    this.setState(allState);
+  };
+
+  getIssueTypes = async () => {
+    let allState = this.state;
+    let issueTypeList = [];
+    for (let i = 0; i < allState.appConfig.containers.length; i++) {
+      for (
+        let j = 0;
+        j < allState.appConfig.containers[i].devices.length &&
+        issueTypeList.length == 0;
+        j++
+      ) {
+        if (
+          allState.appConfig.containers[i].devices[j]['id'] ==
+          this.state.deviceId
+        ) {
+          issueTypeList =
+            allState.appConfig.containers[i].devices[j]['issue_types'];
+        }
+      }
+    }
+
+    if (issueTypeList.length > 0) {
+      allState.issueTypes = [];
+      for (let i = 0; i < issueTypeList.length; i++) {
+        let item = {
+          id: issueTypeList[i]['id'],
+          name: issueTypeList[i]['name'],
+        };
         allState.issueTypes.push(item);
-        console.log(allState.issueTypes[0].issue_types);
       }
     }
     this.setState(allState);
@@ -254,9 +274,9 @@ export default class NewIssueScreen extends React.Component {
       let dataObj = {
         request: rq_add_issue,
         token: this.state.userInfo.token,
-        device_type: this.state.deviceType,
-        device: this.state.device,
-        issue_type: this.state.issueType,
+        device_type_id: parseInt(this.state.deviceTypeId),
+        device_id: parseInt(this.state.deviceId),
+        issue_type_id: parseInt(this.state.issueTypeId),
         cart_num: this.state.cartNum,
         serial_num: this.state.deviceSerialNumber,
         description: this.state.descriptionOfIssue,

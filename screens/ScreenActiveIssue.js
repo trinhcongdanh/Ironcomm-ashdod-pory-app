@@ -1974,7 +1974,7 @@ export default class ActiveIssueScreen extends React.Component {
                   mStyle.textTitle,
                   {color: '#ffffff', textAlign: 'center', flex: 1},
                 ]}>
-                {this.state.issueDetail.device_type}
+                {this.state.issueDetail.device_type_name}
               </Text>
               <View style={{width: screenWidth * 0.05}}></View>
             </View>
@@ -2183,7 +2183,7 @@ export default class ActiveIssueScreen extends React.Component {
                     }}>
                     <Text style={[mStyle.textNormal]}>{device}</Text>
                     <Text style={[mStyle.textBold]}>
-                      {this.state.issueDetail.device}
+                      {this.state.issueDetail.device_type_name}
                     </Text>
                   </View>
                   <View
@@ -2194,7 +2194,7 @@ export default class ActiveIssueScreen extends React.Component {
                     }}>
                     <Text style={[mStyle.textNormal]}>{issueType}</Text>
                     <Text style={[mStyle.textBold]}>
-                      {this.state.issueDetail.issue_type}
+                      {this.state.issueDetail.device_name}
                     </Text>
                   </View>
                 </View>

@@ -295,7 +295,7 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        allState.issuesList[i]['device_type'].includes(text) ||
+        allState.issuesList[i]['device_type_name'].includes(text) ||
         allState.issuesList[i]['serial_number'].includes(text) ||
         text == ''
       ) {
@@ -435,7 +435,6 @@ export default class MyIssuesScreen extends React.Component {
       .then(responseJson => {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
-          console.log(responseJson);
           let issueListInJson = responseJson.issues;
           let issueTypeCountInJson = responseJson.issue_statuses_count;
           let allState = this.state;
@@ -443,6 +442,11 @@ export default class MyIssuesScreen extends React.Component {
           for (let i = 0; i < allState.issuesList.length; i++) {
             allState.issuesList[i]['isShown'] = true;
           }
+          // for (let i = 0; i < allState.appConfig.containers.length; i++) {
+          //   allState.issuesList.device_type_name =
+          //     allState.appConfig.containers[i]['name'];
+          // }
+          // console.log('issuesList' + issuesList);
           allState.issueStatusCount = issueTypeCountInJson;
           allState.numOfUpdate = responseJson.num_of_updates;
           if (allState.isDefaultFilter) {
@@ -1193,7 +1197,7 @@ export default class MyIssuesScreen extends React.Component {
                             {this.getLocationName(item.command_id)}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
-                            {item.device_type}
+                            {item.issue_type_name}
                           </Text>
                         </View>
                         <View style={{flexDirection: 'row', padding: 5}}>
