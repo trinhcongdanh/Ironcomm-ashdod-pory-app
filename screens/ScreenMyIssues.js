@@ -435,10 +435,12 @@ export default class MyIssuesScreen extends React.Component {
       .then(responseJson => {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
+          console.log(responseJson);
           let issueListInJson = responseJson.issues;
           let issueTypeCountInJson = responseJson.issue_statuses_count;
           let allState = this.state;
           allState.issuesList = issueListInJson;
+          console.log(allState.issuesList);
           for (let i = 0; i < allState.issuesList.length; i++) {
             allState.issuesList[i]['isShown'] = true;
           }
@@ -1194,7 +1196,7 @@ export default class MyIssuesScreen extends React.Component {
                               mStyleIssueItem.textCommendentName,
                               {marginEnd: 5},
                             ]}>
-                            {this.getLocationName(item.command_id)}
+                            {this.state.appConfig.place_description[item.s]}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
                             {item.issue_type_name}

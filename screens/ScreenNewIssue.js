@@ -427,20 +427,23 @@ export default class NewIssueScreen extends React.Component {
     if (text != '' && allState.showEmptyNotice[0]) {
       allState.showEmptyNotice[0] = false;
     }
-    if (allState.deviceTypes[0].name == text) {
-      if (allState.deviceTypeId != allState.deviceTypes[0].id) {
-        allState.deviceId = '';
-        allState.device = '';
-        allState.issueTypeId = '';
-        allState.issueType = '';
-        allState.locationNameId = '';
-        allState.locationName = '';
-        this.deviceSelect.current.updateValue('');
-        this.issueTypeSelect.current.updateValue('');
-        this.locationNameSelect.current.updateValue('');
+    for (let i = 0; i < allState.deviceTypes.length; i++) {
+      if (allState.deviceTypes[i].name == text) {
+        if (allState.deviceTypeId != allState.deviceTypes[i].id) {
+          allState.deviceId = '';
+          allState.device = '';
+          allState.issueTypeId = '';
+          allState.issueType = '';
+          allState.locationNameId = '';
+          allState.locationName = '';
+          this.deviceSelect.current.updateValue('');
+          this.issueTypeSelect.current.updateValue('');
+          this.locationNameSelect.current.updateValue('');
+        }
+        allState.deviceTypeId = allState.deviceTypes[i].id;
       }
-      allState.deviceTypeId = allState.deviceTypes[0].id;
     }
+
     this.setState(allState);
     this.deviceTypeSelect.current.updateValue(text);
     this.getDevice();
