@@ -352,24 +352,10 @@ export default class NewIssueScreen extends React.Component {
     if (this.state.deviceType == '') {
       allState.showEmptyNotice[0] = true;
     }
-    if (this.state.device == '') {
-      allState.showEmptyNotice[1] = true;
-    }
-    if (this.state.issueType == '') {
-      allState.showEmptyNotice[2] = true;
-    }
     if (this.state.deviceSerialNumber == '') {
       allState.showEmptyNotice[3] = true;
     }
-    if (this.state.cartNum == '') {
-      allState.showEmptyNotice[4] = true;
-    }
-    if (this.state.descriptionOfIssue == '') {
-      allState.showEmptyNotice[5] = true;
-    }
-    if (this.state.locationName == '') {
-      allState.showEmptyNotice[6] = true;
-    }
+
     this.setState(allState);
   };
 
@@ -384,6 +370,7 @@ export default class NewIssueScreen extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        console.log(responseJson);
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
           this.props.navigation.goBack();
@@ -561,13 +548,16 @@ export default class NewIssueScreen extends React.Component {
   selectOptionInAttachDialog1 = async index => {
     let allState = this.state;
     if (index == 0) {
-      const result = await launchCamera({mediaType: 'photo'});
+      const result = await launchCamera({
+        mediaType: 'photo',
+        includeBase64: true,
+      });
       console.log(result);
       result.assets?.map(item => {
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
-            attachment: item.uri,
+            attachment: item.base64,
             is_attachment_image: true,
           };
           let allState = this.state;
@@ -576,13 +566,16 @@ export default class NewIssueScreen extends React.Component {
         }
       });
     } else if (index == 1) {
-      const result = await launchImageLibrary({mediaType: 'photo'});
-
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        includeBase64: true,
+      });
+      console.log(result);
       result.assets?.map(item => {
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
-            attachment: item.uri,
+            attachment: item.base64,
             is_attachment_image: true,
           };
           let allState = this.state;
@@ -598,13 +591,17 @@ export default class NewIssueScreen extends React.Component {
   selectOptionInAttachDialog2 = async index => {
     let allState = this.state;
     if (index == 0) {
-      const result = await launchCamera({mediaType: 'photo'});
+      const result = await launchCamera({
+        mediaType: 'photo',
+        includeBase64: true,
+      });
+      console.log(result);
 
       result.assets?.map(item => {
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
-            attachment: item.uri,
+            attachment: item.base64,
             is_attachment_image: true,
           };
           let allState = this.state;
@@ -613,13 +610,16 @@ export default class NewIssueScreen extends React.Component {
         }
       });
     } else if (index == 1) {
-      const result = await launchImageLibrary({mediaType: 'photo'});
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        includeBase64: true,
+      });
 
       result.assets?.map(item => {
         if (item != '' && item != undefined) {
           let attachItem = {
             attachment_name: item.fileName,
-            attachment: item.uri,
+            attachment: item.base64,
             is_attachment_image: true,
           };
           let allState = this.state;
@@ -667,7 +667,11 @@ export default class NewIssueScreen extends React.Component {
                 marginEnd: 10,
               }}>
               <Image
-                source={{uri: mediaItem.attachment}}
+                source={{
+                  uri:
+                    'data:image/gif/png/jpeg/jpg;base64,' +
+                    mediaItem.attachment,
+                }}
                 resizeMode="cover"
                 style={{width: screenWidth * 0.24, height: screenWidth * 0.24}}
               />
@@ -792,7 +796,11 @@ export default class NewIssueScreen extends React.Component {
                 marginEnd: 10,
               }}>
               <Image
-                source={{uri: mediaItem.attachment}}
+                source={{
+                  uri:
+                    'data:image/gif/png/jpeg/jpg;base64,' +
+                    mediaItem.attachment,
+                }}
                 resizeMode="cover"
                 style={{width: screenWidth * 0.24, height: screenWidth * 0.24}}
               />
@@ -1543,6 +1551,7 @@ export default class NewIssueScreen extends React.Component {
                   onChangeText={text => {
                     this.onIssueDescriptionChange(text);
                   }}
+                  value={this.state.descriptionOfIssue}
                   onBlur={() => {
                     if (this.state.descriptionOfIssue == '') {
                       this.setState({isShowInput: false});

@@ -13,6 +13,7 @@ export const errorPhoneNumberNotRegister = 'מספר הטלפון אינו רש�
 export const errorWrongVerificationCode = 'קוד האימות שגוי';
 
 export const MyIssuesTitle = 'הדיווחים שלי';
+export const deviceTypeName = 'מכולה לא משוייכת';
 export const inClose = 'נסגר';
 export const inCoordinated = 'מתואם';
 export const inPriority = 'בתיעדוף';

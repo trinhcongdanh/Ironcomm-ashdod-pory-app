@@ -35,6 +35,7 @@ import {
   sortByLastUpdate,
   search,
   sortBySmallSort,
+  deviceTypeName,
 } from '../resource/StringContentDefault';
 import {
   ActiveIssueScreenName,
@@ -335,9 +336,9 @@ export default class MyIssuesScreen extends React.Component {
     }
   };
 
-  getLocationName(commandId) {
-    return this.state.appConfig.place_description[commandId];
-  }
+  // getLocationName(commandId) {
+  //   return this.state.appConfig.place_description[commandId];
+  // }
 
   loadAppConfig = async () => {
     try {
@@ -360,6 +361,7 @@ export default class MyIssuesScreen extends React.Component {
             allState.filterList.push(item);
           }
         }
+
         allState.isFastFilter = false;
         this.setState(allState);
       } else {
@@ -1196,10 +1198,10 @@ export default class MyIssuesScreen extends React.Component {
                               mStyleIssueItem.textCommendentName,
                               {marginEnd: 5},
                             ]}>
-                            {this.state.appConfig.place_description[item.s]}
+                            {item.place_description}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
-                            {item.issue_type_name}
+                            {deviceTypeName}
                           </Text>
                         </View>
                         <View style={{flexDirection: 'row', padding: 5}}>

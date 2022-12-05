@@ -1702,6 +1702,7 @@ export default class ActiveIssueScreen extends React.Component {
         device_id: this.state.issueDetail.device_id,
         issue_type_id: this.state.issueDetail.issue_type_id,
         serial_number: this.state.issueDetail.serial_number,
+        cart_num: this.state.issueDetail.cart_num,
       });
     } else {
       alert(youHaveNoPermissionToDoThi);
