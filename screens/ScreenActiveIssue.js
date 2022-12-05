@@ -103,6 +103,7 @@ import {
   deviceName,
   issueType,
   serialNumber,
+  cartNum,
   mediaSection,
   chatSection,
   takePicture,
@@ -2197,7 +2198,7 @@ export default class ActiveIssueScreen extends React.Component {
                     }}>
                     <Text style={[mStyle.textNormal]}>{device}</Text>
                     <Text style={[mStyle.textBold, {color: 'black'}]}>
-                      {this.state.issueDetail.device_type_name}
+                      {this.state.issueDetail.device_name}
                     </Text>
                   </View>
                   <View
@@ -2208,7 +2209,7 @@ export default class ActiveIssueScreen extends React.Component {
                     }}>
                     <Text style={[mStyle.textNormal]}>{issueType}</Text>
                     <Text style={[mStyle.textBold, {color: 'black'}]}>
-                      {this.state.issueDetail.device_name}
+                      {this.state.issueDetail.issue_type_name}
                     </Text>
                   </View>
                 </View>
@@ -2230,7 +2231,7 @@ export default class ActiveIssueScreen extends React.Component {
                     }}>
                     <Text style={[mStyle.textNormal]}>{serialNumber}</Text>
                     <Text style={[mStyle.textBold, {color: 'black'}]}>
-                      {this.state.issueDetail.issue_type_name}
+                      {this.state.issueDetail.serial_number}
                     </Text>
                   </View>
                   <View
@@ -2239,9 +2240,9 @@ export default class ActiveIssueScreen extends React.Component {
                       flex: 1,
                       alignItems: 'flex-start',
                     }}>
-                    <Text style={[mStyle.textNormal]}>{issueType}</Text>
+                    <Text style={[mStyle.textNormal]}>{cartNum}</Text>
                     <Text style={[mStyle.textBold, {color: 'black'}]}>
-                      {this.state.issueDetail.serial_number}
+                      {this.state.issueDetail.cart_num}
                     </Text>
                   </View>
                 </View>
