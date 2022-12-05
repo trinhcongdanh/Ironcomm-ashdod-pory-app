@@ -90,6 +90,7 @@ export const issueType = 'מידות מכולה';
 export const cartNum = 'מספר מכולה';
 export const serialNumber = 'מספר עגלה';
 export const locationIssues = 'נראתה לאחרונה';
+export const place = 'נווט אותי לשם';
 export const mediaSection = 'מדיה';
 export const chatSection = 'תקשורת';
 export const updated = 'עודכן';
@@ -144,4 +145,4 @@ export const rejectConfirmForType3ButtonNo = 'דחה';
 export const rejectConfirmForType3ButtonYes = 'קבל';
 
 export const conditon = 'מכולה תקולה';
-export const warning = 'אזהרת חמ/״ס';
+export const warning = 'אזהרת חמ״ס';

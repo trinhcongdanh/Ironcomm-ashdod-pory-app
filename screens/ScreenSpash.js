@@ -166,7 +166,6 @@ export const SplashScreen = () => {
           top: 0,
           left: 0,
         }}>
-        <View style={{flex: 1}} />
         <Image
           style={{
             width: screenWidth * 0.8,
@@ -175,27 +174,26 @@ export const SplashScreen = () => {
           resizeMode="contain"
           source={require('../image/splash_icon.png')}
         />
-        <View style={{flex: 1}} />
-        <Text
-          style={{
-            fontFamily: 'Heebo',
-            fontSize: 20,
-            textAlign: 'center',
-            color: c_text_white,
-          }}>
-          {splashScreenContent}
-        </Text>
+
         <Image
           style={{
             width: screenWidth * 0.5,
             height: screenWidth * 0.5 * (480 / 750),
             marginBottom: 20,
-            marginTop: 40,
           }}
           resizeMode="contain"
           source={require('../image/logo_without_text.png')}
         />
-        <View style={{flex: 1}} />
+
+        <Text
+          style={{
+            color: 'white',
+            fontStyle: 'italic',
+            fontWeight: '700',
+            fontFamily: 'Calibri',
+          }}>
+          Accelerating Collaborative Operation
+        </Text>
       </View>
 
       <View
