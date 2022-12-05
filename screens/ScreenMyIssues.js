@@ -295,7 +295,7 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        allState.issuesList[i]['device_type_name'].includes(text) ||
+        allState.issuesList[i]['issue_type_name'].includes(text) ||
         allState.issuesList[i]['serial_number'].includes(text) ||
         text == ''
       ) {

@@ -338,7 +338,7 @@ export default class NewIssueScreen extends React.Component {
           media.push(attachItem2);
         }
       }
-      dataObj.media = media;
+      dataObj.attachments = media;
       console.log(dataObj);
       this.callAddIssueApi(dataObj);
     } else {
@@ -1160,9 +1160,7 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[1]
-                    ? c_bg_error_message
-                    : '#000',
+                  borderBottomColor: '#000',
                 }}>
                 <RNFloatingInput
                   ref={this.deviceSelect}
@@ -1199,9 +1197,7 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[2]
-                    ? c_bg_error_message
-                    : '#000',
+                  borderBottomColor: '#000',
                 }}>
                 <RNFloatingInput
                   ref={this.issueTypeSelect}
@@ -1237,9 +1233,7 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[4]
-                    ? c_bg_error_message
-                    : '#000',
+                  borderBottomColor: '#000',
                 }}>
                 <RNFloatingInput
                   ref={this.cartNumInput}
@@ -1272,9 +1266,7 @@ export default class NewIssueScreen extends React.Component {
                   flexDirection: 'row',
                   alignItems: 'center',
                   borderBottomWidth: 1,
-                  borderBottomColor: this.state.showEmptyNotice[6]
-                    ? c_bg_error_message
-                    : '#000',
+                  borderBottomColor: '#000',
                 }}>
                 <RNFloatingInput
                   ref={this.locationNameSelect}
@@ -1330,9 +1322,7 @@ export default class NewIssueScreen extends React.Component {
                   style={{
                     width: screenWidth * 0.8 - 30,
                     borderBottomWidth: 1,
-                    borderBottomColor: this.state.showEmptyNotice[4]
-                      ? c_bg_error_message
-                      : '#000',
+                    borderBottomColor: '#000',
                   }}>
                   <RNFloatingInput
                     ref={this.placeInput}
@@ -1524,9 +1514,7 @@ export default class NewIssueScreen extends React.Component {
                   width: screenWidth * 0.8,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderColor: this.state.showEmptyNotice[5]
-                    ? c_bg_error_message
-                    : c_bg_issue_description,
+                  borderColor: c_bg_issue_description,
                   borderWidth: 1,
                   borderRadius: 10,
                   flexDirection: 'column',
