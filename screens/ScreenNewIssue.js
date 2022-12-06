@@ -39,6 +39,7 @@ import {
   c_bg_error_message,
   c_main_blue,
   c_text_white,
+  rq_get_issues,
 } from '../resource/BaseValue';
 import {
   typeOfDevice,
@@ -79,8 +80,7 @@ import RNFloatingInput from '../comp/FloatingInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import RNFetchBlob from 'react-native-fetch-blob';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-// import Geolocation from '@react-native-community/geolocation';
-import MapView, {Marker} from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
 
 export default class NewIssueScreen extends React.Component {
   constructor(props) {
@@ -135,14 +135,7 @@ export default class NewIssueScreen extends React.Component {
       sub_option_b: 0,
       textAlign: false,
       showMap: false,
-      region: {
-        latitude: 35.6762,
-        longitude: 139.6503,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      },
-      marker: null,
-      arrPlaces: [],
+      issuesList: [],
     };
   }
 
@@ -154,17 +147,28 @@ export default class NewIssueScreen extends React.Component {
     });
   }
 
-  getMap() {
-    console.log(this.state.placeLat);
-  }
+  // getMap() {
+  //   console.log(this.state.placeLat);
+  // }
 
-  onPlaceChange = text => {
-    arrPlaces = text.split(' - ');
-    let allState = this.state;
-    allState.placeLat = arrPlaces[0];
-    allState.placeLon = arrPlaces[1];
-    this.setState(allState);
-  };
+  // onPlaceChange = text => {
+  //   arrPlaces = text.split(' - ');
+  //   let allState = this.state;
+  //   allState.placeLat = arrPlaces[0];
+  //   allState.placeLon = arrPlaces[1];
+  //   this.setState(allState);
+  // };
+  locationGps() {
+    Geolocation.watchPosition(info => console.log(info));
+    Geolocation.getCurrentPosition(info => {
+      let allState = this.state;
+      allState.placeLat = info.coords.latitude;
+      allState.placeLon = info.coords.longitude;
+      allState.place = `${allState.placeLat} - ${allState.placeLon}`;
+      this.placeInput.current.updateValue(allState.place);
+      this.setState(allState);
+    });
+  }
 
   componentWillUnmount() {}
 
@@ -197,6 +201,31 @@ export default class NewIssueScreen extends React.Component {
         allState.condition = allState.appConfig.issue_conditions[0];
         allState.worning = allState.appConfig.issue_wornings[0];
         this.setState(allState);
+
+        let dataObj = {
+          request: rq_get_issues,
+          token: this.state.userInfo.token,
+        };
+        fetch(api_url, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dataObj),
+        })
+          .then(response => response.json())
+          .then(responseJson => {
+            if (responseJson.rc == rc_success) {
+              let issueListInJson = responseJson.issues;
+              let allState = this.state;
+              allState.issuesList = issueListInJson;
+              for (let i = 0; i < allState.issuesList.length; i++) {
+                // console.log(allState.issuesList[i]['serial_num']);
+              }
+              this.setState(allState);
+            }
+          });
       } else {
       }
     } catch (e) {
@@ -1313,9 +1342,7 @@ export default class NewIssueScreen extends React.Component {
                 }}>
                 <TouchableOpacity
                   onPress={() => {
-                    let allState = this.state;
-                    allState.showMap = true;
-                    this.setState(allState);
+                    this.locationGps();
                   }}>
                   <Image
                     source={require('../image/location_red.png')}
@@ -1350,11 +1377,8 @@ export default class NewIssueScreen extends React.Component {
                     ]}
                     style={{flex: 1}}
                     showArrow={false}
-                    editable={true}
-                    value={this.state.place}
-                    onChangeTextInput={text => {
-                      this.onPlaceChange(text);
-                    }}></RNFloatingInput>
+                    editable={false}
+                    value={this.state.place}></RNFloatingInput>
                 </View>
               </View>
               <View style={{marginTop: 25}}>
@@ -1375,8 +1399,7 @@ export default class NewIssueScreen extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
-                        allState.condition =
-                          allState.appConfig.issue_conditions[1];
+                        allState.condition = 1;
                         allState.sub_option_a = 1;
                         this.setState(allState);
                       }}
@@ -1401,8 +1424,7 @@ export default class NewIssueScreen extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
-                        allState.condition =
-                          allState.appConfig.issue_conditions[0];
+                        allState.condition = 0;
                         allState.sub_option_a = 0;
                         this.setState(allState);
                       }}
@@ -1452,7 +1474,7 @@ export default class NewIssueScreen extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
-                        allState.worning = allState.appConfig.issue_wornings[1];
+                        allState.worning = 1;
                         allState.sub_option_b = 1;
                         this.setState(allState);
                       }}
@@ -1477,7 +1499,7 @@ export default class NewIssueScreen extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         let allState = this.state;
-                        allState.worning = allState.appConfig.issue_wornings[0];
+                        allState.worning = 0;
                         allState.sub_option_b = 0;
                         this.setState(allState);
                       }}
@@ -1712,61 +1734,7 @@ export default class NewIssueScreen extends React.Component {
               color={c_loading_icon}
             />
           </View>
-          <Modal
-            animationType="fade"
-            presentationStyle="fullScreen"
-            visible={this.state.showMap}
-            onRequestClose={() => {
-              this.setState({showMap: false});
-            }}
-            transparent={false}>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({showMap: false});
-              }}>
-              <Image
-                source={require('../image/icon_close_dialog.png')}
-                resizeMode="cover"
-                style={{
-                  width: screenWidth * 0.09,
-                  height: screenWidth * 0.09,
-                  alignSelf: 'flex-end',
-                  margin: 10,
-                }}
-              />
-            </TouchableOpacity>
-            <View
-              style={{
-                ...StyleSheet.absoluteFillObject,
-                flex: 1, //the container will fill the whole screen.
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                position: 'absolute',
-                top: 50,
-                left: 0,
-                right: 0,
-                bottom: 0,
-              }}>
-              {/*Render our MapView*/}
-              <MapView
-                style={{
-                  ...StyleSheet.absoluteFillObject,
-                }}
-                //specify our coordinates.
-                region={this.state.region}
-                onPress={e => {
-                  let allState = this.state;
-                  allState.marker = e.nativeEvent.coordinate;
-                  allState.placeLat = e.nativeEvent.coordinate.latitude;
-                  allState.placeLon = e.nativeEvent.coordinate.longitude;
-                  allState.place = `${allState.placeLat} - ${allState.placeLon}`;
-                  this.placeInput.current.updateValue(allState.place);
-                  this.setState(allState);
-                }}>
-                {this.state.marker && <Marker coordinate={this.state.marker} />}
-              </MapView>
-            </View>
-          </Modal>
+
           <Modal
             animationType="fade"
             presentationStyle="fullScreen"
