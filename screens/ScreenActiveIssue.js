@@ -1694,15 +1694,28 @@ export default class ActiveIssueScreen extends React.Component {
       issueDetail.media = [];
       issueDetail.chat_messages = [];
       this.props.navigation.navigate(EditIssueScreenName, {
-        issue_id: this.state.issueId,
-        command_name: this.state.issueDetail.command_name,
-        unit_number: this.state.issueDetail.unit_number,
-        title: this.state.issueDetail.title,
+        // issue_id: this.state.issueId,
+        // command_name: this.state.issueDetail.command_name,
+        // unit_number: this.state.issueDetail.unit_number,
+        // title: this.state.issueDetail.title,
+        // device_type_id: this.state.issueDetail.device_type_id,
+        // device_id: this.state.issueDetail.device_id,
+        // issue_type_id: this.state.issueDetail.issue_type_id,
+        // serial_number: this.state.issueDetail.serial_number,
+        // cart_num: this.state.issueDetail.cart_num,
         device_type_id: this.state.issueDetail.device_type_id,
+        device_type_name: this.state.issueDetail.device_type_name,
         device_id: this.state.issueDetail.device_id,
+        device_name: this.state.issueDetail.device_name,
         issue_type_id: this.state.issueDetail.issue_type_id,
-        serial_number: this.state.issueDetail.serial_number,
+        issue_type_name: this.state.issueDetail.issue_type_name,
         cart_num: this.state.issueDetail.cart_num,
+        serial_number: this.state.issueDetail.serial_number,
+        place_lat: this.state.issueDetail.place_lat,
+        place_lon: this.state.issueDetail.place_lon,
+        place_description: this.state.issueDetail.place_description,
+        condition: this.state.issueDetail.condition_satatus,
+        worning: this.state.issueDetail.worning,
       });
     } else {
       alert(youHaveNoPermissionToDoThi);
