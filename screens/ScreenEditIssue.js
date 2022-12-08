@@ -1028,6 +1028,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  Alert,
   I18nManager,
 } from 'react-native';
 import {
@@ -1544,15 +1545,7 @@ export default class NewIssueScreen extends React.Component {
 
   onDeviceSerialNumberChange = text => {
     let allState = this.state;
-
     allState.is_serial_num = allState.listSerialNumber.some(e => e == text);
-    // if (allState.deviceSerialNumber == text) {
-    //   allState.is_serial_num = false;
-    //   console.log(allState.is_serial_num);
-    // }
-    // allState.is_serial_num = allState.deviceSerialNumber == text;
-
-    console.log(allState.is_serial_num);
     allState.deviceSerialNumber = text;
     if (text != '' && allState.showEmptyNotice[3]) {
       allState.showEmptyNotice[3] = false;
