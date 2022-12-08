@@ -521,84 +521,6 @@ export default class ActiveIssueScreen extends React.Component {
     this.setState(allState);
   };
 
-  // callAcceptIssue = async classValue => {
-  //   if (this.state.issueDetail.can_accept == 1) {
-  //     this._showLoadingBox();
-  //     let dataObj = {
-  //       request: rq_accept_issue,
-  //       token: this.state.userInfo.token,
-  //       issue_id: this.state.issueDetail.issue_id,
-  //     };
-  //     if (this.state.userInfo.type == 3) {
-  //       dataObj.class = classValue;
-  //     }
-  //     fetch(api_url, {
-  //       method: 'POST',
-  //       headers: {
-  //         Accept: 'application/json',
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(dataObj),
-  //     })
-  //       .then(response => response.json())
-  //       .then(responseJson => {
-  //         this._closeLoadingBox();
-  //         if (responseJson.rc == rc_success) {
-  //           console.log(responseJson);
-  //           let allState = this.state;
-  //           allState.issueDetail.accept_status = 1;
-  //           allState.issueDetail.class = classValue;
-  //           this.setState(allState);
-  //         } else if (responseJson.rc == rc_token_expire) {
-  //           this.props.navigation.navigate(LoginScreenName, {
-  //             isTokenExpire: true,
-  //           });
-  //         } else {
-  //           console.log(responseJson.message + ' ' + dataObj.toString());
-  //         }
-  //       })
-  //       .catch(error => {
-  //         this._closeLoadingBox();
-  //         console.log(error);
-  //       });
-  //   } else {
-  //     this.showAlert(youHaveNoPermissionToDoThi);
-  //   }
-  // };
-
-  // showRejectIssueDialog = () => {
-  //   if (this.state.issueDetail.can_accept == 1) {
-  //     if (this.state.userInfo.type == 3) {
-  //       Alert.alert(
-  //         '',
-  //         rejectConfirmForType3,
-  //         [
-  //           {
-  //             text: rejectConfirmForType3ButtonYes,
-  //             onPress: () => {
-  //               this.callAcceptIssue(2);
-  //             },
-  //           },
-  //           {
-  //             text: rejectConfirmForType3ButtonNo,
-  //             onPress: () => {
-  //               this.setState({isRejectIssueDialogShown: true});
-  //             },
-  //             style: 'cancel',
-  //           },
-  //         ],
-  //         {
-  //           cancelable: true,
-  //         },
-  //       );
-  //     } else {
-  //       this.setState({isRejectIssueDialogShown: true});
-  //     }
-  //   } else {
-  //     this.showAlert(youHaveNoPermissionToDoThi);
-  //   }
-  // };
-
   closeRejectIssueDialog = () => {
     this.setState({isRejectIssueDialogShown: false});
   };
@@ -805,63 +727,49 @@ export default class ActiveIssueScreen extends React.Component {
     }
   };
 
-  showDisapproveDialog = () => {
-    if (this.state.issueDetail.can_approve == 1) {
-      this.setState({isDisapproveDialogShown: true});
-    } else {
-      this.showAlert(youHaveNoPermissionToDoThi);
-    }
-  };
-
   closeDisapproveDialog = () => {
     this.setState({isDisapproveDialogShown: false});
   };
 
   callDisapproveIssue = async () => {
-    if (this.state.disapproveReason != '') {
-      this._showLoadingBox();
-      let dataObj = {
-        request: rq_disapprove_issue,
-        token: this.state.userInfo.token,
-        issue_id: this.state.issueDetail.issue_id,
-        reason: this.state.disapproveReason,
-      };
-      fetch(api_url, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataObj),
+    this._showLoadingBox();
+    let dataObj = {
+      request: rq_approve_issue,
+      token: this.state.userInfo.token,
+      issue_id: this.state.issueDetail.issue_id,
+    };
+    fetch(api_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dataObj),
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        this._closeLoadingBox();
+        if (responseJson.rc == rc_success) {
+          // console.log(responseJson);
+          let allState = this.state;
+          allState.issueDetail.approve_status = 2;
+          this.setState(allState);
+        } else if (responseJson.rc == rc_token_expire) {
+          this.props.navigation.navigate(LoginScreenName, {
+            isTokenExpire: true,
+          });
+        } else {
+          let allState = this.state;
+
+          this.setState(allState, () => {
+            alert(responseJson.message + ' ' + dataObj.toString());
+          });
+        }
       })
-        .then(response => response.json())
-        .then(responseJson => {
-          this._closeLoadingBox();
-          if (responseJson.rc == rc_success) {
-            // console.log(responseJson);
-            let allState = this.state;
-            allState.issueDetail.approve_status = 2;
-            allState.isDisapproveDialogShown = false;
-            this.setState(allState);
-          } else if (responseJson.rc == rc_token_expire) {
-            this.props.navigation.navigate(LoginScreenName, {
-              isTokenExpire: true,
-            });
-          } else {
-            let allState = this.state;
-            allState.isDisapproveDialogShown = false;
-            this.setState(allState, () => {
-              alert(responseJson.message + ' ' + dataObj.toString());
-            });
-          }
-        })
-        .catch(error => {
-          this._closeLoadingBox();
-          // console.log(error);
-        });
-    } else {
-      this.setState({showDisapproveReasonNotice: true});
-    }
+      .catch(error => {
+        this._closeLoadingBox();
+        // console.log(error);
+      });
   };
 
   showStatusIssueSelectDialog = () => {
@@ -1694,15 +1602,6 @@ export default class ActiveIssueScreen extends React.Component {
       issueDetail.media = [];
       issueDetail.chat_messages = [];
       this.props.navigation.navigate(EditIssueScreenName, {
-        // issue_id: this.state.issueId,
-        // command_name: this.state.issueDetail.command_name,
-        // unit_number: this.state.issueDetail.unit_number,
-        // title: this.state.issueDetail.title,
-        // device_type_id: this.state.issueDetail.device_type_id,
-        // device_id: this.state.issueDetail.device_id,
-        // issue_type_id: this.state.issueDetail.issue_type_id,
-        // serial_number: this.state.issueDetail.serial_number,
-        // cart_num: this.state.issueDetail.cart_num,
         device_type_id: this.state.issueDetail.device_type_id,
         device_type_name: this.state.issueDetail.device_type_name,
         device_id: this.state.issueDetail.device_id,
@@ -1893,8 +1792,8 @@ export default class ActiveIssueScreen extends React.Component {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  this.showDisapproveDialog();
-                  // this.callDisapproveIssue();
+                  // this.showDisapproveDialog();
+                  this.callDisapproveIssue();
                 }}
                 style={{flex: 1}}>
                 <Text
@@ -2996,73 +2895,7 @@ export default class ActiveIssueScreen extends React.Component {
               }}
             />
           </Modal>
-          <Modal
-            animationType="slide"
-            presentationStyle="fullScreen"
-            visible={this.state.isDisapproveDialogShown}
-            transparent={false}>
-            <View
-              style={{
-                flexDirection: 'column',
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: greyHasOpacity,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: screenWidth * 0.9,
-                  padding: 10,
-                  backgroundColor: '#ffffff',
-                  borderRadius: 5,
-                }}>
-                <Text style={[mStyle.textInfoLabel]}>
-                  {disapproveIssueMessage}
-                </Text>
-                <TextInput
-                  onChangeText={text => {
-                    if (text != '') {
-                      this.setState({
-                        disapproveReason: text,
-                        showDisapproveReasonNotice: false,
-                      });
-                    }
-                  }}
-                  style={{
-                    padding: 0,
-                    marginTop: 20,
-                    marginBottom: 20,
-                    marginStart: 0,
-                    marginEnd: 0,
-                    writingDirection: 'rtl',
-                    textAlign: 'right',
-                    borderBottomColor: this.state.showDisapproveReasonNotice
-                      ? c_priority_high
-                      : greyHasOpacity,
-                    borderBottomWidth: 1,
-                  }}
-                  placeholder={reasonForDisapproval}
-                />
-                <View style={{flexDirection: 'row'}}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.closeDisapproveDialog();
-                    }}
-                    style={[mStyle.textInfoLabel, {flex: 1}]}>
-                    <Text>{disapproveIssueButtonCancel}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.callDisapproveIssue();
-                    }}
-                    style={[mStyle.textInfoLabel, {flex: 1}]}>
-                    <Text>{disapproveIssueButtonOk}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Modal>
+
           <Modal
             animationType="slide"
             presentationStyle="fullScreen"

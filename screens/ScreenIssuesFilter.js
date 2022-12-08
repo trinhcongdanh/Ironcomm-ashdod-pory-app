@@ -70,6 +70,7 @@ export default class IssuesFilterScreen extends React.Component {
       appConfig: {},
       statusCounter: {},
       filterIssueType: [],
+      place_description: {},
     };
   }
 
@@ -368,33 +369,6 @@ export default class IssuesFilterScreen extends React.Component {
     return locationComponent;
   }
 
-  // displayIssueType () {
-  //     let issueLists = [];
-  //     let issueTypeList = this.state.filterIssueType;
-  //     for (let i = 0; i < issueTypeList.length; i++){
-  //         let issueTypeItem = issueTypeList[i];
-  //         issueLists.push(
-  //             <TouchableOpacity
-  //                 onPress={() => {
-  //                     this.updateFilter("type " + i);
-  //                 }}
-  //                 style={[issueTypeItem.selected ? mStyleFilterType.selectedContainer : mStyleFilterType.normalContainer]}>
-  //                 <Text style={issueTypeItem.selected ? mStyleFilterType.selectedText : mStyleFilterType.normalText}>{issueTypeItem.name}</Text>
-  //                 <Image
-  //                     source={require("../image/icon_close_white.png")}
-  //                     resizeMode="contain"
-  //                     style={{
-  //                         width:screenWidth*0.03,
-  //                         height:screenWidth*0.03,
-  //                         marginStart: 5,
-  //                         opacity: issueTypeItem.selected ? 1 : 0}}
-  //                 />
-  //             </TouchableOpacity>
-  //         )
-  //     }
-  //     return issueLists;
-  // }
-
   callCloseSelf = isCancel => {
     let selectedFilterList = [];
     let allState = this.state;
@@ -487,11 +461,12 @@ export default class IssuesFilterScreen extends React.Component {
         !allState.statusCounter[pos]['selected'];
     } else if (type.indexOf('location_') >= 0) {
       let pos = type.split('location_')[1];
-      let setValue = !allState.appConfig.locations[pos.toString()]['selected'];
-      Object.keys(allState.appConfig.locations).map(key => {
-        allState.appConfig.locations[key]['selected'] = false;
-      });
-      allState.appConfig.locations[pos]['selected'] = setValue;
+
+      // Object.keys(allState.appConfig.locations).map(key => {
+      //   allState.appConfig.locations[key]['selected'] = false;
+      // });
+      allState.appConfig.locations[pos]['selected'] =
+        !allState.appConfig.locations[pos.toString()]['selected'];
     }
     this.setState(allState);
   };

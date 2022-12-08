@@ -179,7 +179,6 @@ export const SplashScreen = () => {
           style={{
             width: screenWidth * 0.5,
             height: screenWidth * 0.5 * (480 / 750),
-            marginBottom: 20,
           }}
           resizeMode="contain"
           source={require('../image/logo_without_text.png')}

@@ -107,12 +107,14 @@ export default class MyIssuesScreen extends React.Component {
       userInfo: {},
       appConfig: {},
       issueStatusCount: [],
+      issuePlaceDescription: [],
       filterList: [],
       numOfUpdate: 0,
       isRefreshing: false,
       isFastFilter: true,
       isDefaultFilter: true,
       searchText: '',
+      listNumber: [],
     };
   }
 
@@ -362,6 +364,17 @@ export default class MyIssuesScreen extends React.Component {
           }
         }
 
+        // for (let i = 0; i < allState.appConfig.place_description.length; i++) {
+        //   if (allState.appConfig.place_description[i] != null) {
+        //     let item = {
+        //       type: 'filter_location',
+        //       name: allState.appConfig.place_description[i]['name'],
+        //       value: i,
+        //     };
+        //     allState.filterList.push(item);
+        //   }
+        // }
+
         allState.isFastFilter = false;
         this.setState(allState);
       } else {
@@ -446,12 +459,8 @@ export default class MyIssuesScreen extends React.Component {
           for (let i = 0; i < allState.issuesList.length; i++) {
             allState.issuesList[i]['isShown'] = true;
           }
-          // for (let i = 0; i < allState.appConfig.containers.length; i++) {
-          //   allState.issuesList.device_type_name =
-          //     allState.appConfig.containers[i]['name'];
-          // }
-          // console.log('issuesList' + issuesList);
           allState.issueStatusCount = issueTypeCountInJson;
+          allState.issuePlaceDescription = issueListInJson;
           allState.numOfUpdate = responseJson.num_of_updates;
           if (allState.isDefaultFilter) {
             allState.filterList = [];
@@ -468,6 +477,20 @@ export default class MyIssuesScreen extends React.Component {
                 allState.filterList.push(filterItem);
               }
             });
+            // for (let i = 0; i < allState.issuesList.length; i++) {
+            //   if (
+            //     allState.issuesList[i]['issue_id'] == 126 ||
+            //     allState.issuesList[i]['issue_id'] == 136
+            //   ) {
+            //     let filterItem = {
+            //       id: allState.issuesList[i]['issue_id'],
+            //       name: allState.issuesList[i]['place_description'],
+            //       value: allState.issuesList[i]['issue_id'],
+            //       type: 'filter_location',
+            //     };
+            //     allState.filterList.push(filterItem);
+            //   }
+            // }
           } else {
             if (allState.isFastFilter) {
               allState.filterList = [];
@@ -482,6 +505,21 @@ export default class MyIssuesScreen extends React.Component {
                 };
                 allState.filterList.push(filterItem);
               });
+              // for (let i = 0; i < allState.issuesList.length; i++) {
+              //   if (
+              //     allState.issuesList[i]['place_description'] ==
+              //       'YOVEL 231-236' ||
+              //     allState.issuesList[i]['place_description'] == 'TR4'
+              //   ) {
+              //     let filterItem = {
+              //       id: i,
+              //       name: allState.issuesList[i]['place_description'],
+              //       value: allState.issuesList[i]['place_description'],
+              //       type: 'filter_location',
+              //     };
+              //     allState.filterList.push(filterItem);
+              //   }
+              // }
             } else {
             }
           }
@@ -804,7 +842,16 @@ export default class MyIssuesScreen extends React.Component {
   };
 
   comeToNewIssueScreen = () => {
-    this.props.navigation.navigate(NewIssueScreenName);
+    let item = {};
+    let allState = this.state;
+    for (let i = 0; i < this.state.issuesList.length; i++) {
+      item = this.state.issuesList[i];
+      allState.listNumber.push(item.serial_number);
+    }
+    this.props.navigation.navigate(NewIssueScreenName, {
+      list_serial_number: allState.listNumber,
+    });
+    this.setState(allState);
   };
 
   comeToStatusInfoScreen = () => {

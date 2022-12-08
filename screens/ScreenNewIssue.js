@@ -21,6 +21,8 @@ import {
   ActivityIndicator,
   Modal,
   I18nManager,
+  Alert,
+  Keyboard,
 } from 'react-native';
 import {
   c_bg_issue_description,
@@ -99,6 +101,7 @@ export default class NewIssueScreen extends React.Component {
       issueTypes: [],
       locationNames: [],
       selectingList: [],
+      listSerialNumber: props.route.params.list_serial_number,
       showEmptyNotice: [false, false, false, false, false, false, false],
       typeSelectingList: '',
       deviceType: '',
@@ -136,10 +139,12 @@ export default class NewIssueScreen extends React.Component {
       textAlign: false,
       showMap: false,
       issuesList: [],
+      is_serial_num: false,
     };
   }
 
   componentDidMount() {
+    console.log(this.state.listSerialNumber);
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
         this.getDeviceTypes();
@@ -309,7 +314,9 @@ export default class NewIssueScreen extends React.Component {
 
   getLocations = async () => {
     this._closeLoadingBox();
+
     let allState = this.state;
+    allState.locationNames = [];
     for (let i = 0; i < allState.appConfig.place_description.length; i++) {
       let item = {
         id: i + 1,
@@ -321,7 +328,11 @@ export default class NewIssueScreen extends React.Component {
   };
 
   addIssue = async () => {
-    if (this.state.deviceType != '' && this.state.deviceSerialNumber != '') {
+    if (
+      this.state.deviceType != '' &&
+      this.state.deviceSerialNumber != '' &&
+      this.state.is_serial_num == false
+    ) {
       this._showLoadingBox();
       let dataObj = {
         request: rq_add_issue,
@@ -370,6 +381,13 @@ export default class NewIssueScreen extends React.Component {
       dataObj.attachments = media;
       console.log(dataObj);
       this.callAddIssueApi(dataObj);
+    } else if (
+      this.state.deviceType != '' &&
+      this.state.deviceSerialNumber != '' &&
+      this.state.is_serial_num == true
+    ) {
+      Alert.alert('מספר מכולה כבר קיים במערכת');
+      this.updateEmptyNotice();
     } else {
       // show empty
       this.updateEmptyNotice();
@@ -381,7 +399,10 @@ export default class NewIssueScreen extends React.Component {
     if (this.state.deviceType == '') {
       allState.showEmptyNotice[0] = true;
     }
-    if (this.state.deviceSerialNumber == '') {
+    if (
+      this.state.deviceSerialNumber == '' ||
+      this.state.is_serial_num == true
+    ) {
       allState.showEmptyNotice[3] = true;
     }
 
@@ -535,6 +556,8 @@ export default class NewIssueScreen extends React.Component {
 
   onDeviceSerialNumberChange = text => {
     let allState = this.state;
+    allState.is_serial_num =
+      allState.listSerialNumber.findIndex(e => e == text) != -1;
     allState.deviceSerialNumber = text;
     if (text != '' && allState.showEmptyNotice[3]) {
       allState.showEmptyNotice[3] = false;
@@ -559,6 +582,7 @@ export default class NewIssueScreen extends React.Component {
     if (text != '' && allState.showEmptyNotice[5]) {
       allState.showEmptyNotice[5] = false;
     }
+    this.editText.current.updateValue(text);
     this.setState(allState);
   };
 
@@ -1570,7 +1594,7 @@ export default class NewIssueScreen extends React.Component {
                 </TouchableOpacity>
                 <TextInput
                   ref={this.editText}
-                  onChangeText={text => {
+                  onChangeTextInput={text => {
                     this.onIssueDescriptionChange(text);
                   }}
                   value={this.state.descriptionOfIssue}
@@ -1671,7 +1695,8 @@ export default class NewIssueScreen extends React.Component {
                   this.addIssue();
                   if (
                     this.state.deviceType != '' &&
-                    this.state.deviceSerialNumber != ''
+                    this.state.deviceSerialNumber != '' &&
+                    this.state.is_serial_num == false
                   ) {
                     this.setState({isTwoQuestionDialogShow: true});
                   } else {
@@ -1680,7 +1705,8 @@ export default class NewIssueScreen extends React.Component {
                 }}
                 style={[
                   this.state.deviceType != '' &&
-                  this.state.deviceSerialNumber != ''
+                  this.state.deviceSerialNumber != '' &&
+                  this.state.is_serial_num == false
                     ? mStyle.buttonEnable
                     : mStyle.buttonDisable,
                   {
