@@ -1126,6 +1126,7 @@ export default class NewIssueScreen extends React.Component {
       place: '',
       condition: props.route.params.condition,
       worning: props.route.params.worning,
+      listSerialNumber: props.route.params.listSerialNumber,
       isHaveImageUpload: false,
       descriptionOfIssue: '',
       indicatorSizeW: 0,
@@ -1146,11 +1147,12 @@ export default class NewIssueScreen extends React.Component {
       textAlign: false,
       showMap: false,
       issuesList: [],
+      is_serial_num: false,
     };
   }
 
   componentDidMount() {
-    console.log(this.state.deviceSerialNumber);
+    console.log(this.state.listSerialNumber);
     this.state.place = `${this.state.placeLat} - ${this.state.placeLon}`;
     this.deviceTypeSelect.current.updateValue(this.state.deviceType);
     this.deviceSelect.current.updateValue(this.state.device);
@@ -1322,7 +1324,11 @@ export default class NewIssueScreen extends React.Component {
   };
 
   updateIssue = async () => {
-    if (this.state.deviceType != '' && this.state.deviceSerialNumber != '') {
+    if (
+      this.state.deviceType != '' &&
+      this.state.deviceSerialNumber != '' &&
+      this.state.is_serial_num == false
+    ) {
       this._showLoadingBox();
       let dataObj = {
         request: rq_update_issue,
@@ -1371,6 +1377,13 @@ export default class NewIssueScreen extends React.Component {
       dataObj.attachments = media;
       console.log(dataObj);
       this.callAddIssueApi(dataObj);
+    } else if (
+      this.state.deviceType != '' &&
+      this.state.deviceSerialNumber != '' &&
+      this.state.is_serial_num == true
+    ) {
+      Alert.alert('מספר מכולה כבר קיים במערכת');
+      this.updateEmptyNotice();
     } else {
       // show empty
       this.updateEmptyNotice();
@@ -1531,6 +1544,15 @@ export default class NewIssueScreen extends React.Component {
 
   onDeviceSerialNumberChange = text => {
     let allState = this.state;
+
+    allState.is_serial_num = allState.listSerialNumber.some(e => e == text);
+    // if (allState.deviceSerialNumber == text) {
+    //   allState.is_serial_num = false;
+    //   console.log(allState.is_serial_num);
+    // }
+    // allState.is_serial_num = allState.deviceSerialNumber == text;
+
+    console.log(allState.is_serial_num);
     allState.deviceSerialNumber = text;
     if (text != '' && allState.showEmptyNotice[3]) {
       allState.showEmptyNotice[3] = false;
@@ -2672,7 +2694,8 @@ export default class NewIssueScreen extends React.Component {
                 }}
                 style={[
                   this.state.deviceType != '' &&
-                  this.state.deviceSerialNumber != ''
+                  this.state.deviceSerialNumber != '' &&
+                  this.state.is_serial_num == false
                     ? mStyle.buttonEnable
                     : mStyle.buttonDisable,
                   {

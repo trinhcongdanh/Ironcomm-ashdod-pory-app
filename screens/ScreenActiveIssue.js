@@ -163,6 +163,7 @@ export default class ActiveIssueScreen extends React.Component {
       isStatusDialogShown: false,
       issueId: props.route.params.issue_id,
       issueStatus: props.route.params.issue_status,
+      listSerialNumber: props.route.params.list_serial_number,
       indicatorSizeW: 0,
       indicatorSizeH: 0,
       indicatorDisplay: false,
@@ -211,7 +212,7 @@ export default class ActiveIssueScreen extends React.Component {
       this.handleBackButtonClick,
     );
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-
+    console.log(this.state.listSerialNumber);
     I18nManager.forceRTL(true);
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
@@ -1615,6 +1616,7 @@ export default class ActiveIssueScreen extends React.Component {
         place_description: this.state.issueDetail.place_description,
         condition: this.state.issueDetail.condition_satatus,
         worning: this.state.issueDetail.worning,
+        listSerialNumber: this.state.listSerialNumber,
       });
     } else {
       alert(youHaveNoPermissionToDoThi);

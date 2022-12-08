@@ -134,6 +134,7 @@ export default class MyIssuesScreen extends React.Component {
   openActiveIssueScreen = issueId => {
     let item = {};
     for (let i = 0; i < this.state.issuesList.length; i++) {
+      this.state.listNumber.push(this.state.issuesList[i].serial_number);
       if (issueId == this.state.issuesList[i]['issue_id']) {
         item = this.state.issuesList[i];
       }
@@ -141,6 +142,7 @@ export default class MyIssuesScreen extends React.Component {
     this.props.navigation.navigate(ActiveIssueScreenName, {
       issue_id: issueId,
       issue_status: this.state.appConfig.issue_statuses[item.status]['name'],
+      list_serial_number: this.state.listNumber,
     });
   };
 
