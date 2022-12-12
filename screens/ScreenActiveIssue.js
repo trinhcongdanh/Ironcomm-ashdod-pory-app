@@ -140,11 +140,10 @@ import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-// import RNFileSelector from 'react-native-file-selector';
-// import RNFetchBlob from 'react-native-fetch-blob';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Hyperlink from 'react-native-hyperlink';
 import MapView, {Marker} from 'react-native-maps';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 export default class ActiveIssueScreen extends React.Component {
   constructor(props) {
@@ -202,6 +201,8 @@ export default class ActiveIssueScreen extends React.Component {
       marker: {
         latitude: null,
         longitude: null,
+        latitudeDelta: 0.0041,
+        longitudeDelta: 0.0021,
       },
     };
   }
@@ -2193,7 +2194,22 @@ export default class ActiveIssueScreen extends React.Component {
                       flex: 1,
                       alignItems: 'flex-start',
                     }}>
-                    <Text style={[mStyle.textNormal]}>{place}</Text>
+                    <View
+                      style={{
+                        flexDirection: 'row-reverse',
+                        alignItems: 'center',
+                      }}>
+                      <Image
+                        source={require('../image/icon_arrow_left_blue.png')}
+                        resizeMode="cover"
+                        style={{
+                          width: screenWidth * 0.017,
+                          height: screenWidth * 0.017 * (24 / 14),
+                          marginLeft: 6,
+                        }}
+                      />
+                      <Text style={[mStyle.textNormal]}>{place}</Text>
+                    </View>
                     <Text style={[mStyle.textBold, {color: 'black'}]}>
                       {this.state.issueDetail.place_lat} -{' '}
                       {this.state.issueDetail.place_lon}
@@ -2730,11 +2746,12 @@ export default class ActiveIssueScreen extends React.Component {
               }}>
               {/*Render our MapView*/}
               <MapView
+                zoomEnabled={true}
                 style={{
                   ...StyleSheet.absoluteFillObject,
                 }}
                 //specify our coordinates.
-                region={this.state.region}>
+                region={this.state.marker}>
                 {this.state.marker && <Marker coordinate={this.state.marker} />}
               </MapView>
             </View>

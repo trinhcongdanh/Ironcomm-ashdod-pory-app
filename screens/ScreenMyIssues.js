@@ -300,7 +300,7 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        allState.issuesList[i]['issue_type_name'].includes(text) ||
+        deviceTypeName.includes(text) ||
         allState.issuesList[i]['serial_number'].includes(text) ||
         text == ''
       ) {
@@ -366,17 +366,6 @@ export default class MyIssuesScreen extends React.Component {
           }
         }
 
-        // for (let i = 0; i < allState.appConfig.place_description.length; i++) {
-        //   if (allState.appConfig.place_description[i] != null) {
-        //     let item = {
-        //       type: 'filter_location',
-        //       name: allState.appConfig.place_description[i]['name'],
-        //       value: i,
-        //     };
-        //     allState.filterList.push(item);
-        //   }
-        // }
-
         allState.isFastFilter = false;
         this.setState(allState);
       } else {
@@ -395,6 +384,7 @@ export default class MyIssuesScreen extends React.Component {
       request: rq_get_issues,
       token: this.state.userInfo.token,
       filter_period: 0,
+      filter_location: 0,
       sort_by: 4,
       project: 1,
     };
@@ -425,21 +415,19 @@ export default class MyIssuesScreen extends React.Component {
               dataObj.filter_statuses + ',' + filterItem['value'];
           }
         } else if (filterItem['type'] == 'filter_location') {
-          dataObj.filter_location = filterItem['value'];
-        } else if (filterItem['type'] == 'filter_issue_types') {
           if (
-            dataObj.filter_issue_types == null ||
-            dataObj.filter_issue_types == ''
+            dataObj.filter_location == null ||
+            dataObj.filter_location == ''
           ) {
-            dataObj.filter_issue_types = filterItem['value'];
+            dataObj.filter_location = filterItem['name'];
           } else {
-            dataObj.filter_issue_types =
-              dataObj.filter_issue_types + ',' + filterItem['value'];
+            dataObj.filter_location =
+              dataObj.filter_location + ',' + filterItem['name'];
           }
         }
       }
     }
-    console.log(dataObj);
+    console.log('filterList1:', dataObj);
     fetch(api_url, {
       method: 'POST',
       headers: {
@@ -452,17 +440,17 @@ export default class MyIssuesScreen extends React.Component {
       .then(responseJson => {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
-          console.log(responseJson);
+          console.log('res:', responseJson);
           let issueListInJson = responseJson.issues;
           let issueTypeCountInJson = responseJson.issue_statuses_count;
           let allState = this.state;
           allState.issuesList = issueListInJson;
-          console.log(allState.issuesList);
+          // console.log(allState.issuesList);
           for (let i = 0; i < allState.issuesList.length; i++) {
             allState.issuesList[i]['isShown'] = true;
           }
           allState.issueStatusCount = issueTypeCountInJson;
-          allState.issuePlaceDescription = issueListInJson;
+          // allState.issuePlaceDescription = issueListInJson;
           allState.numOfUpdate = responseJson.num_of_updates;
           if (allState.isDefaultFilter) {
             allState.filterList = [];
@@ -479,20 +467,6 @@ export default class MyIssuesScreen extends React.Component {
                 allState.filterList.push(filterItem);
               }
             });
-            // for (let i = 0; i < allState.issuesList.length; i++) {
-            //   if (
-            //     allState.issuesList[i]['issue_id'] == 126 ||
-            //     allState.issuesList[i]['issue_id'] == 136
-            //   ) {
-            //     let filterItem = {
-            //       id: allState.issuesList[i]['issue_id'],
-            //       name: allState.issuesList[i]['place_description'],
-            //       value: allState.issuesList[i]['issue_id'],
-            //       type: 'filter_location',
-            //     };
-            //     allState.filterList.push(filterItem);
-            //   }
-            // }
           } else {
             if (allState.isFastFilter) {
               allState.filterList = [];
@@ -507,21 +481,6 @@ export default class MyIssuesScreen extends React.Component {
                 };
                 allState.filterList.push(filterItem);
               });
-              // for (let i = 0; i < allState.issuesList.length; i++) {
-              //   if (
-              //     allState.issuesList[i]['place_description'] ==
-              //       'YOVEL 231-236' ||
-              //     allState.issuesList[i]['place_description'] == 'TR4'
-              //   ) {
-              //     let filterItem = {
-              //       id: i,
-              //       name: allState.issuesList[i]['place_description'],
-              //       value: allState.issuesList[i]['place_description'],
-              //       type: 'filter_location',
-              //     };
-              //     allState.filterList.push(filterItem);
-              //   }
-              // }
             } else {
             }
           }
@@ -788,20 +747,20 @@ export default class MyIssuesScreen extends React.Component {
         allState.isFastFilter = true;
       }
 
-      if (allState.isFastFilter) {
-        allState.filterList = [];
-        Object.keys(allState.issueStatusCount).map(key => {
-          let filterItem = {
-            id: key,
-            name: allState.issueStatusCount[key]['name'],
-            color: allState.issueStatusCount[key]['color'],
-            count: allState.issueStatusCount[key]['count'],
-            value: key,
-            type: 'filter_statuses',
-          };
-          allState.filterList.push(filterItem);
-        });
-      }
+      // if (allState.isFastFilter) {
+      //   allState.filterList = [];
+      //   Object.keys(allState.issueStatusCount).map(key => {
+      //     let filterItem = {
+      //       id: key,
+      //       name: allState.issueStatusCount[key]['name'],
+      //       color: allState.issueStatusCount[key]['color'],
+      //       count: allState.issueStatusCount[key]['count'],
+      //       value: key,
+      //       type: 'filter_statuses',
+      //     };
+      //     allState.filterList.push(filterItem);
+      //   });
+      // }
       this.setState(allState, () => {
         this.loadIssues();
       });
@@ -936,23 +895,9 @@ export default class MyIssuesScreen extends React.Component {
 
   clearFastFilter() {
     let allState = this.state;
-    allState.isFastFilter = false;
-    allState.isDefaultFilter = true;
+    allState.isFastFilter = true;
+    allState.isDefaultFilter = false;
     allState.filterList = [];
-    Object.keys(allState.issueStatusCount).map(key => {
-      if (key + '' != '6' && key + '' != '7') {
-        let filterItem = {
-          id: key,
-          name: allState.issueStatusCount[key]['name'],
-          color: allState.issueStatusCount[key]['color'],
-          count: allState.issueStatusCount[key]['count'],
-          value: key,
-          type: 'filter_statuses',
-        };
-        console.log('filter item: ' + JSON.stringify(filterItem));
-        allState.filterList.push(filterItem);
-      }
-    });
     this.setState(allState, () => {
       this.loadIssues();
     });

@@ -203,14 +203,6 @@ export default class IssuesFilterScreen extends React.Component {
             });
             // for (let i=0;i<allState.appConfig.locations)
             break;
-
-          case 'filter_issue_types':
-            for (let j = 0; j < allState.filterIssueType.length; j++) {
-              if (filterItem['name'] == allState.filterIssueType[j]['name']) {
-                allState.filterIssueType[j]['selected'] = true;
-              }
-            }
-            break;
         }
       }
       this.setState(allState);
@@ -413,15 +405,7 @@ export default class IssuesFilterScreen extends React.Component {
         });
       }
     });
-    for (let i = 0; i < allState.filterIssueType.length; i++) {
-      if (allState.filterIssueType[i]['selected']) {
-        selectedFilterList.push({
-          type: 'filter_issue_types',
-          name: allState.filterIssueType[i]['name'],
-          value: allState.filterIssueType[i]['id'],
-        });
-      }
-    }
+
     this.props.closeIssueFilter(JSON.stringify(selectedFilterList), isCancel);
   };
 
@@ -451,10 +435,6 @@ export default class IssuesFilterScreen extends React.Component {
         allState.filterWeekSelected = false;
         allState.filterDaySelected = false;
       }
-    } else if (type.indexOf('type') >= 0) {
-      let pos = type.split('type ')[1];
-      allState.filterIssueType[pos]['selected'] =
-        !allState.filterIssueType[pos]['selected'];
     } else if (type.indexOf('status_') >= 0) {
       let pos = type.split('status_')[1];
       allState.statusCounter[pos]['selected'] =

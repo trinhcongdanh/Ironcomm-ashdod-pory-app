@@ -77,10 +77,8 @@ import {
   sub_option_b_1,
   sub_option_b_2,
 } from '../resource/StringContentDefault';
-// import RNFileSelector from 'react-native-file-selector';
 import RNFloatingInput from '../comp/FloatingInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import RNFetchBlob from 'react-native-fetch-blob';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Geolocation from '@react-native-community/geolocation';
 
@@ -144,7 +142,6 @@ export default class NewIssueScreen extends React.Component {
   }
 
   componentDidMount() {
-    console.log(this.state.listSerialNumber);
     this.loadUserInfo().then(() => {
       this.loadAppConfig().then(() => {
         this.getDeviceTypes();
@@ -152,19 +149,7 @@ export default class NewIssueScreen extends React.Component {
     });
   }
 
-  // getMap() {
-  //   console.log(this.state.placeLat);
-  // }
-
-  // onPlaceChange = text => {
-  //   arrPlaces = text.split(' - ');
-  //   let allState = this.state;
-  //   allState.placeLat = arrPlaces[0];
-  //   allState.placeLon = arrPlaces[1];
-  //   this.setState(allState);
-  // };
   locationGps() {
-    Geolocation.watchPosition(info => console.log(info));
     Geolocation.getCurrentPosition(info => {
       let allState = this.state;
       allState.placeLat = info.coords.latitude;
@@ -182,7 +167,6 @@ export default class NewIssueScreen extends React.Component {
       const value = await AsyncStorage.getItem(key_user_info);
       if (value != null) {
         // value previously stored
-        // console.log(value);
         const jsonValue = JSON.parse(value);
         let allState = this.state;
         allState.userInfo = jsonValue;
@@ -328,7 +312,9 @@ export default class NewIssueScreen extends React.Component {
   };
 
   addIssue = async () => {
-    if (
+    if (this.state.condition == 1 && this.state.descriptionOfIssue == '') {
+      Alert.alert('נא לפרט מה התקלה');
+    } else if (
       this.state.deviceType != '' &&
       this.state.deviceSerialNumber != '' &&
       this.state.is_serial_num == false
