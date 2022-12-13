@@ -568,7 +568,7 @@ export default class NewIssueScreen extends React.Component {
     if (text != '' && allState.showEmptyNotice[5]) {
       allState.showEmptyNotice[5] = false;
     }
-    this.editText.current.updateValue(text);
+    // this.editText.current.updateValue(text);
     this.setState(allState);
   };
 
@@ -1580,7 +1580,7 @@ export default class NewIssueScreen extends React.Component {
                 </TouchableOpacity>
                 <TextInput
                   ref={this.editText}
-                  onChangeTextInput={text => {
+                  onChangeText={text => {
                     this.onIssueDescriptionChange(text);
                   }}
                   value={this.state.descriptionOfIssue}

@@ -82,9 +82,9 @@ import LastUpdateScreen from './ScreenLastUpdate';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 // import firebase from '@react-native-firebase/app';
-// import messaging from '@react-native-firebase/messaging';
+import messaging from '@react-native-firebase/messaging';
 // import auth from '@react-native-firebase/auth';
-// import PushNotification from 'react-native-push-notification';
+import PushNotification from 'react-native-push-notification';
 // import DeviceInfo from 'react-native-device-info';
 
 export default class MyIssuesScreen extends React.Component {
@@ -150,21 +150,21 @@ export default class MyIssuesScreen extends React.Component {
     if (isStartListenFCM == false) {
       isStartListenFCM = true;
       console.log('startFCMListening');
-      // messaging()
-      //   .getToken()
-      //   .then(token => {
-      //     console.log('token: ' + token);
-      //     if (token != '') {
-      //       this.updateFCMWithServer(token);
-      //     }
-      //   });
+      messaging()
+        .getToken()
+        .then(token => {
+          console.log('token: ' + token);
+          if (token != '') {
+            this.updateFCMWithServer(token);
+          }
+        });
 
-      // messaging().onTokenRefresh(token => {
-      //   console.log('token: ' + token);
-      //   if (token != '') {
-      //     this.updateFCMWithServer(token);
-      //   }
-      // });
+      messaging().onTokenRefresh(token => {
+        console.log('token: ' + token);
+        if (token != '') {
+          this.updateFCMWithServer(token);
+        }
+      });
 
       // remoteMessage.data
       // {
@@ -173,59 +173,59 @@ export default class MyIssuesScreen extends React.Component {
       //     "message_text"      => $pnText,
       //     "user_name"         => $currUserName,
       // }
-      // messaging().onMessage(async remoteMessage => {
-      //   console.log('onMessage:');
-      //   console.log(remoteMessage.data);
-      //   PushNotification.localNotification({
-      //     autoCancel: true,
-      //     subText: text_notification_title,
-      //     title: remoteMessage.data.user_name,
-      //     message: remoteMessage.data.message_text,
-      //     tag: remoteMessage.data,
-      //     vibrate: true,
-      //     vibration: 300,
-      //     playSound: true,
-      //     soundName: 'default',
-      //   });
-      // });
+      messaging().onMessage(async remoteMessage => {
+        console.log('onMessage:');
+        console.log(remoteMessage.data);
+        PushNotification.localNotification({
+          autoCancel: true,
+          subText: text_notification_title,
+          title: remoteMessage.data.user_name,
+          message: remoteMessage.data.message_text,
+          tag: remoteMessage.data,
+          vibrate: true,
+          vibration: 300,
+          playSound: true,
+          soundName: 'default',
+        });
+      });
 
-      // messaging().onNotificationOpenedApp(remoteMessage => {
-      //   console.log(
-      //     'Notification caused app to open from background state:',
-      //     remoteMessage.data,
-      //   );
-      //   let issueId = remoteMessage.data.issue_id;
-      //   console.log(issueId);
-      //   this.openActiveIssueScreen(issueId);
-      // });
+      messaging().onNotificationOpenedApp(remoteMessage => {
+        console.log(
+          'Notification caused app to open from background state:',
+          remoteMessage.data,
+        );
+        let issueId = remoteMessage.data.issue_id;
+        console.log(issueId);
+        this.openActiveIssueScreen(issueId);
+      });
 
       // Check whether an initial notification is available
-      // messaging()
-      //   .getInitialNotification()
-      //   .then(remoteMessage => {
-      //     if (remoteMessage) {
-      //       console.log(
-      //         'Notification caused app to open from quit state: myissues',
-      //         remoteMessage.data,
-      //       );
-      //       let issueId = remoteMessage.data.issue_id;
-      //       this.openActiveIssueScreen(issueId);
-      //     }
-      //   });
-      // PushNotification.configure({
-      //   // (required) Called when a remote or local notification is opened or received
-      //   onNotification: notification => {
-      //     console.log('LOCAL NOTIFICATION ==>', notification);
-      //     let data = notification.tag;
-      //     console.log(data);
-      //     if (data) {
-      //       let issueId = data.issue_id;
-      //       this.openActiveIssueScreen(issueId);
-      //     }
-      //   },
-      //   popInitialNotification: true,
-      //   requestPermissions: true,
-      // });
+      messaging()
+        .getInitialNotification()
+        .then(remoteMessage => {
+          if (remoteMessage) {
+            console.log(
+              'Notification caused app to open from quit state: myissues',
+              remoteMessage.data,
+            );
+            let issueId = remoteMessage.data.issue_id;
+            this.openActiveIssueScreen(issueId);
+          }
+        });
+      PushNotification.configure({
+        // (required) Called when a remote or local notification is opened or received
+        onNotification: notification => {
+          console.log('LOCAL NOTIFICATION ==>', notification);
+          let data = notification.tag;
+          console.log(data);
+          if (data) {
+            let issueId = data.issue_id;
+            this.openActiveIssueScreen(issueId);
+          }
+        },
+        popInitialNotification: true,
+        requestPermissions: true,
+      });
     }
     this.checkNotification();
   };
@@ -339,10 +339,6 @@ export default class MyIssuesScreen extends React.Component {
       // error reading value
     }
   };
-
-  // getLocationName(commandId) {
-  //   return this.state.appConfig.place_description[commandId];
-  // }
 
   loadAppConfig = async () => {
     try {
@@ -877,7 +873,7 @@ export default class MyIssuesScreen extends React.Component {
           AsyncStorage.setItem(key_user_info, JSON.stringify(userInfo)).then(
             () => {
               this._closeLoadingBox();
-              this.props.navigation.pop(2);
+              // this.props.navigation.pop(2);
               this.props.navigation.navigate(LoginScreenName);
             },
           );

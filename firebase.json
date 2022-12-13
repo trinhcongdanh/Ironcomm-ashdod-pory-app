@@ -1,0 +1,12 @@
+{
+  "react-native": {
+    "crashlytics_ndk_enabled": true,
+    "crashlytics_debug_enabled": true,
+    "crashlytics_disable_auto_disabler": false,
+    "crashlytics_auto_collection_enabled": true,
+    "messaging_ios_auto_register_for_remote_messages": true,
+    "analytics_auto_collection_enabled": true,
+    "messaging_auto_init_enabled": true,
+    "messaging_android_headless_task_timeout": 300000
+  }
+}
