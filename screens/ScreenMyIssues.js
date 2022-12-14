@@ -300,8 +300,8 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        deviceTypeName.includes(text) ||
-        allState.issuesList[i]['serial_number'].includes(text) ||
+        deviceTypeName.includes(text.toUpperCase()) ||
+        allState.issuesList[i]['serial_number'].includes(text.toUpperCase()) ||
         text == ''
       ) {
         allState.issuesList[i]['isShown'] = true;
@@ -383,6 +383,7 @@ export default class MyIssuesScreen extends React.Component {
       filter_location: 0,
       sort_by: 4,
       project: 1,
+      filter_place_description : '',
     };
     if (this.state.sortText == sortByDateCreated) {
       dataObj.sort_by = 1;
@@ -412,13 +413,13 @@ export default class MyIssuesScreen extends React.Component {
           }
         } else if (filterItem['type'] == 'filter_location') {
           if (
-            dataObj.filter_location == null ||
-            dataObj.filter_location == ''
+            dataObj.filter_place_description == null ||
+            dataObj.filter_place_description == ''
           ) {
-            dataObj.filter_location = filterItem['name'];
+            dataObj.filter_place_description = filterItem['name'];
           } else {
-            dataObj.filter_location =
-              dataObj.filter_location + ',' + filterItem['name'];
+            dataObj.filter_place_description =
+              dataObj.filter_place_description + ',' + filterItem['name'];
           }
         }
       }
