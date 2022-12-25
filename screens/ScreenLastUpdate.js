@@ -200,8 +200,8 @@ export default class LastUpdateScreen extends React.Component {
                   marginStart: 10,
                   marginEnd: 5,
                 }}>
-                <Text style={[mStyle.textIssueName]}>{item.issue_name}</Text>
-                <Text style={[mStyle.textUpdateText]}>{item.update_text}</Text>
+                <Text style={[mStyle.textIssueName]}>{item.issue_id} - {item.update_text}</Text>
+                <Text style={[mStyle.textUpdateText]}>{item.issue_name}</Text>
                 <Text style={[mStyle.textUpdateTime]}>
                   {updated + ' ' + moment(item.created_on).format('DD/MM/YYYY, HH:mm')}
                 </Text>
