@@ -300,8 +300,9 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        deviceTypeName.includes(text.toUpperCase()) ||
+        allState.issuesList[i]['device_type_name'].includes(text.toUpperCase()) ||
         allState.issuesList[i]['serial_number'].includes(text.toUpperCase()) ||
+        allState.issuesList[i]['cart_num'].includes(text.toUpperCase()) ||
         text == ''
       ) {
         allState.issuesList[i]['isShown'] = true;
@@ -1192,7 +1193,7 @@ export default class MyIssuesScreen extends React.Component {
                             {item.place_description}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
-                            {deviceTypeName}
+                          {item.device_type_name}
                           </Text>
                         </View>
                         <View style={{flexDirection: 'row', padding: 5}}>
