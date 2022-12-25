@@ -1926,7 +1926,7 @@ export default class ActiveIssueScreen extends React.Component {
                 justifyContent: 'center',
               }}>
               <Text style={[mStyle.textNormal, {color: 'white'}]}>
-                {this.state.userInfo.first_name}
+                {this.state.issueDetail.creator_user_name}
               </Text>
             </View>
             <View
