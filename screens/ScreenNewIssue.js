@@ -1118,6 +1118,7 @@ export default class NewIssueScreen extends React.Component {
                     : '#000',
                 }}>
                 <RNFloatingInput
+                  autoCapitalize = {"characters"}
                   ref={this.deviceSerialInput}
                   label={deviceSerialName}
                   labelSize={12}
@@ -1138,7 +1139,7 @@ export default class NewIssueScreen extends React.Component {
                   editable={true}
                   value={this.state.deviceSerialNumber}
                   onChangeTextInput={text => {
-                    this.onDeviceSerialNumberChange(text);
+                    this.onDeviceSerialNumberChange(text.toUpperCase());
                   }}></RNFloatingInput>
               </View>
               <TouchableOpacity
