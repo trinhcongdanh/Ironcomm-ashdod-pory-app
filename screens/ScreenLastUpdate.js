@@ -203,7 +203,7 @@ export default class LastUpdateScreen extends React.Component {
                 <Text style={[mStyle.textIssueName]}>{item.issue_name}</Text>
                 <Text style={[mStyle.textUpdateText]}>{item.update_text}</Text>
                 <Text style={[mStyle.textUpdateTime]}>
-                  {updated + ' ' + moment(item.created_on).format('DD/MM/YYYY')}
+                  {updated + ' ' + moment(item.created_on).format('DD/MM/YYYY, HH:mm')}
                 </Text>
               </View>
               <Image
