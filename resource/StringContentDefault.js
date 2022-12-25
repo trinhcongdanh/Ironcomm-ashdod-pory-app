@@ -146,4 +146,4 @@ export const rejectConfirmForType3ButtonNo = 'דחה';
 export const rejectConfirmForType3ButtonYes = 'קבל';
 
 export const conditon = 'מכולה תקולה';
-export const warning = 'אזהרת חמ״ס';
+export const warning = 'אזהרת חומ״ס';
