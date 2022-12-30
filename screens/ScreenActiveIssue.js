@@ -134,6 +134,7 @@ import {
   warning,
   device,
   place,
+  eventNumber,
 } from '../resource/StringContentDefault';
 import {Picker} from '@react-native-picker/picker';
 import moment from 'moment';
@@ -1937,7 +1938,11 @@ export default class ActiveIssueScreen extends React.Component {
                 justifyContent: 'center',
               }}>
               <Text style={[mStyle.textNormal, {color: 'white'}]}>
-                {this.state.userInfo.unit_number}
+                {eventNumber}
+              </Text>
+              <Text
+                style={[mStyle.textNormal, {color: 'white', marginLeft: 4}]}>
+                {this.state.issueId}
               </Text>
             </View>
           </View>

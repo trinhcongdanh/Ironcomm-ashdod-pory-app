@@ -29,7 +29,7 @@ import {
   filterCenter,
   filterSouth,
   filterNorth,
-  sectionIssueTypeTitle,
+  sectionDeviceTypeTitle,
   applySelectedFilter,
   filterType,
 } from '../resource/StringContentDefault';
@@ -75,7 +75,7 @@ export default class IssuesFilterScreen extends React.Component {
   }
 
   componentDidMount() {
-    console.log('componentDidMount');
+    // console.log('componentDidMount');
     I18nManager.forceRTL(true);
     this._showLoadingBox();
     this.loadUserInfo().then(() => {
@@ -127,6 +127,7 @@ export default class IssuesFilterScreen extends React.Component {
         let appConfig = {
           issue_statuses: jsonValue.issue_statuses,
           locations: {},
+          device_types: jsonValue.containers,
         };
         let locationsObj = Object.assign({}, jsonValue.place_description);
         Object.keys(locationsObj).map(key => {
@@ -135,6 +136,7 @@ export default class IssuesFilterScreen extends React.Component {
             name: locationsObj[key],
           };
         });
+
         allState.appConfig = appConfig;
         this.setState(allState);
       } else {
@@ -170,7 +172,7 @@ export default class IssuesFilterScreen extends React.Component {
     let filterList = this.props.filterList;
     let isFastFilter = this.props.isFastFilter;
     let allState = this.state;
-    console.log(JSON.stringify(allState));
+    // console.log(JSON.stringify(allState));
     if (!isFastFilter) {
       for (let i = 0; i < filterList.length; i++) {
         let filterItem = filterList[i];
@@ -201,7 +203,15 @@ export default class IssuesFilterScreen extends React.Component {
                 allState.appConfig.locations[key]['selected'] = true;
               }
             });
-            // for (let i=0;i<allState.appConfig.locations)
+          case 'filter_device':
+            Object.keys(allState.appConfig.device_types).map(key => {
+              if (
+                filterItem['name'] ==
+                allState.appConfig.device_types[key]['name']
+              ) {
+                allState.appConfig.device_types[key]['selected'] = true;
+              }
+            });
             break;
         }
       }
@@ -243,7 +253,7 @@ export default class IssuesFilterScreen extends React.Component {
       .then(responseJson => {
         this._closeLoadingBox();
         if (responseJson.rc == rc_success) {
-          console.log(responseJson);
+          // console.log(responseJson);
           let allState = this.state;
           let issueTypes = responseJson.issue_types;
           if (issueTypes != null) {
@@ -361,6 +371,51 @@ export default class IssuesFilterScreen extends React.Component {
     return locationComponent;
   }
 
+  displayDeviceTypeSelection() {
+    let deviceTypeComponent = [];
+    let deviceTypeList = this.state.appConfig.device_types;
+    if (deviceTypeList != null) {
+      Object.keys(deviceTypeList).map(key => {
+        // console.log(this.state.appConfig.device_types[key]['selected']);
+        deviceTypeComponent.push(
+          <TouchableOpacity
+            key={key}
+            onPress={() => {
+              this.updateFilter('deviceType_' + key);
+            }}
+            style={[
+              this.state.appConfig.device_types[key]['selected']
+                ? mStyleFilterType.selectedContainer
+                : mStyleFilterType.normalContainer,
+              {marginTop: 5, marginBottom: 5},
+            ]}>
+            <Text
+              style={
+                this.state.appConfig.device_types[key]['selected']
+                  ? mStyleFilterType.selectedText
+                  : mStyleFilterType.normalText
+              }>
+              {deviceTypeList[key]['name']}
+            </Text>
+            <Image
+              source={require('../image/icon_close_white.png')}
+              resizeMode="contain"
+              style={{
+                width: screenWidth * 0.03,
+                height: screenWidth * 0.03,
+                marginStart: 5,
+                opacity: this.state.appConfig.device_types[key]['selected']
+                  ? 1
+                  : 0,
+              }}
+            />
+          </TouchableOpacity>,
+        );
+      });
+    }
+    return deviceTypeComponent;
+  }
+
   callCloseSelf = isCancel => {
     let selectedFilterList = [];
     let allState = this.state;
@@ -402,6 +457,15 @@ export default class IssuesFilterScreen extends React.Component {
           type: 'filter_location',
           name: allState.appConfig.locations[key]['name'],
           value: key,
+        });
+      }
+    });
+    Object.keys(allState.appConfig.device_types).map(key => {
+      if (allState.appConfig.device_types[key]['selected']) {
+        selectedFilterList.push({
+          type: 'filter_device',
+          name: allState.appConfig.device_types[key]['name'],
+          value: allState.appConfig.device_types[key]['id'],
         });
       }
     });
@@ -447,6 +511,10 @@ export default class IssuesFilterScreen extends React.Component {
       // });
       allState.appConfig.locations[pos]['selected'] =
         !allState.appConfig.locations[pos.toString()]['selected'];
+    } else if (type.indexOf('deviceType_') >= 0) {
+      let pos = type.split('deviceType_')[1];
+      allState.appConfig.device_types[pos]['selected'] =
+        !allState.appConfig.device_types[pos.toString()]['selected'];
     }
     this.setState(allState);
   };
@@ -655,10 +723,10 @@ export default class IssuesFilterScreen extends React.Component {
                   textAlign: 'center',
                   color: c_section_title,
                   marginTop: 15,
-                  display: 'none',
+                  marginBottom: 10,
                 },
               ]}>
-              {sectionIssueTypeTitle}
+              {sectionDeviceTypeTitle}
             </Text>
             <View
               style={{
@@ -666,10 +734,9 @@ export default class IssuesFilterScreen extends React.Component {
                 justifyContent: 'space-around',
                 flexWrap: 'wrap',
                 backgroundColor: '#ffffff',
-                display: 'none',
                 padding: 10,
               }}>
-              {/*{this.displayIssueType()}*/}
+              {this.displayDeviceTypeSelection()}
             </View>
           </ScrollView>
         </View>

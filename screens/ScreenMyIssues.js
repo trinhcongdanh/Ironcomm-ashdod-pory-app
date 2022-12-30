@@ -300,7 +300,9 @@ export default class MyIssuesScreen extends React.Component {
     let allState = this.state;
     for (let i = 0; i < allState.issuesList.length; i++) {
       if (
-        allState.issuesList[i]['device_type_name'].includes(text.toUpperCase()) ||
+        allState.issuesList[i]['device_type_name'].includes(
+          text.toUpperCase(),
+        ) ||
         allState.issuesList[i]['serial_number'].includes(text.toUpperCase()) ||
         allState.issuesList[i]['cart_num'].includes(text.toUpperCase()) ||
         text == ''
@@ -381,10 +383,10 @@ export default class MyIssuesScreen extends React.Component {
       request: rq_get_issues,
       token: this.state.userInfo.token,
       filter_period: 0,
-      filter_location: 0,
       sort_by: 4,
       project: 1,
-      filter_place_description : '',
+      filter_place_description: '',
+      filter_device_type: '',
     };
     if (this.state.sortText == sortByDateCreated) {
       dataObj.sort_by = 1;
@@ -421,6 +423,16 @@ export default class MyIssuesScreen extends React.Component {
           } else {
             dataObj.filter_place_description =
               dataObj.filter_place_description + ',' + filterItem['name'];
+          }
+        } else if (filterItem['type'] == 'filter_device') {
+          if (
+            dataObj.filter_device_type == null ||
+            dataObj.filter_device_type == ''
+          ) {
+            dataObj.filter_device_type = filterItem['value'];
+          } else {
+            dataObj.filter_device_type =
+              dataObj.filter_device_type + ',' + filterItem['value'];
           }
         }
       }
@@ -1193,7 +1205,7 @@ export default class MyIssuesScreen extends React.Component {
                             {item.place_description}
                           </Text>
                           <Text style={mStyleIssueItem.textDeviceName}>
-                          {item.device_type_name}
+                            {item.device_type_name}
                           </Text>
                         </View>
                         <View style={{flexDirection: 'row', padding: 5}}>

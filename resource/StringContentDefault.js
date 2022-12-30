@@ -33,7 +33,7 @@ export const sectionLocationTitle = 'מיקום';
 export const filterCenter = 'מרכז';
 export const filterSouth = 'דרום';
 export const filterNorth = 'צפון';
-export const sectionIssueTypeTitle = 'סוג תקלה';
+export const sectionDeviceTypeTitle = 'סוג אירוע';
 export const filterType = 'תקלה';
 export const applySelectedFilter = 'פילטור';
 
@@ -146,4 +146,6 @@ export const rejectConfirmForType3ButtonNo = 'דחה';
 export const rejectConfirmForType3ButtonYes = 'קבל';
 
 export const conditon = 'מכולה תקולה';
-export const warning = 'אזהרת חומ״ס';
+export const warning = 'אזהרת חומ"ס';
+
+export const eventNumber = 'מספר אירוע:';
